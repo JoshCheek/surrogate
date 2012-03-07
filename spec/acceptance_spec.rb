@@ -1,39 +1,39 @@
-require 'cobbler'
+require 'mockingbird'
 
-describe Cobbler do
+describe Mockingbird do
   it 'passes this acceptance spec' do
     module Mock
       class User
-        # things cobbled inside the block are cobbled to User's singleton class (ie User.find)
-        Cobbler.cobble self do
+        # things sung inside the block are sungd to User's singleton class (ie User.find)
+        Mockingbird.song_for self do
 
           # the block is used as a default value unless told to find something
-          cobble :find do |id|
+          sing :find do |id|
             new id: id
           end
         end
 
-        # things cobbled outside the block are cobled to User (ie user.id)
+        # things sung outside the block are sung at User (ie user.id)
 
-        cobble :initialize do |id|
+        sing :initialize do |id|
           @id = id # can set the @id ivar to give the #id method a default
         end
 
-        cobble :id
-        cobble :name, default: 'Josh'
-        cobble :address
+        sing :id
+        sing :name, default: 'Josh'
+        sing :address
 
         # bang will set this as the ivar value before initialization
-        cobble :phone_numbers, default!: []
+        sing :phone_numbers, default!: []
 
         # hook will be invoked after each invocation, args passed to method will be passed to hook
-        cobble :add_phone_number, default: nil, hook: lambda { |area_code, number| @phone_numbers << [area_code, number] }
+        sing :add_phone_number, default: nil, hook: lambda { |area_code, number| @phone_numbers << [area_code, number] }
       end
     end
 
 
     # don't affect the real user class
-    user_class = Mock::User.cobbled # since classes are singletons, this will use prototypical inheritance to leave the real mock class immaculate (ie it is a clone)
+    user_class = Mock::User.clone
 
 
     # =====  set a default  =====
@@ -87,7 +87,7 @@ describe Cobbler do
     Mock::User.new(1).name.should == 'Josh'
 
     # error is raised if you try to access an attribute that hasn't been set and has no default
-    expect { Mock::User.new(1).address }.to raise_error Cobbler::UnpreparedMethodError
+    expect { Mock::User.new(1).address }.to raise_error Mockingbird::UnpreparedMethodError
     Mock::User.new(1).will_have(:address, '123 Fake St.').address.should == '123 Fake St.'
 
     # methods with multiple args

@@ -1,9 +1,9 @@
-require "cobbler/version"
+require "mockingbird/version"
 
-module Cobbler
+module Mockingbird
   UnpreparedMethodError = Class.new StandardError
 
-  def self.cobble(klass)
+  def self.song_for(klass)
     klass.extend self
     define_initializer_for klass
     klass
@@ -11,14 +11,14 @@ module Cobbler
 
   def self.define_initializer_for(klass)
     klass.send :define_method, :initialize do |*args|
-      Cobbler.each_initialization_default_for klass do |ivar_name, value|
+      Mockingbird.each_initialization_default_for klass do |ivar_name, value|
         instance_variable_set ivar_name, value
       end
     end
   end
 
   def self.each_initialization_default_for(klass, &block)
-    defaults = klass.instance_variable_get(:@__cobbler_initializers) || Hash.new
+    defaults = klass.instance_variable_get(:@__mockingbird_initializers) || Hash.new
     defaults.each &block
   end
 
@@ -33,18 +33,17 @@ module Cobbler
 
   def self.add_default_on_initialization(klass, ivar_name, value)
     klass.instance_eval do
-      @__cobbler_initializers ||= {}
-      @__cobbler_initializers.merge!  "@#{ivar_name}" => value
+      @__mockingbird_initializers ||= {}
+      @__mockingbird_initializers.merge!  "@#{ivar_name}" => value
     end
   end
 end
 
 
 
-module Cobbler
-
-  def cobble(meth, options={})
-    Cobbler.add_default_on_initialization self, meth, options[:default!] if options.has_key? :default!
-    Cobbler.add_instance_method_to self, meth, options
+module Mockingbird
+  def sing(meth, options={})
+    Mockingbird.add_default_on_initialization self, meth, options[:default!] if options.has_key? :default!
+    Mockingbird.add_instance_method_to self, meth, options
   end
 end

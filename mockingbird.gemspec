@@ -1,10 +1,10 @@
 # -*- encoding: utf-8 -*-
 $:.push File.expand_path("../lib", __FILE__)
-require "cobbler/version"
+require "mockingbird/version"
 
 Gem::Specification.new do |s|
   s.name        = "cobbler"
-  s.version     = Cobbler::VERSION
+  s.version     = Mockingbird::VERSION
   s.authors     = ["Josh Cheek"]
   s.email       = ["josh.cheek@gmail.com"]
   s.homepage    = ""
