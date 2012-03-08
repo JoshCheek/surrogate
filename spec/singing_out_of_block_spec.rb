@@ -25,14 +25,33 @@ describe 'singing out of a block' do
     shared_for_song_named_wink("will_<song>") { |mock| mock.will_wink }
     # shared_setter("will_<song>") { |mock| mock.will_wink }
 
-    context 'will_<song>_queue' do
-      it 'creates a queue of things to find then returns to normal behaviour' do
-        pending "can't support this with current implementation" do
-          mock = mocked_class.new
-          mock.will_win_queue :quickly, :slowly
-          mock.wink.should == :quickly
-          mock.wink.should == :slowly
-        end
+    context 'will_<song>_queue creates a queue of things to find then returns to normal behaviour' do
+      specify 'when there is no default' do
+        mock = mocked_class.new
+        mock.will_wink_queue :quickly, :slowly
+        mock.wink.should == :quickly
+        mock.wink.should == :slowly
+        expect { mock.wink }.to raise_error Mockingbird::UnpreparedMethodError
+      end
+
+      specify 'when there is a default' do
+        mocked_class = Mockingbird.song_for(Class.new)
+        mocked_class.sing :connect, default: :default
+        mock = mocked_class.new
+        mock.will_connect_queue 1, 2
+        mock.connect.should == 1
+        mock.connect.should == 2
+        mock.connect.should == :default
+      end
+
+      specify 'when there is a default!' do
+        mocked_class = Mockingbird.song_for(Class.new)
+        mocked_class.sing :connect, default!: :default
+        mock = mocked_class.new
+        mock.will_connect_queue 1, 2
+        mock.connect.should == 1
+        mock.connect.should == 2
+        mock.instance_variable_get(:@connect).should == :default
       end
     end
   end

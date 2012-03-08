@@ -33,7 +33,7 @@ describe Mockingbird do
 
 
     # don't affect the real user class
-    user_class = Mock::User.clone
+    user_class = Mock::User.clone # <-- can't use clone, need a good word for this
 
 
     # =====  set a default  =====

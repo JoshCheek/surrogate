@@ -35,10 +35,28 @@ class Mockingbird
       klass.send :define_method, "will_#{songname}" do |*args, &block|
         @mockingbird.prepare_song songname, args, &block
       end
+
+      klass.send :define_method, "will_#{songname}_queue" do |*args, &block|
+        @mockingbird.prepare_song_queue songname, args, &block
+      end
     end
   end
 end
 
+class Mockingbird
+  class SongQueue < Struct.new(:queue)
+    QueueEmpty = Class.new StandardError
+
+    def dequeue
+      raise QueueEmpty if empty?
+      queue.shift
+    end
+
+    def empty?
+      queue.empty?
+    end
+  end
+end
 
 class Mockingbird
   class Bird
@@ -54,21 +72,30 @@ class Mockingbird
     end
 
     def play_song(songname, args, &block)
-      return get_ivar songname if has_ivar? songname
-      get_default songname
+      return get_default songname unless has_ivar? songname
+      ivar = get_ivar songname
+      return var_from_queue ivar, songname if ivar.kind_of? SongQueue
+      ivar
+    end
+
+    def var_from_queue(queue, songname)
+      result = queue.dequeue
+      reset_var songname if queue.empty?
+      result
     end
 
     def prepare_song(songname, args, &block)
       set_ivar songname, *args
     end
 
+    def prepare_song_queue(songname, args, &block)
+      set_ivar songname, SongQueue.new(args)
+    end
+
     def get_default(songname)
       songs[songname].fetch :default do
         raise UnpreparedMethodError, "#{songname} hasn't been invoked without being told how to behave"
       end
-    rescue NoMethodError
-      require 'pry'
-      binding.pry
     end
 
   private
@@ -84,12 +111,21 @@ class Mockingbird
       instance.instance_variable_defined? "@#{songname}"
     end
 
+    def reset_var(songname)
+      unset_ivar songname
+      set_ivar songname, songs[songname][:default!] if songs[songname].has_key? :default!
+    end
+
     def set_ivar(songname, value)
       instance.instance_variable_set "@#{songname}", value
     end
 
     def get_ivar(songname)
       instance.instance_variable_get "@#{songname}"
+    end
+
+    def unset_ivar(songname)
+      instance.send :remove_instance_variable, "@#{songname}"
     end
   end
 end
