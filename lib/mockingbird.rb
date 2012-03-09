@@ -34,12 +34,9 @@ private
 
   def self.hijack_instantiation_of(klass)
     def klass.new(*args)
-      instance = nil
-      Mockingbird.without_initialize self do
-        instance = super()
-        egg = @egg
-        instance.instance_eval { @mockingbird = egg.hatch instance }
-      end
+      instance = allocate
+      egg = @egg
+      instance.instance_eval { @mockingbird = egg.hatch instance }
       instance.send :initialize, *args
       instance
     end
@@ -49,31 +46,6 @@ private
     def klass.sing(song, options={}, &block)
       @egg.sing song, options, block
     end
-  end
-
-  # man, it took me forever to figure this out -.^
-  def self.without_initialize(klass, &block)
-    init = klass.instance_method :initialize
-    return block.call if not_overridden? init
-    owner = init.owner
-    init  = owner.instance_method :initialize
-    warnings_please_stfu do
-      owner.send :remove_method, :initialize
-      without_initialize klass, &block
-      owner.send :define_method, :initialize, init
-    end
-  end
-
-  def self.warnings_please_stfu
-    saved_verbosity = $-v
-    $-v = nil
-    yield
-  ensure
-    $-v = saved_verbosity
-  end
-
-  def self.not_overridden?(init)
-    init.owner == BasicObject
   end
 end
 
