@@ -1,6 +1,31 @@
 require "mockingbird/version"
 
 class Mockingbird
+  class Options
+    attr_accessor :options, :default_proc
+
+    def initialize(options, default_proc)
+      self.options, self.default_proc = options, default_proc
+    end
+
+    def has?(name)
+      options.has_key? name
+    end
+
+    def [](key)
+      options[key]
+    end
+
+    def default(instance, args, &no_default)
+      return options[:default] if options.has_key? :default
+      return instance.instance_exec(*args, &default_proc) if default_proc
+      no_default.call
+    end
+  end
+end
+
+
+class Mockingbird
   class Egg
     attr_accessor :klass
 
@@ -17,9 +42,9 @@ class Mockingbird
       klass.singleton_class.send :define_method, :sing, &method(:sing)
     end
 
-    def sing(songname, options={})
+    def sing(songname, options={}, block)
       add_song_methods_for songname
-      songs[songname] = options
+      songs[songname] = Options.new options, block
     end
 
     def songs
@@ -72,7 +97,7 @@ class Mockingbird
     end
 
     def play_song(songname, args, &block)
-      return get_default songname unless has_ivar? songname
+      return get_default songname, args unless has_ivar? songname
       ivar = get_ivar songname
       return var_from_queue ivar, songname if ivar.kind_of? SongQueue
       ivar
@@ -92,8 +117,8 @@ class Mockingbird
       set_ivar songname, SongQueue.new(args)
     end
 
-    def get_default(songname)
-      songs[songname].fetch :default do
+    def get_default(songname, args)
+      songs[songname].default instance, args do
         raise UnpreparedMethodError, "#{songname} hasn't been invoked without being told how to behave"
       end
     end
@@ -102,7 +127,7 @@ class Mockingbird
 
     def set_hard_defaults
       songs.each do |songname, options|
-        next unless options.has_key? :default!
+        next unless options.has? :default!
         set_ivar songname, options[:default!]
       end
     end
@@ -113,7 +138,7 @@ class Mockingbird
 
     def reset_var(songname)
       unset_ivar songname
-      set_ivar songname, songs[songname][:default!] if songs[songname].has_key? :default!
+      set_ivar songname, songs[songname][:default!] if songs[songname].has? :default!
     end
 
     def set_ivar(songname, value)
@@ -134,7 +159,6 @@ end
 
 class Mockingbird
   UnpreparedMethodError = Class.new StandardError
-
 
   def self.song_for(klass, &playlist)
     song_for_klass klass
@@ -165,14 +189,14 @@ private
     def klass.new(*args)
       instance = super
       egg = @egg
-      instance.instance_eval { @mockingbird = egg.hatch self }
+      instance.instance_eval { @mockingbird = egg.hatch instance }
       instance
     end
   end
 
   def self.teach_singing_to(klass)
-    def klass.sing(song, options={})
-      @egg.sing song, options
+    def klass.sing(song, options={}, &block)
+      @egg.sing song, options, block
     end
   end
 end

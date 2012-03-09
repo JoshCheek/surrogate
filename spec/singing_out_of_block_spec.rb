@@ -90,5 +90,20 @@ describe 'singing out of a block' do
       mocked = mocked_class.new
       mocked.instance_variable_get(:@meth).should == 123
     end
+
+    describe 'it takes a block whos return value will be used as the default' do
+      specify 'the block is instance evaled' do
+        mocked_class.sing(:meth) { self }
+        instance = mocked_class.new
+        instance.meth.should equal instance
+      end
+
+      specify 'arguments passed to the method will be passed to the block' do
+        mocked_class.sing(:meth) { |*args| args }
+        instance = mocked_class.new
+        instance.meth(1).should == [1]
+        instance.meth(1, 2).should == [1, 2]
+      end
+    end
   end
 end
