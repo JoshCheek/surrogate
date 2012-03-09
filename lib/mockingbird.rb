@@ -17,7 +17,14 @@ private
   def self.song_for_klass(klass)
     an_egg_for              klass
     teach_singing_to        klass
+    remember_invocations_on klass
     hijack_instantiation_of klass
+  end
+
+  def self.remember_invocations_on(klass)
+    invoker = lambda { |songname| @mockingbird.invocations songname }
+    klass.send :define_method, :invocations, &invoker
+    klass.define_singleton_method :invocations, &invoker
   end
 
   def self.song_for_singleton_class(klass, singleton, playlist)

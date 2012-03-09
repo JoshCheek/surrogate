@@ -1,4 +1,5 @@
 require 'mockingbird'
+require 'mockingbird/rspec_matchers'
 
 describe Mockingbird do
   it 'passes this acceptance spec' do
@@ -50,8 +51,8 @@ describe Mockingbird do
     # might also be nice to provide a way to raise an error
 
     # tracking invocations
-    user_class.should have_been_told_to(:find, 4.times)  # can't figure out how to determine what kind of enumerator this is, but I should be able to do enum.to_a == enum.size.times.to_a
-    user_class.should have_been_asked_to(:find, 4.times)
+    user_class.should have_been_told_to(:find).times(4)
+    user_class.should have_been_asked_to(:find).times(4)
 
     # tracking invocations with arguments
     user_class.should have_been_told_to(:find).with(11)

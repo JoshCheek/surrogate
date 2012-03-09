@@ -8,7 +8,9 @@ describe 'singing in the block' do
       end
     end
 
-    mocked_class.find.should == 123
+    mocked_class.invocations(:find).should == []
+    mocked_class.find(1).should == 123
+    mocked_class.invocations(:find).should == [[1]]
 
     pending 'need to find something better than clone' do
       mocked = mocked_class.clone

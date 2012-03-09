@@ -1,4 +1,5 @@
 require 'mockingbird'
+require 'mockingbird/rspec_matchers'
 
 describe 'singing out of a block' do
   let(:mocked_class) { Mockingbird.song_for Class.new }
@@ -139,6 +140,19 @@ describe 'singing out of a block' do
         instance.meth(1).should == [1]
         instance.meth(1, 2).should == [1, 2]
       end
+    end
+
+    it 'remembers what it was invoked with' do
+      mocked_class.sing :meth, default: 123
+      mock = mocked_class.new
+      mock.meth 1
+      mock.meth 1, 2
+      mock.meth [1, 2]
+      mock.invocations(:meth).should == [
+        [1],
+        [1, 2],
+        [[1, 2]],
+      ]
     end
   end
 end
