@@ -91,6 +91,41 @@ describe 'singing out of a block' do
       mocked.instance_variable_get(:@meth).should == 123
     end
 
+    describe 'initialization' do
+      specify 'song can be an initialize method' do
+        mocked_class.sing(:initialize) { @abc = 123 }
+        mocked_class.new.instance_variable_get(:@abc).should == 123
+      end
+
+      specify 'initialize exsits even if error is raised' do
+        mocked_class.sing(:initialize) { raise "simulate runtime error" }
+        expect { mocked_class.new }.to raise_error(RuntimeError, /simulate/)
+        expect { mocked_class.new }.to raise_error(RuntimeError, /simulate/)
+      end
+
+      specify 'receives args' do
+        mocked_class.sing(:initialize) { |num| @num = num }
+        mocked_class.new(100).instance_variable_get(:@num).should == 100
+      end
+
+      specify 'default! variables are defined before initialize is called' do
+        mocked_class.sing(:initialize) { @abc *= 2 }
+        mocked_class.sing :abc, default!: 12
+        mocked_class.new.abc.should == 24
+      end
+
+      specify 'even works with multiple levels of inheritance' do
+        superclass = Class.new
+        superclass.send(:define_method, :initialize) { @a = 1 }
+        subclass = Class.new superclass
+        subclass.send(:define_method, :initialize) { @b = 2 }
+        mocked_subclass = Mockingbird.song_for Class.new subclass
+        mocked_subclass.sing :abc
+        mocked_subclass.new.instance_variable_get(:@a).should == nil
+        mocked_subclass.new.instance_variable_get(:@b).should == 2
+      end
+    end
+
     describe 'it takes a block whos return value will be used as the default' do
       specify 'the block is instance evaled' do
         mocked_class.sing(:meth) { self }
