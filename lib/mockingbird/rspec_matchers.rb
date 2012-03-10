@@ -16,8 +16,28 @@ handler = Struct.new :verb, :instance do
   end
 
   def failure_message_for_should_not
-    time_or_times = times_invoked > 1 ? 'times' : 'time'
-    "shouldn't have been told to #{verb}, but was told to #{verb} #{times_invoked} #{time_or_times}"
+    "shouldn't have been told to #{verb}, but was told to #{verb} #{times_msg times_invoked}"
+  end
+
+  def times_msg(n)
+    "#{n} time#{'s' unless n == 1}"
+  end
+end
+
+
+with_arguments = Module.new do
+  attr_accessor :expected_arguments
+  
+  def match?
+    invocations.include? expected_arguments
+  end
+
+  def failure_message_for_should
+    "should have been told to #{verb} with `#{expected_arguments.map(&:inspect).join ', '}'"
+  end
+
+  def failure_message_for_should_not
+    failure_message_for_should.sub "should", "should not"
   end
 end
 
@@ -29,14 +49,11 @@ match_num_times = Module.new do
   end
 
   def failure_message_for_should
-    "should have been told to wink #{expected_times_invoked} " \
-    "time#{'s' if expected_times_invoked != 1} but was told to wink " \
-    "#{times_invoked} time#{'s' if times_invoked != 1}"
+    "should have been told to #{verb} #{times_msg expected_times_invoked} but was told to #{verb} #{times_msg times_invoked}"
   end
 
   def failure_message_for_should_not
-    "shouldn't have been told to wink #{expected_times_invoked} " \
-      "time#{'s' if expected_times_invoked != 1}, but was"
+    "shouldn't have been told to #{verb} #{times_msg expected_times_invoked}, but was"
   end
 end
 
@@ -54,17 +71,14 @@ RSpec::Matchers.define :have_been_told_to do |verb|
     use_case.expected_times_invoked = number
   end
 
-  failure_message_for_should do
-    use_case.failure_message_for_should
+  chain :with do |*arguments|
+    use_case.extend with_arguments
+    use_case.expected_arguments = arguments
   end
 
-  failure_message_for_should_not do |actual|
-    use_case.failure_message_for_should_not
-  end
-
-  description do
-    "Assert the object was told to do something"
-  end
+  failure_message_for_should     { use_case.failure_message_for_should }
+  failure_message_for_should_not { use_case.failure_message_for_should_not }
+  description                    { "Assert the object was told to do something" }
 end
 
 

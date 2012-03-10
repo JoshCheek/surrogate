@@ -34,12 +34,28 @@ describe 'RSpec matchers' do
     end
 
 
-    example 'with arguments' do
-      pending
-      mocked_class.sing :kick, default: []
-      mock = mocked_class.new
-      mock.kick 1, 2, 3
-      mock.should have_been_told_to(:kick).with(1, 2, 3)
+    describe 'specifying which arguments it should have been invoked with' do
+      before { mocked_class.sing :smile, default: nil }
+      let(:instance) { mocked_class.new }
+
+      example 'default use case' do
+        instance.should_not have_been_told_to(:smile).with(1, 2, 3)
+        instance.smile 1, 2
+        instance.should_not have_been_told_to(:smile).with(1, 2, 3)
+        instance.smile 1, 2, 3
+        instance.should have_been_told_to(:smile).with(1, 2, 3)
+      end
+
+      example 'failure message for should' do
+        expect { instance.should have_been_told_to(:smile).with(1, '2') }.to \
+          raise_error(RSpec::Expectations::ExpectationNotMetError, /should have been told to smile with `1, "2"'/)
+      end
+
+      example 'failure message for should not' do
+        instance.smile 1, '2'
+        expect { instance.should_not have_been_told_to(:smile).with(1, '2') }.to \
+          raise_error(RSpec::Expectations::ExpectationNotMetError, /should not have been told to smile with `1, "2"'/)
+      end
     end
 
 
