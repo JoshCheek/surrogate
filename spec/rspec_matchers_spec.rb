@@ -90,4 +90,37 @@ describe 'RSpec matchers' do
       end
     end
   end
+
+
+  describe 'conjunction of with(args) and times(n)' do
+    before { mocked_class.sing :wink, default: nil }
+    let(:instance) { mocked_class.new }
+
+    example 'default use case' do
+      instance.should have_been_told_to(:wink).times(0).with(1, '2')
+      instance.should_not have_been_told_to(:wink).times(1).with(1, '2')
+      instance.wink
+      instance.should have_been_told_to(:wink).times(0).with(1, '2')
+      instance.should_not have_been_told_to(:wink).times(1).with(1, '2')
+      instance.wink 1, '2'
+      instance.should have_been_told_to(:wink).times(1).with(1, '2')
+      instance.wink 1, '2' # correct one
+      instance.wink 1, '3'
+      instance.wink 2, '2'
+      instance.wink 1, '2', 3
+      instance.should have_been_told_to(:wink).times(2).with(1, '2')
+    end
+
+    example 'failure message for should' do
+      expect { instance.should have_been_told_to(:wink).times(1).with(1, '2') }.to \
+        raise_error(RSpec::Expectations::ExpectationNotMetError, /should have been told to wink 1 time with `1, "2"'/)
+    end
+
+    example 'failure message for should not' do
+      instance.wink 1, '2'
+      instance.wink 1, '2'
+      expect { instance.should_not have_been_told_to(:wink).times(2).with(1, '2') }.to \
+        raise_error(RSpec::Expectations::ExpectationNotMetError, /should not have been told to wink 2 times with `1, "2"'/)
+    end
+  end
 end
