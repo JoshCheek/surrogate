@@ -33,7 +33,13 @@ with_arguments = Module.new do
   end
 
   def failure_message_for_should
-    "should have been told to #{verb} with `#{expected_arguments.map(&:inspect).join ', '}'"
+    "should have been told to #{verb} with `#{expected_arguments.map(&:inspect).join ', '}', but #{actual_invocation}"
+  end
+
+  def actual_invocation
+    return "was never invoked" if times_invoked.zero?
+    inspected_invocations = invocations.map { |invocation| "`#{invocation.map(&:inspect).join ', '}'" }
+    "got #{inspected_invocations.join ', '}"
   end
 
   def failure_message_for_should_not
@@ -62,16 +68,26 @@ end
 match_num_times_with = Module.new do
   attr_accessor :expected_times_invoked, :expected_arguments
 
+  def times_invoked_with_expected_args
+    invocations.select { |invocation| invocation == expected_arguments }.size
+  end
+
   def match?
-    invocations.select { |invocation| invocation == expected_arguments }.size == expected_times_invoked
+    times_invoked_with_expected_args == expected_times_invoked
   end
 
   def failure_message_for_should
-    "should have been told to #{verb} #{times_msg expected_times_invoked} with `#{expected_arguments.map(&:inspect).join ', '}'"
+    "should have been told to #{verb} #{times_msg expected_times_invoked} with " \
+      "`#{expected_arguments.map(&:inspect).join ', '}', but #{actual_invocation}"
   end
 
   def failure_message_for_should_not
     failure_message_for_should.sub "should", "should not"
+  end
+
+  def actual_invocation
+    return "was never told to" if times_invoked.zero?
+    "got it #{times_msg times_invoked_with_expected_args}"
   end
 end
 

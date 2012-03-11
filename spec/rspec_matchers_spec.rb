@@ -48,7 +48,12 @@ describe 'RSpec matchers' do
 
       example 'failure message for should' do
         expect { instance.should have_been_told_to(:smile).with(1, '2') }.to \
-          raise_error(RSpec::Expectations::ExpectationNotMetError, /should have been told to smile with `1, "2"'/)
+          raise_error(RSpec::Expectations::ExpectationNotMetError, /should have been told to smile with `1, "2"', but was never invoked/)
+
+        instance.smile 3
+        instance.smile 4, '5'
+        expect { instance.should have_been_told_to(:smile).with(1, '2') }.to \
+          raise_error(RSpec::Expectations::ExpectationNotMetError, /should have been told to smile with `1, "2"', but got `3', `4, "5"'/)
       end
 
       example 'failure message for should not' do
@@ -109,11 +114,20 @@ describe 'RSpec matchers' do
       instance.wink 2, '2'
       instance.wink 1, '2', 3
       instance.should have_been_told_to(:wink).times(2).with(1, '2')
+      instance.should have_been_told_to(:wink).with(1, '2').times(2)
     end
 
     example 'failure message for should' do
       expect { instance.should have_been_told_to(:wink).times(1).with(1, '2') }.to \
-        raise_error(RSpec::Expectations::ExpectationNotMetError, /should have been told to wink 1 time with `1, "2"'/)
+        raise_error(RSpec::Expectations::ExpectationNotMetError, /should have been told to wink 1 time with `1, "2"', but was never told to/)
+
+      instance.wink 1, '2'
+      expect { instance.should have_been_told_to(:wink).times(0).with(1, '2') }.to \
+        raise_error(RSpec::Expectations::ExpectationNotMetError, /should have been told to wink 0 times with `1, "2"', but got it 1 time/)
+
+      instance.wink 1, '2'
+      expect { instance.should have_been_told_to(:wink).times(1).with(1, '2') }.to \
+        raise_error(RSpec::Expectations::ExpectationNotMetError, /should have been told to wink 1 time with `1, "2"', but got it 2 times/)
     end
 
     example 'failure message for should not' do
