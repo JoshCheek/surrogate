@@ -153,5 +153,13 @@ describe 'singing out of a block' do
         [[1, 2]],
       ]
     end
+
+    it 'raises an error if asked about invocations for songs it does not know' do
+      mocked_class.sing :meth1
+      mocked_class.sing :meth2
+      mock = mocked_class.new
+      expect { mock.invocations(:meth1) }.to_not raise_error
+      expect { mock.invocations(:meth3) }.to raise_error Mockingbird::UnknownSong, /doesn't know "meth3", only knows "meth1", "meth2"/
+    end
   end
 end

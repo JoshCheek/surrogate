@@ -1,4 +1,5 @@
 class Mockingbird
+  UnknownSong = Class.new StandardError
   class Bird
     attr_accessor :instance, :egg
 
@@ -44,10 +45,19 @@ class Mockingbird
     end
 
     def played_songs
-      @played_songs ||= Hash.new { |hash, songname| hash[songname] = [] }
+      @played_songs ||= Hash.new do |hash, songname|
+        must_know songname
+        hash[songname] = []
+      end
     end
 
   private
+
+    def must_know(songname)
+      return if songs.has_key? songname
+      known_songs = songs.keys.map(&:to_s).map(&:inspect).join ', '
+      raise UnknownSong, "doesn't know \"#{songname}\", only knows #{known_songs}"
+    end
 
     def set_hard_defaults
       songs.each do |songname, options|
