@@ -15,12 +15,36 @@ class Mockingbird
 
 private
   def self.song_for_klass(klass)
-    an_egg_for                            klass
-    teach_singing_to                      klass
-    remember_invocations_for_instances_of klass
-    remember_invocations_for_instances_of klass.singleton_class
-    hijack_instantiation_of               klass
-    can_get_a_new                         klass
+    an_egg_for                             klass
+    teach_singing_to                       klass
+    record_initialization_for_instances_of klass
+    remember_invocations_for_instances_of  klass
+    remember_invocations_for_instances_of  klass.singleton_class
+    hijack_instantiation_of                klass
+    can_get_a_new                          klass
+  end
+
+  # yeesh :( try to find a better way to do this
+  def self.record_initialization_for_instances_of(klass)
+    def klass.method_added(meth)
+      return unless meth == :initialize && !@hijacking_initialize
+      @hijacking_initialize = true
+      current_initialize = instance_method :initialize
+      sing :initialize do |*args, &block|
+        current_initialize.bind(self).call(*args, &block)
+      end
+    ensure
+      @hijacking_initialize = false
+    end
+    klass.module_eval { def initialize(*) super end }
+  end
+
+  def self.song_for_singleton_class(klass, singleton, playlist)
+    egg = an_egg_for singleton
+    teach_singing_to singleton
+    singleton.instance_eval &playlist if playlist
+    klass.instance_variable_set :@mockingbird, egg.hatch(klass)
+    klass
   end
 
   def self.can_get_a_new(klass)
@@ -43,14 +67,6 @@ private
     klass.send :define_method, :invocations do |songname|
       @mockingbird.invocations songname
     end
-  end
-
-  def self.song_for_singleton_class(klass, singleton, playlist)
-    egg = an_egg_for singleton
-    teach_singing_to singleton
-    singleton.instance_eval &playlist if playlist
-    klass.instance_variable_set :@mockingbird, egg.hatch(klass)
-    klass
   end
 
   def self.an_egg_for(klass)

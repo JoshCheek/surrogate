@@ -109,8 +109,8 @@ describe 'singing out of a block' do
       end
 
       specify 'default! variables are defined before initialize is called' do
-        mocked_class.sing(:initialize) { @abc *= 2 }
         mocked_class.sing :abc, default!: 12
+        mocked_class.sing(:initialize) { @abc *= 2 }
         mocked_class.new.abc.should == 24
       end
 
@@ -123,6 +123,19 @@ describe 'singing out of a block' do
         mocked_subclass.sing :abc
         mocked_subclass.new.instance_variable_get(:@a).should == nil
         mocked_subclass.new.instance_variable_get(:@b).should == 2
+      end
+
+      specify 'initialize arguments are recorded regardless of whether it is a song' do
+        mocked_class.class_eval { def initialize(a, b) end }
+        mocked_class.new(1, 2).should have_been_told_to(:initialize).with(1, 2)
+      end
+
+      specify 'this works regardless of when initialize is defined in relation to Mockingbird'
+
+      context 'when not a song' do
+        it 'respects arity (this is probably 1.9.3 only)' do
+          expect { mocked_class.new(1) }.to raise_error ArgumentError, 'wrong number of arguments(1 for 0)'
+        end
       end
     end
 
@@ -159,7 +172,7 @@ describe 'singing out of a block' do
       mocked_class.sing :meth2
       mock = mocked_class.new
       expect { mock.invocations(:meth1) }.to_not raise_error
-      expect { mock.invocations(:meth3) }.to raise_error Mockingbird::UnknownSong, /doesn't know "meth3", only knows "meth1", "meth2"/
+      expect { mock.invocations(:meth3) }.to raise_error Mockingbird::UnknownSong, /doesn't know "meth3", only knows "initialize", "meth1", "meth2"/
     end
   end
 end
