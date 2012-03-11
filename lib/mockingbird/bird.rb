@@ -5,7 +5,6 @@ class Mockingbird
     def initialize(instance, egg)
       self.instance, self.egg = instance, egg
       set_hard_defaults
-      @params = Hash.new { |hash, songname| hash[songname] = [] }
     end
 
     def songs
@@ -13,7 +12,7 @@ class Mockingbird
     end
 
     def play_song(songname, args, &block)
-      @params[songname] << args
+      played_songs[songname] << args
       return get_default songname, args unless has_ivar? songname
       ivar = get_ivar songname
       return var_from_queue ivar, songname if ivar.kind_of? SongQueue
@@ -41,7 +40,11 @@ class Mockingbird
     end
 
     def invocations(songname)
-      @params[songname]
+      played_songs[songname]
+    end
+
+    def played_songs
+      @played_songs ||= Hash.new { |hash, songname| hash[songname] = [] }
     end
 
   private
