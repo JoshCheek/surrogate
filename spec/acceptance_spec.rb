@@ -1,5 +1,4 @@
-require 'mockingbird'
-require 'mockingbird/rspec_matchers'
+require 'spec_helper'
 
 describe Mockingbird do
   it 'passes this acceptance spec' do
@@ -34,7 +33,7 @@ describe Mockingbird do
 
 
     # don't affect the real user class
-    user_class = Mock::User.clone # <-- can't use clone, need a good word for this
+    user_class = Mock::User.reprise
 
 
     # =====  set a default  =====
@@ -51,8 +50,14 @@ describe Mockingbird do
     # might also be nice to provide a way to raise an error
 
     # tracking invocations
-    user_class.should have_been_told_to(:find).times(4)
-    user_class.should have_been_asked_to(:find).times(4)
+    user_class = Mock::User.reprise
+    user_class.should_not have_been_told_to :find
+    user_class.find 12
+    user_class.find 12
+    user_class.find 23
+    user_class.should have_been_told_to(:find).times(3)
+    user_class.should have_been_asked_to(:find).with(12)
+    user_class.should have_been_asked_to(:find).with(12).times(2)
 
     # tracking invocations with arguments
     user_class.should have_been_told_to(:find).with(11)
@@ -116,20 +121,20 @@ describe Mockingbird do
     user_class.should be_substitutable_for substitutable_real_user_class
 
     # real user is not a suitable substitutable if has extra methods
-    real_user_class = substitutable_real_user_class.clone
+    real_user_class = substitutable_real_user_class.reprise
     def real_user.some_class_meth() end
     user_class.should_not be_substitutable_for real_user_class
 
-    real_user_class = substitutable_real_user_class.clone
+    real_user_class = substitutable_real_user_class.reprise
     real_user_class.send(:define_method, :some_instance_method) {}
     user_class.should_not be_substitutable_for real_user
 
     # real user is not a suitable substitutable_real_user_class unless arities match
-    real_user_class = substitutable_real_user_class.clone
+    real_user_class = substitutable_real_user_class.reprise
     def real_user_class.find(arg1, arg2) end
     user_class.should_not be_substitutable_for real_user_class
 
-    real_user_class = substitutable_real_user_class.clone
+    real_user_class = substitutable_real_user_class.reprise
     real_user_class.send(:define_method, :id) { |arg1, arg2, arg3| }
     user_class.should_not be_substitutable_for real_user_class
   end

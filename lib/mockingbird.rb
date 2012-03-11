@@ -9,28 +9,46 @@ class Mockingbird
 
   def self.song_for(klass, &playlist)
     song_for_klass klass
-    song_for_singleton_class klass, klass.singleton_class, playlist if playlist
+    song_for_singleton_class klass, klass.singleton_class, playlist
     klass
   end
 
 private
   def self.song_for_klass(klass)
-    an_egg_for              klass
-    teach_singing_to        klass
-    remember_invocations_on klass
-    hijack_instantiation_of klass
+    an_egg_for                            klass
+    teach_singing_to                      klass
+    remember_invocations_for_instances_of klass
+    remember_invocations_for_instances_of klass.singleton_class
+    hijack_instantiation_of               klass
+    can_get_a_new                         klass
   end
 
-  def self.remember_invocations_on(klass)
-    invoker = lambda { |songname| @mockingbird.invocations songname }
-    klass.send :define_method, :invocations, &invoker
-    klass.define_singleton_method :invocations, &invoker
+  def self.can_get_a_new(klass)
+    klass.define_singleton_method :reprise do
+      new_klass = Class.new self
+      mockingbird = @mockingbird
+      Mockingbird.song_for new_klass do
+        mockingbird.songs.each do |songname, options|
+          sing songname, options.to_hash, &options.default_proc
+        end
+      end
+      @egg.songs.each do |songname, options|
+        new_klass.sing songname, options.to_hash, &options.default_proc
+      end
+      new_klass
+    end
+  end
+
+  def self.remember_invocations_for_instances_of(klass)
+    klass.send :define_method, :invocations do |songname|
+      @mockingbird.invocations songname
+    end
   end
 
   def self.song_for_singleton_class(klass, singleton, playlist)
     egg = an_egg_for singleton
     teach_singing_to singleton
-    singleton.instance_eval &playlist
+    singleton.instance_eval &playlist if playlist
     klass.instance_variable_set :@mockingbird, egg.hatch(klass)
     klass
   end
@@ -55,7 +73,5 @@ private
     end
   end
 end
-
-# need to be able to define custom initialize methods
 
 # need to marshall the default value?

@@ -1,5 +1,4 @@
-require 'mockingbird'
-require 'mockingbird/rspec_matchers'
+require 'spec_helper'
 
 describe 'RSpec matchers' do
   let(:mocked_class) { Mockingbird.song_for Class.new }

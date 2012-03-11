@@ -14,6 +14,10 @@ class Mockingbird
       options[key]
     end
 
+    def to_hash
+      options
+    end
+
     def default(instance, args, &no_default)
       return options[:default] if options.has_key? :default
       return instance.instance_exec(*args, &default_proc) if default_proc

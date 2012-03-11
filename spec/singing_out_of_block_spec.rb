@@ -1,5 +1,4 @@
-require 'mockingbird'
-require 'mockingbird/rspec_matchers'
+require 'spec_helper'
 
 describe 'singing out of a block' do
   let(:mocked_class) { Mockingbird.song_for Class.new }
