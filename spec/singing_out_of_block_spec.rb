@@ -104,8 +104,8 @@ describe 'singing out of a block' do
       end
 
       specify 'receives args' do
-        mocked_class.sing(:initialize) { |num| @num = num }
-        mocked_class.new(100).instance_variable_get(:@num).should == 100
+        mocked_class.sing(:initialize) { |num1, num2| @num = num1 + num2 }
+        mocked_class.new(25, 75).instance_variable_get(:@num).should == 100
       end
 
       specify 'default! variables are defined before initialize is called' do
@@ -118,11 +118,9 @@ describe 'singing out of a block' do
         superclass = Class.new
         superclass.send(:define_method, :initialize) { @a = 1 }
         subclass = Class.new superclass
-        subclass.send(:define_method, :initialize) { @b = 2 }
         mocked_subclass = Mockingbird.song_for Class.new subclass
         mocked_subclass.sing :abc
-        mocked_subclass.new.instance_variable_get(:@a).should == nil
-        mocked_subclass.new.instance_variable_get(:@b).should == 2
+        mocked_subclass.new.instance_variable_get(:@a).should == 1
       end
 
       specify 'initialize arguments are recorded regardless of whether it is a song' do

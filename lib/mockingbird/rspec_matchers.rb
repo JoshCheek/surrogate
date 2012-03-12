@@ -1,3 +1,4 @@
+# have_been_told_to
 handler = Struct.new :verb, :instance do
   def invocations
     instance.invocations(verb)
@@ -28,8 +29,13 @@ end
 with_arguments = Module.new do
   attr_accessor :expected_arguments
   
+  # eventually this will need to get a lot smarter
   def match?
-    invocations.include? expected_arguments
+    if expected_arguments.size == 1 && expected_arguments.first.kind_of?(RSpec::Mocks::ArgumentMatchers::NoArgsMatcher)
+      invocations.include? []
+    else
+      invocations.include? expected_arguments
+    end
   end
 
   def failure_message_for_should
@@ -116,3 +122,28 @@ RSpec::Matchers.define :have_been_told_to do |verb|
 end
 
 
+
+
+# have_been_initialized_with
+RSpec::Matchers.define :have_been_initialized_with do |*init_args|
+  use_case = handler.new :initialize
+  use_case.extend with_arguments
+  use_case.expected_arguments = init_args
+
+  match do |mocked_instance|
+    use_case.instance = mocked_instance
+    use_case.match?
+  end
+
+  chain :nothing do
+    use_case.expected_arguments = nothing
+  end
+
+  failure_message_for_should do
+    use_case.failure_message_for_should
+  end
+
+  failure_message_for_should_not do
+    use_case.failure_message_for_should_not
+  end
+end

@@ -56,14 +56,10 @@ describe Mockingbird do
     user_class.find 12
     user_class.find 23
     user_class.should have_been_told_to(:find).times(3)
-    user_class.should have_been_asked_to(:find).with(12)
-    user_class.should have_been_asked_to(:find).with(12).times(2)
-
-    # tracking invocations with arguments
-    user_class.should have_been_told_to(:find).with(11)
-    user_class.should have_been_told_to(:find).with(44)
-    user_class.should have_been_told_to(:find).with(22).and_with(33)  # not sure if we really care about this (i.e. probably this will come in a later release if we like the lib)
-    user_class.should have_been_told_to(:find).with(11).before(22)    # not sure if we really care about this
+    user_class.should have_been_told_to(:find).with(12)
+    user_class.should have_been_told_to(:find).with(12).times(2)
+    # user_class.should have_been_told_to(:find).with(22).and_with(33)  # not sure if we really care about this (i.e. probably this will come in a later release if we like the lib)
+    # user_class.should have_been_told_to(:find).with(11).before(22)    # not sure if we really care about this
 
     expect { user_class.should have_been_told_to(:find).with(123123123) }.to raise_error RSpec::Expectations::ExpectationNotMetError
 
@@ -72,7 +68,7 @@ describe Mockingbird do
     user = user_class.find 123
 
     # tracking initialization args
-    user.should_have_been_initialized_with 123
+    user.should have_been_initialized_with id: 123
 
     # tracking invocations (these are just synonyms to try and fit the language you would want to use in a spec)
     user.should_not have_been_asked_for :id
