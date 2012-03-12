@@ -36,7 +36,10 @@ private
     ensure
       @hijacking_initialize = false
     end
-    klass.module_eval { def initialize(*) super end }
+    initialize = klass.instance_method :initialize
+    klass.send :define_method, :initialize do |*args, &block|
+      initialize.bind(self).call(*args, &block)
+    end
   end
 
   def self.song_for_singleton_class(klass, singleton, playlist)
