@@ -1,5 +1,7 @@
 # have_been_told_to
-handler = Struct.new :verb, :instance do
+handler = Struct.new :verb, :subject_type do
+  attr_accessor :instance
+
   def invocations
     instance.invocations(verb)
   end
@@ -100,6 +102,7 @@ end
 
 RSpec::Matchers.define :have_been_told_to do |verb|
   use_case = handler.new verb
+  use_case.subject_type = :verb
 
   match do |mocked_instance|
     use_case.instance = mocked_instance
@@ -122,6 +125,30 @@ RSpec::Matchers.define :have_been_told_to do |verb|
 end
 
 
+
+# have_been_asked_for_its
+RSpec::Matchers.define :have_been_asked_for_its do |noun|
+  use_case = handler.new noun
+  use_case.subject_type = :noun
+
+  match do |mocked_instance|
+    use_case.instance = mocked_instance
+    use_case.match?
+  end
+
+  chain :times do |number|
+    use_case.extend (use_case.kind_of?(with_arguments) ? match_num_times_with : match_num_times)
+    use_case.expected_times_invoked = number
+  end
+
+  chain :with do |*arguments|
+    use_case.extend (use_case.kind_of?(match_num_times) ? match_num_times_with : with_arguments)
+    use_case.expected_arguments = arguments
+  end
+
+  failure_message_for_should     { use_case.failure_message_for_should }
+  failure_message_for_should_not { use_case.failure_message_for_should_not }
+end
 
 
 # have_been_initialized_with

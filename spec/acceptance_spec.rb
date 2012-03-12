@@ -71,13 +71,13 @@ describe Mockingbird do
     user.should have_been_initialized_with id: 123
 
     # tracking invocations (these are just synonyms to try and fit the language you would want to use in a spec)
-    user.should_not have_been_asked_for :id
+    # user.should_not have_been_asked_for :id
     user.should_not have_been_asked_for_its :id
-    user.should_not have_invoked :id
+    # user.should_not have_invoked :id
     user.id.should == 123
-    user.should have_been_asked_for :id
+    # user.should have_been_asked_for :id
     user.should have_been_asked_for_its :id
-    user.should have_invoked :id
+    # user.should have_invoked :id
     # maybe someday also support assertions about order of method invocation
 
     # set a default

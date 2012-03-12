@@ -2,9 +2,9 @@ require 'spec_helper'
 
 describe 'RSpec matchers', 'have_been_told_to' do
   let(:mocked_class) { Mockingbird.song_for Class.new }
+  let(:instance) { mocked_class.new }
 
   describe 'default use case' do
-    let(:instance) { mocked_class.new }
     before { mocked_class.sing :kick, default: [] }
 
     example 'passes if has been invoked at least once' do
@@ -34,7 +34,6 @@ describe 'RSpec matchers', 'have_been_told_to' do
 
   describe 'specifying which arguments it should have been invoked with' do
     before { mocked_class.sing :smile, default: nil }
-    let(:instance) { mocked_class.new }
 
     example 'default use case' do
       instance.should_not have_been_told_to(:smile).with(1, 2, 3)
@@ -64,7 +63,6 @@ describe 'RSpec matchers', 'have_been_told_to' do
 
   describe 'specifying number of times invoked' do
     before { mocked_class.sing :wink, default: nil }
-    let(:instance) { mocked_class.new }
 
     example 'default use case' do
       instance.should have_been_told_to(:wink).times(0)
@@ -95,7 +93,6 @@ describe 'RSpec matchers', 'have_been_told_to' do
 
   describe 'conjunction of with(args) and times(n)' do
     before { mocked_class.sing :wink, default: nil }
-    let(:instance) { mocked_class.new }
 
     example 'default use case' do
       instance.should have_been_told_to(:wink).times(0).with(1, '2')
