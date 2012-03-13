@@ -1,9 +1,61 @@
-# have_been_told_to
-handler = Struct.new :verb, :subject_type do
-  attr_accessor :instance
+require 'erb'
+
+message_for = Module.new do
+  def messages(should_or_should_not, message_type)
+    message = {
+      verb: {
+          should: {
+          default:    "was never told to <%= subject %>",
+          with:       "should have been told to <%= subject %> with `<%= expected_arguments.map(&:inspect).join ', ' %>', but <%= actual_invocation %>",
+          times:      "should have been told to <%= subject %> <%= times_msg expected_times_invoked %> but was told to <%= subject %> <%= times_msg times_invoked %>",
+          with_times: "should have been told to <%= subject %> <%= times_msg expected_times_invoked %> with `<%= expected_arguments.map(&:inspect).join ', ' %>', but <%= actual_invocation %>",
+        },
+        should_not: {
+          default:    "shouldn't have been told to <%= subject %>, but was told to <%= subject %> <%= times_msg times_invoked %>",
+          with:       "should not have been told to <%= subject %> with `<%= expected_arguments.map(&:inspect).join ', ' %>', but <%= actual_invocation %>",
+          times:      "shouldn't have been told to <%= subject %> <%= times_msg expected_times_invoked %>, but was",
+          with_times: "should not have been told to <%= subject %> <%= times_msg expected_times_invoked %> with `<%= expected_arguments.map(&:inspect).join ', ' %>', but <%= actual_invocation %>",
+        },
+        other: {
+          not_invoked: "was never told to",
+          invoked_description: "got it",
+        },
+      },
+      noun: {
+        should: {
+          default:    "was never asked for its <%= subject %>",
+          with:       "should have been asked for its <%= subject %> with `<%= expected_arguments.map(&:inspect).join ', ' %>', but <%= actual_invocation %>",
+          times:      "should have been asked for its <%= subject %> <%= times_msg expected_times_invoked %>, but was asked <%= times_msg times_invoked %>",
+          with_times: "should have been asked for its <%= subject %> <%= times_msg expected_times_invoked %> with `<%= expected_arguments.map(&:inspect).join ', ' %>', but <%= actual_invocation %>",
+        },
+        should_not: {
+          default:    "shouldn't have been asked for its <%= subject %>, but was asked <%= times_msg times_invoked %>",
+          with:       "should not have been asked for its <%= subject %> with `<%= expected_arguments.map(&:inspect).join ', ' %>', but <%= actual_invocation %>",
+          times:      "shouldn't have been asked for its <%= subject %> <%= times_msg expected_times_invoked %>, but was",
+          with_times: "should not have been asked for its <%= subject %> <%= times_msg expected_times_invoked %> with `<%= expected_arguments.map(&:inspect).join ', ' %>', but <%= actual_invocation %>",
+        },
+        other: {
+          not_invoked: "was never asked",
+          invoked_description: "was asked",
+        },
+      },
+    }[language_type][should_or_should_not].fetch(message_type)
+    ERB.new(message).result(binding)
+  end
+end
+
+
+handler = Struct.new :subject, :language_type do
+  attr_accessor :instance, :message_type
+
+  include message_for
+
+  def message_type
+    @message_type || :default
+  end
 
   def invocations
-    instance.invocations(verb)
+    instance.invocations(subject)
   end
 
   def times_invoked
@@ -14,25 +66,28 @@ handler = Struct.new :verb, :subject_type do
     times_invoked > 0
   end
 
+  def times_msg(n)
+    "#{n} time#{'s' unless n == 1}"
+  end
+
   def failure_message_for_should
-    "was never told to #{verb}"
+    messages :should, message_type
   end
 
   def failure_message_for_should_not
-    "shouldn't have been told to #{verb}, but was told to #{verb} #{times_msg times_invoked}"
-  end
-
-  def times_msg(n)
-    "#{n} time#{'s' unless n == 1}"
+    messages :should_not, message_type
   end
 end
 
 
 with_arguments = Module.new do
+  def self.extended(klass)
+    klass.message_type = :with
+  end
+
   attr_accessor :expected_arguments
-  
-  # eventually this will need to get a lot smarter
-  def match?
+
+  def match? # eventually this will need to get a lot smarter
     if expected_arguments.size == 1 && expected_arguments.first.kind_of?(RSpec::Mocks::ArgumentMatchers::NoArgsMatcher)
       invocations.include? []
     else
@@ -40,40 +95,32 @@ with_arguments = Module.new do
     end
   end
 
-  def failure_message_for_should
-    "should have been told to #{verb} with `#{expected_arguments.map(&:inspect).join ', '}', but #{actual_invocation}"
-  end
-
   def actual_invocation
-    return "was never invoked" if times_invoked.zero?
+    return messages :other, :not_invoked if times_invoked.zero?
     inspected_invocations = invocations.map { |invocation| "`#{invocation.map(&:inspect).join ', '}'" }
     "got #{inspected_invocations.join ', '}"
-  end
-
-  def failure_message_for_should_not
-    failure_message_for_should.sub "should", "should not"
   end
 end
 
 
 match_num_times = Module.new do
+  def self.extended(klass)
+    klass.message_type = :times
+  end
+
   attr_accessor :expected_times_invoked
 
   def match?
     expected_times_invoked == times_invoked
   end
-
-  def failure_message_for_should
-    "should have been told to #{verb} #{times_msg expected_times_invoked} but was told to #{verb} #{times_msg times_invoked}"
-  end
-
-  def failure_message_for_should_not
-    "shouldn't have been told to #{verb} #{times_msg expected_times_invoked}, but was"
-  end
 end
 
 
 match_num_times_with = Module.new do
+  def self.extended(klass)
+    klass.message_type = :with_times
+  end
+
   attr_accessor :expected_times_invoked, :expected_arguments
 
   def times_invoked_with_expected_args
@@ -84,25 +131,16 @@ match_num_times_with = Module.new do
     times_invoked_with_expected_args == expected_times_invoked
   end
 
-  def failure_message_for_should
-    "should have been told to #{verb} #{times_msg expected_times_invoked} with " \
-      "`#{expected_arguments.map(&:inspect).join ', '}', but #{actual_invocation}"
-  end
-
-  def failure_message_for_should_not
-    failure_message_for_should.sub "should", "should not"
-  end
-
   def actual_invocation
-    return "was never told to" if times_invoked.zero?
-    "got it #{times_msg times_invoked_with_expected_args}"
+    return messages :other, :not_invoked if times_invoked.zero?
+    "#{messages :other, :invoked_description} #{times_msg times_invoked_with_expected_args}"
   end
 end
 
 
+# have_been_told_to
 RSpec::Matchers.define :have_been_told_to do |verb|
-  use_case = handler.new verb
-  use_case.subject_type = :verb
+  use_case = handler.new verb, :verb
 
   match do |mocked_instance|
     use_case.instance = mocked_instance
@@ -121,15 +159,12 @@ RSpec::Matchers.define :have_been_told_to do |verb|
 
   failure_message_for_should     { use_case.failure_message_for_should }
   failure_message_for_should_not { use_case.failure_message_for_should_not }
-  description                    { "Assert the object was told to do something" }
 end
-
 
 
 # have_been_asked_for_its
 RSpec::Matchers.define :have_been_asked_for_its do |noun|
-  use_case = handler.new noun
-  use_case.subject_type = :noun
+  use_case = handler.new noun, :noun
 
   match do |mocked_instance|
     use_case.instance = mocked_instance
@@ -153,7 +188,7 @@ end
 
 # have_been_initialized_with
 RSpec::Matchers.define :have_been_initialized_with do |*init_args|
-  use_case = handler.new :initialize
+  use_case = handler.new :initialize, :verb
   use_case.extend with_arguments
   use_case.expected_arguments = init_args
 

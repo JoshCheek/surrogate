@@ -2,7 +2,6 @@ TODO
 ----
 
 * deal with default: [], probably by marshall dumping and loading
-* rspec matchers need to be able to talk about nouns and predicates
 * .with() <-- no args, what should error messages be?
 * substitutability
 * add methods for substitutability

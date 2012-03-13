@@ -4,7 +4,6 @@ describe 'RSpec matchers', 'have_been_asked_for_its' do
   let(:mocked_class) { Mockingbird.song_for Class.new }
   let(:instance) { mocked_class.new }
 
-  # EVERYTHING BELOW THIS LINE WAS COPY/PASTED AND IS SUSPECT
   describe 'default use case' do
     before { mocked_class.sing :name, default: 'Ayaan' }
 
@@ -18,17 +17,17 @@ describe 'RSpec matchers', 'have_been_asked_for_its' do
 
     example 'failure message for should' do
       expect { instance.should have_been_asked_for_its :name }.to \
-        raise_error(RSpec::Expectations::ExpectationNotMetError, /was never told to name/)
+        raise_error(RSpec::Expectations::ExpectationNotMetError, /was never asked for its name/)
     end
 
     example 'failure message for should not' do
       instance.name
       expect { instance.should_not have_been_asked_for_its :name }.to \
-        raise_error(RSpec::Expectations::ExpectationNotMetError, /shouldn't have been told to name, but was told to name 1 time/)
+        raise_error(RSpec::Expectations::ExpectationNotMetError, /shouldn't have been asked for its name, but was asked 1 time/)
 
       instance.name
       expect { instance.should_not have_been_asked_for_its :name }.to \
-        raise_error(RSpec::Expectations::ExpectationNotMetError, /shouldn't have been told to name, but was told to name 2 times/)
+        raise_error(RSpec::Expectations::ExpectationNotMetError, /shouldn't have been asked for its name, but was asked 2 times/)
     end
   end
 
@@ -46,18 +45,18 @@ describe 'RSpec matchers', 'have_been_asked_for_its' do
 
     example 'failure message for should' do
       expect { instance.should have_been_asked_for_its(:size).with(1, '2') }.to \
-        raise_error(RSpec::Expectations::ExpectationNotMetError, /should have been told to size with `1, "2"', but was never invoked/)
+        raise_error(RSpec::Expectations::ExpectationNotMetError, /should have been asked for its size with `1, "2"', but was never asked/)
 
       instance.size 3
       instance.size 4, '5'
       expect { instance.should have_been_asked_for_its(:size).with(1, '2') }.to \
-        raise_error(RSpec::Expectations::ExpectationNotMetError, /should have been told to size with `1, "2"', but got `3', `4, "5"'/)
+        raise_error(RSpec::Expectations::ExpectationNotMetError, /should have been asked for its size with `1, "2"', but got `3', `4, "5"'/)
     end
 
     example 'failure message for should not' do
       instance.size 1, '2'
       expect { instance.should_not have_been_asked_for_its(:size).with(1, '2') }.to \
-        raise_error(RSpec::Expectations::ExpectationNotMetError, /should not have been told to size with `1, "2"'/)
+        raise_error(RSpec::Expectations::ExpectationNotMetError, /should not have been asked for its size with `1, "2"'/)
     end
   end
 
@@ -75,20 +74,20 @@ describe 'RSpec matchers', 'have_been_asked_for_its' do
 
     example 'failure message for should' do
       expect { instance.should have_been_asked_for_its(:value).times(1) }.to \
-        raise_error(RSpec::Expectations::ExpectationNotMetError, /should have been told to value 1 time but was told to value 0 times/)
+        raise_error(RSpec::Expectations::ExpectationNotMetError, /should have been asked for its value 1 time, but was asked 0 times/)
 
       instance.value
       expect { instance.should have_been_asked_for_its(:value).times(2) }.to \
-        raise_error(RSpec::Expectations::ExpectationNotMetError, /should have been told to value 2 times but was told to value 1 time/)
+        raise_error(RSpec::Expectations::ExpectationNotMetError, /should have been asked for its value 2 times, but was asked 1 time/)
     end
 
     example 'failure message for should not' do
       expect { instance.should_not have_been_asked_for_its(:value).times(0) }.to \
-        raise_error(RSpec::Expectations::ExpectationNotMetError, /shouldn't have been told to value 0 times, but was/)
+        raise_error(RSpec::Expectations::ExpectationNotMetError, /shouldn't have been asked for its value 0 times, but was/)
 
       instance.value
       expect { instance.should_not have_been_asked_for_its(:value).times(1) }.to \
-        raise_error(RSpec::Expectations::ExpectationNotMetError, /shouldn't have been told to value 1 time, but was/)
+        raise_error(RSpec::Expectations::ExpectationNotMetError, /shouldn't have been asked for its value 1 time, but was/)
     end
   end
 
@@ -113,22 +112,22 @@ describe 'RSpec matchers', 'have_been_asked_for_its' do
 
     example 'failure message for should' do
       expect { instance.should have_been_asked_for_its(:value).times(1).with(1, '2') }.to \
-        raise_error(RSpec::Expectations::ExpectationNotMetError, /should have been told to value 1 time with `1, "2"', but was never told to/)
+        raise_error(RSpec::Expectations::ExpectationNotMetError, /should have been asked for its value 1 time with `1, "2"', but was never asked/)
 
       instance.value 1, '2'
       expect { instance.should have_been_asked_for_its(:value).times(0).with(1, '2') }.to \
-        raise_error(RSpec::Expectations::ExpectationNotMetError, /should have been told to value 0 times with `1, "2"', but got it 1 time/)
+        raise_error(RSpec::Expectations::ExpectationNotMetError, /should have been asked for its value 0 times with `1, "2"', but was asked 1 time/)
 
       instance.value 1, '2'
       expect { instance.should have_been_asked_for_its(:value).times(1).with(1, '2') }.to \
-        raise_error(RSpec::Expectations::ExpectationNotMetError, /should have been told to value 1 time with `1, "2"', but got it 2 times/)
+        raise_error(RSpec::Expectations::ExpectationNotMetError, /should have been asked for its value 1 time with `1, "2"', but was asked 2 times/)
     end
 
     example 'failure message for should not' do
       instance.value 1, '2'
       instance.value 1, '2'
       expect { instance.should_not have_been_asked_for_its(:value).times(2).with(1, '2') }.to \
-        raise_error(RSpec::Expectations::ExpectationNotMetError, /should not have been told to value 2 times with `1, "2"'/)
+        raise_error(RSpec::Expectations::ExpectationNotMetError, /should not have been asked for its value 2 times with `1, "2"'/)
     end
   end
 end

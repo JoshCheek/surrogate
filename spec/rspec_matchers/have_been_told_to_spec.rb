@@ -45,7 +45,7 @@ describe 'RSpec matchers', 'have_been_told_to' do
 
     example 'failure message for should' do
       expect { instance.should have_been_told_to(:smile).with(1, '2') }.to \
-        raise_error(RSpec::Expectations::ExpectationNotMetError, /should have been told to smile with `1, "2"', but was never invoked/)
+        raise_error(RSpec::Expectations::ExpectationNotMetError, /should have been told to smile with `1, "2"', but was never told to/)
 
       instance.smile 3
       instance.smile 4, '5'
