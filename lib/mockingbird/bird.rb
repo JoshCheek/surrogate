@@ -36,7 +36,7 @@ class Mockingbird
 
     def get_default(songname, args)
       songs[songname].default instance, args do
-        raise UnpreparedMethodError, "#{songname} hasn't been invoked without being told how to behave"
+        raise UnpreparedMethodError, "#{songname} has been invoked without being told how to behave"
       end
     end
 

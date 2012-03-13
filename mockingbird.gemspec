@@ -8,8 +8,8 @@ Gem::Specification.new do |s|
   s.authors     = ["Josh Cheek"]
   s.email       = ["josh.cheek@gmail.com"]
   s.homepage    = ""
-  s.summary     = %q{Framework to ad in handrolling mock/spy objects.}
-  s.description = %q{Framework to ad in handrolling mock/spy objects.}
+  s.summary     = %q{Framework to aid in handrolling mock/spy objects.}
+  s.description = %q{Framework to aid in handrolling mock/spy objects.}
 
   s.rubyforge_project = "cobbler"
 
