@@ -7,14 +7,14 @@ require 'Mockingbird/song_queue'
 class Mockingbird
   UnpreparedMethodError = Class.new StandardError
 
-  def self.song_for(klass, &playlist)
-    song_for_klass klass
-    song_for_singleton_class klass, klass.singleton_class, playlist
+  def self.for(klass, &playlist)
+    for_klass klass
+    for_singleton_class klass, klass.singleton_class, playlist
     klass
   end
 
 private
-  def self.song_for_klass(klass)
+  def self.for_klass(klass)
     an_egg_for                             klass
     teach_singing_to                       klass
     record_initialization_for_instances_of klass
@@ -30,7 +30,7 @@ private
       return unless meth == :initialize && !@hijacking_initialize
       @hijacking_initialize = true
       current_initialize = instance_method :initialize
-      sing :initialize do |*args, &block|
+      song :initialize do |*args, &block|
         current_initialize.bind(self).call(*args, &block)
       end
     ensure
@@ -42,7 +42,7 @@ private
     end
   end
 
-  def self.song_for_singleton_class(klass, singleton, playlist)
+  def self.for_singleton_class(klass, singleton, playlist)
     egg = an_egg_for singleton
     teach_singing_to singleton
     singleton.instance_eval &playlist if playlist
@@ -54,13 +54,13 @@ private
     klass.define_singleton_method :reprise do
       new_klass = Class.new self
       mockingbird = @mockingbird
-      Mockingbird.song_for new_klass do
+      Mockingbird.for new_klass do
         mockingbird.songs.each do |songname, options|
-          sing songname, options.to_hash, &options.default_proc
+          song songname, options.to_hash, &options.default_proc
         end
       end
       @egg.songs.each do |songname, options|
-        new_klass.sing songname, options.to_hash, &options.default_proc
+        new_klass.song songname, options.to_hash, &options.default_proc
       end
       new_klass
     end
@@ -87,8 +87,8 @@ private
   end
 
   def self.teach_singing_to(klass)
-    def klass.sing(song, options={}, &block)
-      @egg.sing song, options, block
+    def klass.song(song, options={}, &block)
+      @egg.song song, options, block
     end
   end
 end

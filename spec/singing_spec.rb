@@ -1,11 +1,11 @@
 require 'spec_helper'
 
-describe 'singing' do
+describe 'songs' do
   describe 'in the block' do
-    it 'sings to the class' do
+    it 'is a song for the class' do
       pristine_klass = Class.new do
-        Mockingbird.song_for self do
-          sing :find, default: 123
+        Mockingbird.for self do
+          song :find, default: 123
         end
       end
 
@@ -21,9 +21,9 @@ describe 'singing' do
   # that would make it easier to talk about these, as the descriptions I'm using are obtuse
 
   describe 'out of the block' do
-    let(:mocked_class) { Mockingbird.song_for Class.new }
+    let(:mocked_class) { Mockingbird.for Class.new }
     describe 'declaring the behaviour' do
-      before     { mocked_class.sing :wink }
+      before     { mocked_class.song :wink }
       let(:mock) { mocked_class.new }
 
       def self.shared_for_song_named_wink(name)
@@ -51,8 +51,8 @@ describe 'singing' do
         end
 
         specify 'when there is a default' do
-          mocked_class = Mockingbird.song_for(Class.new)
-          mocked_class.sing :connect, default: :default
+          mocked_class = Mockingbird.for(Class.new)
+          mocked_class.song :connect, default: :default
           mock = mocked_class.new
           mock.will_connect_queue 1, 2
           mock.connect.should == 1
@@ -61,8 +61,8 @@ describe 'singing' do
         end
 
         specify 'when there is a default!' do
-          mocked_class = Mockingbird.song_for(Class.new)
-          mocked_class.sing :connect, default!: :default
+          mocked_class = Mockingbird.for(Class.new)
+          mocked_class.song :connect, default!: :default
           mock = mocked_class.new
           mock.will_connect_queue 1, 2
           mock.connect.should == 1
@@ -76,57 +76,57 @@ describe 'singing' do
 
     context 'the song' do
       it 'takes any number of arguments' do
-        mocked_class.sing :meth, default: 1
+        mocked_class.song :meth, default: 1
         mocked_class.new.meth.should == 1
         mocked_class.new.meth(1).should == 1
         mocked_class.new.meth(1, 2).should == 1
       end
 
       it 'raises an UnpreparedMethodError when it has no default' do
-        mocked_class.sing :meth
+        mocked_class.song :meth
         expect { mocked_class.new.meth }.to raise_error(Mockingbird::UnpreparedMethodError, /meth/)
       end
 
       it 'considers ivars of the same name to be its default' do
-        mocked_class.sing :meth
+        mocked_class.song :meth
         mocked = mocked_class.new
         mocked.instance_variable_set :@meth, 123
         mocked.meth.should == 123
       end
 
       it 'reverts to the :default option if invoked and having no ivar' do
-        mocked_class.sing :meth, default: 123
+        mocked_class.song :meth, default: 123
         mocked = mocked_class.new
         mocked.instance_variable_get(:@meth).should be_nil
         mocked.meth.should == 123
       end
 
       it 'sets the ivar to the :default! option if present' do
-        mocked_class.sing :meth, default!: 123
+        mocked_class.song :meth, default!: 123
         mocked = mocked_class.new
         mocked.instance_variable_get(:@meth).should == 123
       end
 
       describe 'initialization' do
         specify 'song can be an initialize method' do
-          mocked_class.sing(:initialize) { @abc = 123 }
+          mocked_class.song(:initialize) { @abc = 123 }
           mocked_class.new.instance_variable_get(:@abc).should == 123
         end
 
         specify 'initialize exsits even if error is raised' do
-          mocked_class.sing(:initialize) { raise "simulate runtime error" }
+          mocked_class.song(:initialize) { raise "simulate runtime error" }
           expect { mocked_class.new }.to raise_error(RuntimeError, /simulate/)
           expect { mocked_class.new }.to raise_error(RuntimeError, /simulate/)
         end
 
         specify 'receives args' do
-          mocked_class.sing(:initialize) { |num1, num2| @num = num1 + num2 }
+          mocked_class.song(:initialize) { |num1, num2| @num = num1 + num2 }
           mocked_class.new(25, 75).instance_variable_get(:@num).should == 100
         end
 
         specify 'default! variables are defined before initialize is called' do
-          mocked_class.sing :abc, default!: 12
-          mocked_class.sing(:initialize) { @abc *= 2 }
+          mocked_class.song :abc, default!: 12
+          mocked_class.song(:initialize) { @abc *= 2 }
           mocked_class.new.abc.should == 24
         end
 
@@ -134,8 +134,8 @@ describe 'singing' do
           superclass = Class.new
           superclass.send(:define_method, :initialize) { @a = 1 }
           subclass = Class.new superclass
-          mocked_subclass = Mockingbird.song_for Class.new subclass
-          mocked_subclass.sing :abc
+          mocked_subclass = Mockingbird.for Class.new subclass
+          mocked_subclass.song :abc
           mocked_subclass.new.instance_variable_get(:@a).should == 1
         end
 
@@ -146,7 +146,7 @@ describe 'singing' do
 
           specify 'recorded regardless of when initialize is defined in relation to mock' do
             klass = Class.new do
-              Mockingbird.song_for self
+              Mockingbird.for self
               def initialize(a)
                 @a = a
               end
@@ -158,7 +158,7 @@ describe 'singing' do
               def initialize(a)
                 @a = a
               end
-              Mockingbird.song_for self
+              Mockingbird.for self
             end
             klass.new(1).should have_been_initialized_with 1
             klass.new(1).instance_variable_get(:@a).should == 1
@@ -168,13 +168,13 @@ describe 'singing' do
 
       describe 'it takes a block whos return value will be used as the default' do
         specify 'the block is instance evaled' do
-          mocked_class.sing(:meth) { self }
+          mocked_class.song(:meth) { self }
           instance = mocked_class.new
           instance.meth.should equal instance
         end
 
         specify 'arguments passed to the method will be passed to the block' do
-          mocked_class.sing(:meth) { |*args| args }
+          mocked_class.song(:meth) { |*args| args }
           instance = mocked_class.new
           instance.meth(1).should == [1]
           instance.meth(1, 2).should == [1, 2]
@@ -182,7 +182,7 @@ describe 'singing' do
       end
 
       it 'remembers what it was invoked with' do
-        mocked_class.sing :meth, default: 123
+        mocked_class.song :meth, default: 123
         mock = mocked_class.new
         mock.meth 1
         mock.meth 1, 2
@@ -195,8 +195,8 @@ describe 'singing' do
       end
 
       it 'raises an error if asked about invocations for songs it does not know' do
-        mocked_class.sing :meth1
-        mocked_class.sing :meth2
+        mocked_class.song :meth1
+        mocked_class.song :meth2
         mock = mocked_class.new
         expect { mock.invocations(:meth1) }.to_not raise_error
         expect { mock.invocations(:meth3) }.to raise_error Mockingbird::UnknownSong, /doesn't know "meth3", only knows "initialize", "meth1", "meth2"/
@@ -208,12 +208,12 @@ describe 'singing' do
   describe 'reprise' do
     it 'a repetition or further performance of the klass' do
       pristine_klass = Class.new do
-        Mockingbird.song_for self do
-          sing :find, default: 123
-          sing(:bind) { 'abc' }
+        Mockingbird.for self do
+          song :find, default: 123
+          song(:bind) { 'abc' }
         end
-        sing :peat, default: true
-        sing(:repeat) { 321 }
+        song :peat, default: true
+        song(:repeat) { 321 }
       end
 
       klass1 = pristine_klass.reprise
@@ -237,7 +237,7 @@ describe 'singing' do
     end
 
     it 'is a subclass of the reprised class' do
-      superclass = Mockingbird.song_for Class.new
+      superclass = Mockingbird.for Class.new
       superclass.reprise.new.should be_a_kind_of superclass
     end
   end

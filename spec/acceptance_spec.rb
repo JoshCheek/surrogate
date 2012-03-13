@@ -5,29 +5,29 @@ describe Mockingbird do
     module Mock
       class User
         # things sung inside the block are sungd to User's singleton class (ie User.find)
-        Mockingbird.song_for self do
+        Mockingbird.for self do
 
           # the block is used as a default value unless told to find something
-          sing :find do |id|
-            new id: id
+          song :find do |id|
+            new id
           end
         end
 
         # things sung outside the block are sung at User (ie user.id)
 
-        sing :initialize do |id|
+        song :initialize do |id|
           @id = id # can set the @id ivar to give the #id method a default
         end
 
-        sing :id
-        sing :name, default: 'Josh'
-        sing :address
+        song :id
+        song :name, default: 'Josh'
+        song :address
 
         # bang will set this as the ivar value before initialization
-        sing :phone_numbers, default!: []
+        song :phone_numbers, default!: []
 
         # hook will be invoked after each invocation, args passed to method will be passed to hook
-        sing :add_phone_number, default: nil, hook: lambda { |area_code, number| @phone_numbers << [area_code, number] }
+        song :add_phone_number, default: nil, hook: lambda { |area_code, number| @phone_numbers << [area_code, number] }
       end
     end
 
@@ -68,7 +68,7 @@ describe Mockingbird do
     user = user_class.find 123
 
     # tracking initialization args
-    user.should have_been_initialized_with id: 123
+    user.should have_been_initialized_with 123
 
     # tracking invocations (these are just synonyms to try and fit the language you would want to use in a spec)
     # user.should_not have_been_asked_for :id

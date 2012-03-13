@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe 'RSpec matchers', 'have_been_initialized_with' do
-  let(:mocked_class) { Mockingbird.song_for Class.new }
+  let(:mocked_class) { Mockingbird.for Class.new }
   before { mocked_class.module_eval { def initialize(*) end } } # b/c 1.9.3 will have arity issues otherwise
 
   it 'is the same as have_been_told_to(:initialize).with(...)' do

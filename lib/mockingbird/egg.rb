@@ -4,18 +4,18 @@ class Mockingbird
 
     def initialize(klass)
       self.klass = klass
-      learn_to_sing
+      sings_songs
     end
 
     def hatch(instance)
       Bird.new instance, self
     end
 
-    def learn_to_sing
-      klass.singleton_class.send :define_method, :sing, &method(:sing)
+    def sings_songs
+      klass.singleton_class.send :define_method, :song, &method(:song)
     end
 
-    def sing(songname, options={}, block)
+    def song(songname, options={}, block)
       add_song_methods_for songname
       songs[songname] = Options.new options, block
     end
