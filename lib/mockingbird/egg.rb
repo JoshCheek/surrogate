@@ -33,10 +33,12 @@ class Mockingbird
       # verbs
       klass.send :define_method, "will_#{songname}" do |*args, &block|
         @mockingbird.prepare_song songname, args, &block
+        self
       end
 
       klass.send :define_method, "will_#{songname}_queue" do |*args, &block|
         @mockingbird.prepare_song_queue songname, args, &block
+        self
       end
 
       # nouns

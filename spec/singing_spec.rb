@@ -22,49 +22,68 @@ describe 'songs' do
 
   describe 'out of the block' do
     let(:mocked_class) { Mockingbird.for Class.new }
-    describe 'declaring the behaviour' do
+    let(:instance)     { mocked_class.new }
 
+    it 'is a song for the instance' do
+      mocked_class.song :book, default: 'book'
+      instance.book.should == 'book'
+    end
+
+    describe 'declaring the behaviour' do
       describe 'for verbs' do
         before     { mocked_class.song :wink }
-        let(:mock) { mocked_class.new }
 
-        it 'defines will_<song> which overrides the default' do
-          mock1 = mocked_class.new
-          mock2 = mocked_class.new
-          mock1.will_wink :quickly
-          mock2.will_wink :slowly
-          mock1.wink.should == :quickly
-          mock2.wink.should == :slowly
-          mock1.wink.should == :quickly
+        describe 'will_<song>' do
+          it 'overrides the default value for the song' do
+            mock1 = mocked_class.new
+            mock2 = mocked_class.new
+            mock1.will_wink :quickly
+            mock2.will_wink :slowly
+            mock1.wink.should == :quickly
+            mock2.wink.should == :slowly
+            mock1.wink.should == :quickly
+          end
+
+          it 'returns the object' do
+            instance = mocked_class.new
+            instance.will_wink(:quickly).should equal instance
+          end
         end
 
-        context 'will_<song>_queue creates a queue of things to find then returns to normal behaviour' do
-          specify 'when there is no default' do
-            mock = mocked_class.new
-            mock.will_wink_queue :quickly, :slowly
-            mock.wink.should == :quickly
-            mock.wink.should == :slowly
-            expect { mock.wink }.to raise_error Mockingbird::UnpreparedMethodError
+        describe 'will_<song>_queue' do
+          it 'returns the object' do
+            instance = mocked_class.new
+            instance.will_wink_queue(1, 2, 3).should equal instance
           end
 
-          specify 'when there is a default' do
-            mocked_class = Mockingbird.for(Class.new)
-            mocked_class.song :connect, default: :default
-            mock = mocked_class.new
-            mock.will_connect_queue 1, 2
-            mock.connect.should == 1
-            mock.connect.should == 2
-            mock.connect.should == :default
-          end
+          context 'it creates a queue of things to find then returns to normal behaviour' do
+            specify 'when there is no default' do
+              mock = mocked_class.new
+              mock.will_wink_queue :quickly, :slowly
+              mock.wink.should == :quickly
+              mock.wink.should == :slowly
+              expect { mock.wink }.to raise_error Mockingbird::UnpreparedMethodError
+            end
 
-          specify 'when there is a default!' do
-            mocked_class = Mockingbird.for(Class.new)
-            mocked_class.song :connect, default!: :default
-            mock = mocked_class.new
-            mock.will_connect_queue 1, 2
-            mock.connect.should == 1
-            mock.connect.should == 2
-            mock.instance_variable_get(:@connect).should == :default
+            specify 'when there is a default' do
+              mocked_class = Mockingbird.for(Class.new)
+              mocked_class.song :connect, default: :default
+              mock = mocked_class.new
+              mock.will_connect_queue 1, 2
+              mock.connect.should == 1
+              mock.connect.should == 2
+              mock.connect.should == :default
+            end
+
+            specify 'when there is a default!' do
+              mocked_class = Mockingbird.for(Class.new)
+              mocked_class.song :connect, default!: :default
+              mock = mocked_class.new
+              mock.will_connect_queue 1, 2
+              mock.connect.should == 1
+              mock.connect.should == 2
+              mock.instance_variable_get(:@connect).should == :default
+            end
           end
         end
       end
@@ -72,45 +91,58 @@ describe 'songs' do
 
       describe 'for nouns' do
         before     { mocked_class.song :age }
-        let(:mock) { mocked_class.new }
 
-        it 'defines will_have_<song> which overrides the default' do
-          mock1 = mocked_class.new
-          mock2 = mocked_class.new
-          mock1.will_have_age 12
-          mock2.will_have_age 34
-          mock1.age.should == 12
-          mock2.age.should == 34
-          mock1.age.should == 12
+        describe 'will_have_<song>' do
+          it 'defines will_have_<song> which overrides the default' do
+            mock1 = mocked_class.new
+            mock2 = mocked_class.new
+            mock1.will_have_age 12
+            mock2.will_have_age 34
+            mock1.age.should == 12
+            mock2.age.should == 34
+            mock1.age.should == 12
+          end
+
+          it 'returns the object' do
+            instance = mocked_class.new
+            instance.will_have_age(123).should equal instance
+          end
         end
 
-        context 'will_have_<song>_queue creates a queue of things to find then returns to normal behaviour' do
-          specify 'when there is no default' do
-            mock = mocked_class.new
-            mock.will_have_age_queue 12, 34
-            mock.age.should == 12
-            mock.age.should == 34
-            expect { mock.age }.to raise_error Mockingbird::UnpreparedMethodError
+        describe 'wil_have_<song>_queue' do
+          it 'returns the object' do
+            instance = mocked_class.new
+            instance.will_have_age_queue(1,2,3).should equal instance
           end
 
-          specify 'when there is a default' do
-            mocked_class = Mockingbird.for(Class.new)
-            mocked_class.song :name, default: 'default'
-            mock = mocked_class.new
-            mock.will_have_name_queue 'a', 'b'
-            mock.name.should == 'a'
-            mock.name.should == 'b'
-            mock.name.should == 'default'
-          end
+          context 'it creates a queue of things to find then returns to normal behaviour' do
+            specify 'when there is no default' do
+              mock = mocked_class.new
+              mock.will_have_age_queue 12, 34
+              mock.age.should == 12
+              mock.age.should == 34
+              expect { mock.age }.to raise_error Mockingbird::UnpreparedMethodError
+            end
 
-          specify 'when there is a default!' do
-            mocked_class = Mockingbird.for(Class.new)
-            mocked_class.song :name, default!: 'default'
-            mock = mocked_class.new
-            mock.will_have_name_queue 'a', 'b'
-            mock.name.should == 'a'
-            mock.name.should == 'b'
-            mock.instance_variable_get(:@name).should == 'default'
+            specify 'when there is a default' do
+              mocked_class = Mockingbird.for(Class.new)
+              mocked_class.song :name, default: 'default'
+              mock = mocked_class.new
+              mock.will_have_name_queue 'a', 'b'
+              mock.name.should == 'a'
+              mock.name.should == 'b'
+              mock.name.should == 'default'
+            end
+
+            specify 'when there is a default!' do
+              mocked_class = Mockingbird.for(Class.new)
+              mocked_class.song :name, default!: 'default'
+              mock = mocked_class.new
+              mock.will_have_name_queue 'a', 'b'
+              mock.name.should == 'a'
+              mock.name.should == 'b'
+              mock.instance_variable_get(:@name).should == 'default'
+            end
           end
         end
       end

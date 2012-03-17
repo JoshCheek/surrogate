@@ -90,13 +90,13 @@ describe Mockingbird do
 
     # error is raised if you try to access an attribute that hasn't been set and has no default
     expect { Mock::User.new(1).address }.to raise_error Mockingbird::UnpreparedMethodError
-    Mock::User.new(1).will_have(:address, '123 Fake St.').address.should == '123 Fake St.'
+    Mock::User.new(1).will_have_address('123 Fake St.').address.should == '123 Fake St.'
 
     # methods with multiple args
     user.phone_numbers.should be_empty
     user.add_phone_number('123', '456-7890').should be_nil
-    user.should have_been_told_to(:add_phone_number, '123', '456-7890')
-    user.phone_numbers.should == [['123', '456-7890']]
+    user.should have_been_told_to(:add_phone_number).with('123', '456-7890')
+    # user.phone_numbers.should == [['123', '456-7890']] # <-- should we use a hook, or default block to make this happen?
 
 
     # =====  Substitutability  =====
