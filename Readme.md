@@ -2,7 +2,6 @@ TODO
 ----
 
 * deal with default: [], probably by marshall dumping and loading
-* .with() <-- no args, what should error messages be?
 * substitutability
 * add methods for substitutability
 
