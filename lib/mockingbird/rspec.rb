@@ -1,21 +1,23 @@
 require 'erb'
 
+
 class Mockingbird
   module RSpec
     module MessagesFor
+
       MESSAGES = {
         verb: {
           should: {
             default:    "was never told to <%= subject %>",
-            with:       "should have been told to <%= subject %> with `<%= expected_arguments.map(&:inspect).join ', ' %>', but <%= actual_invocation %>",
+            with:       "should have been told to <%= subject %> with <%= inspect_arguments expected_arguments %>, but <%= actual_invocation %>",
             times:      "should have been told to <%= subject %> <%= times_msg expected_times_invoked %> but was told to <%= subject %> <%= times_msg times_invoked %>",
-            with_times: "should have been told to <%= subject %> <%= times_msg expected_times_invoked %> with `<%= expected_arguments.map(&:inspect).join ', ' %>', but <%= actual_invocation %>",
+            with_times: "should have been told to <%= subject %> <%= times_msg expected_times_invoked %> with <%= inspect_arguments expected_arguments %>, but <%= actual_invocation %>",
           },
           should_not: {
             default:    "shouldn't have been told to <%= subject %>, but was told to <%= subject %> <%= times_msg times_invoked %>",
-            with:       "should not have been told to <%= subject %> with `<%= expected_arguments.map(&:inspect).join ', ' %>', but <%= actual_invocation %>",
+            with:       "should not have been told to <%= subject %> with <%= inspect_arguments expected_arguments %>, but <%= actual_invocation %>",
             times:      "shouldn't have been told to <%= subject %> <%= times_msg expected_times_invoked %>, but was",
-            with_times: "should not have been told to <%= subject %> <%= times_msg expected_times_invoked %> with `<%= expected_arguments.map(&:inspect).join ', ' %>', but <%= actual_invocation %>",
+            with_times: "should not have been told to <%= subject %> <%= times_msg expected_times_invoked %> with <%= inspect_arguments expected_arguments %>, but <%= actual_invocation %>",
           },
           other: {
             not_invoked: "was never told to",
@@ -25,15 +27,15 @@ class Mockingbird
         noun: {
           should: {
             default:    "was never asked for its <%= subject %>",
-            with:       "should have been asked for its <%= subject %> with `<%= expected_arguments.map(&:inspect).join ', ' %>', but <%= actual_invocation %>",
+            with:       "should have been asked for its <%= subject %> with <%= inspect_arguments expected_arguments %>, but <%= actual_invocation %>",
             times:      "should have been asked for its <%= subject %> <%= times_msg expected_times_invoked %>, but was asked <%= times_msg times_invoked %>",
-            with_times: "should have been asked for its <%= subject %> <%= times_msg expected_times_invoked %> with `<%= expected_arguments.map(&:inspect).join ', ' %>', but <%= actual_invocation %>",
+            with_times: "should have been asked for its <%= subject %> <%= times_msg expected_times_invoked %> with <%= inspect_arguments expected_arguments %>, but <%= actual_invocation %>",
           },
           should_not: {
             default:    "shouldn't have been asked for its <%= subject %>, but was asked <%= times_msg times_invoked %>",
-            with:       "should not have been asked for its <%= subject %> with `<%= expected_arguments.map(&:inspect).join ', ' %>', but <%= actual_invocation %>",
+            with:       "should not have been asked for its <%= subject %> with <%= inspect_arguments expected_arguments %>, but <%= actual_invocation %>",
             times:      "shouldn't have been asked for its <%= subject %> <%= times_msg expected_times_invoked %>, but was",
-            with_times: "should not have been asked for its <%= subject %> <%= times_msg expected_times_invoked %> with `<%= expected_arguments.map(&:inspect).join ', ' %>', but <%= actual_invocation %>",
+            with_times: "should not have been asked for its <%= subject %> <%= times_msg expected_times_invoked %> with <%= inspect_arguments expected_arguments %>, but <%= actual_invocation %>",
           },
           other: {
             not_invoked: "was never asked",
@@ -47,6 +49,20 @@ class Mockingbird
         ERB.new(message).result(binding)
       end
 
+      def inspect_arguments(arguments)
+        inspected_arguments = arguments.map { |argument| MessagesFor.inspect_argument argument }
+        inspected_arguments << 'no_args' if inspected_arguments.empty?
+        %Q(`#{inspected_arguments.join ", "}')
+      end
+
+      def inspect_argument(to_inspect)
+        if to_inspect.kind_of? ::RSpec::Mocks::ArgumentMatchers::NoArgsMatcher
+          "no_args"
+        else
+          to_inspect.inspect
+        end
+      end
+
       extend self
     end
 
@@ -55,7 +71,11 @@ class Mockingbird
       attr_accessor :instance, :message_type
 
       def message_for(message_category, message_type)
-        Mockingbird::RSpec::MessagesFor.message_for(language_type, message_category, message_type, binding)
+        MessagesFor.message_for(language_type, message_category, message_type, binding)
+      end
+
+      def inspect_arguments(args)
+        MessagesFor.inspect_arguments args
       end
 
       def message_type
@@ -105,7 +125,7 @@ class Mockingbird
 
       def actual_invocation
         return message_for :other, :not_invoked if times_invoked.zero?
-        inspected_invocations = invocations.map { |invocation| "`#{invocation.map(&:inspect).join ', '}'" }
+        inspected_invocations = invocations.map { |invocation| inspect_arguments invocation }
         "got #{inspected_invocations.join ', '}"
       end
     end

@@ -58,6 +58,16 @@ describe 'RSpec matchers', 'have_been_asked_for_its' do
       expect { instance.should_not have_been_asked_for_its(:size).with(1, '2') }.to \
         raise_error(RSpec::Expectations::ExpectationNotMetError, /should not have been asked for its size with `1, "2"'/)
     end
+
+    describe 'integration with rspec argument_matchers' do
+      it 'works with no_args' do
+        instance.should_not have_been_asked_for_its(:size).with(no_args)
+        instance.size(1)
+        instance.should_not have_been_asked_for_its(:size).with(no_args)
+        instance.size
+        instance.should have_been_asked_for_its(:size).with(no_args)
+      end
+    end
   end
 
 
