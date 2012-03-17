@@ -56,7 +56,7 @@ describe Mockingbird do
     user_class.find 12
     user_class.find 23
     user_class.should have_been_told_to(:find).times(3)
-    user_class.should have_been_told_to(:find).with(no_args)
+    user_class.should have_been_told_to(:find).with(12)
     user_class.should have_been_told_to(:find).with(12).times(2)
     # user_class.should have_been_told_to(:find).with(22).and_with(33)  # not sure if we really care about this (i.e. probably this will come in a later release if we like the lib)
     # user_class.should have_been_told_to(:find).with(11).before(22)    # not sure if we really care about this
