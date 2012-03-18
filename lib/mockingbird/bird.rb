@@ -5,7 +5,6 @@ class Mockingbird
 
     def initialize(instance, egg)
       self.instance, self.egg = instance, egg
-      set_hard_defaults
     end
 
     def songs
@@ -16,14 +15,8 @@ class Mockingbird
       played_songs[songname] << args
       return get_default songname, args unless has_ivar? songname
       ivar = get_ivar songname
-      return var_from_queue ivar, songname if ivar.kind_of? SongQueue
-      ivar
-    end
-
-    def var_from_queue(queue, songname)
-      result = queue.dequeue
-      reset_var songname if queue.empty?
-      result
+      return ivar unless ivar.kind_of? SongQueue
+      play_from_queue ivar, songname
     end
 
     def prepare_song(songname, args, &block)
@@ -34,15 +27,11 @@ class Mockingbird
       set_ivar songname, SongQueue.new(args)
     end
 
-    def get_default(songname, args)
-      songs[songname].default instance, args do
-        raise UnpreparedMethodError, "#{songname} has been invoked without being told how to behave"
-      end
-    end
-
     def invocations(songname)
       played_songs[songname]
     end
+
+  private
 
     def played_songs
       @played_songs ||= Hash.new do |hash, songname|
@@ -51,7 +40,17 @@ class Mockingbird
       end
     end
 
-  private
+    def get_default(songname, args)
+      songs[songname].default instance, args do
+        raise UnpreparedMethodError, "#{songname} has been invoked without being told how to behave"
+      end
+    end
+
+    def play_from_queue(queue, songname)
+      result = queue.dequeue
+      unset_ivar songname if queue.empty?
+      result
+    end
 
     def must_know(songname)
       return if songs.has_key? songname
@@ -59,20 +58,8 @@ class Mockingbird
       raise UnknownSong, "doesn't know \"#{songname}\", only knows #{known_songs}"
     end
 
-    def set_hard_defaults
-      songs.each do |songname, options|
-        next unless options.has? :default!
-        set_ivar songname, options[:default!]
-      end
-    end
-
     def has_ivar?(songname)
       instance.instance_variable_defined? "@#{songname}"
-    end
-
-    def reset_var(songname)
-      unset_ivar songname
-      set_ivar songname, songs[songname][:default!] if songs[songname].has? :default!
     end
 
     def set_ivar(songname, value)

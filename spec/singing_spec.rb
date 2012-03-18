@@ -5,7 +5,7 @@ describe 'songs' do
     it 'is a song for the class' do
       pristine_klass = Class.new do
         Mockingbird.for self do
-          song :find, default: 123
+          song(:find) { 123 }
         end
       end
 
@@ -25,7 +25,7 @@ describe 'songs' do
     let(:instance)     { mocked_class.new }
 
     it 'is a song for the instance' do
-      mocked_class.song :book, default: 'book'
+      mocked_class.song(:book) { 'book' }
       instance.book.should == 'book'
     end
 
@@ -57,7 +57,7 @@ describe 'songs' do
           end
 
           context 'it creates a queue of things to find then returns to normal behaviour' do
-            specify 'when there is no default' do
+            specify 'when there is no default block' do
               mock = mocked_class.new
               mock.will_wink_queue :quickly, :slowly
               mock.wink.should == :quickly
@@ -65,24 +65,14 @@ describe 'songs' do
               expect { mock.wink }.to raise_error Mockingbird::UnpreparedMethodError
             end
 
-            specify 'when there is a default' do
+            specify 'when there is a default block' do
               mocked_class = Mockingbird.for(Class.new)
-              mocked_class.song :connect, default: :default
+              mocked_class.song(:connect) { :default }
               mock = mocked_class.new
               mock.will_connect_queue 1, 2
               mock.connect.should == 1
               mock.connect.should == 2
               mock.connect.should == :default
-            end
-
-            specify 'when there is a default!' do
-              mocked_class = Mockingbird.for(Class.new)
-              mocked_class.song :connect, default!: :default
-              mock = mocked_class.new
-              mock.will_connect_queue 1, 2
-              mock.connect.should == 1
-              mock.connect.should == 2
-              mock.instance_variable_get(:@connect).should == :default
             end
           end
         end
@@ -90,10 +80,10 @@ describe 'songs' do
 
 
       describe 'for nouns' do
-        before     { mocked_class.song :age }
+        before { mocked_class.song :age }
 
         describe 'will_have_<song>' do
-          it 'defines will_have_<song> which overrides the default' do
+          it 'defines will_have_<song> which overrides the default block' do
             mock1 = mocked_class.new
             mock2 = mocked_class.new
             mock1.will_have_age 12
@@ -116,7 +106,7 @@ describe 'songs' do
           end
 
           context 'it creates a queue of things to find then returns to normal behaviour' do
-            specify 'when there is no default' do
+            specify 'when there is no default block' do
               mock = mocked_class.new
               mock.will_have_age_queue 12, 34
               mock.age.should == 12
@@ -124,24 +114,14 @@ describe 'songs' do
               expect { mock.age }.to raise_error Mockingbird::UnpreparedMethodError
             end
 
-            specify 'when there is a default' do
+            specify 'when there is a default block' do
               mocked_class = Mockingbird.for(Class.new)
-              mocked_class.song :name, default: 'default'
+              mocked_class.song(:name) { 'default' }
               mock = mocked_class.new
               mock.will_have_name_queue 'a', 'b'
               mock.name.should == 'a'
               mock.name.should == 'b'
               mock.name.should == 'default'
-            end
-
-            specify 'when there is a default!' do
-              mocked_class = Mockingbird.for(Class.new)
-              mocked_class.song :name, default!: 'default'
-              mock = mocked_class.new
-              mock.will_have_name_queue 'a', 'b'
-              mock.name.should == 'a'
-              mock.name.should == 'b'
-              mock.instance_variable_get(:@name).should == 'default'
             end
           end
         end
@@ -152,13 +132,13 @@ describe 'songs' do
 
     context 'the song' do
       it 'takes any number of arguments' do
-        mocked_class.song :meth, default: 1
+        mocked_class.song(:meth) { 1 }
         mocked_class.new.meth.should == 1
         mocked_class.new.meth(1).should == 1
         mocked_class.new.meth(1, 2).should == 1
       end
 
-      it 'raises an UnpreparedMethodError when it has no default' do
+      it 'raises an UnpreparedMethodError when it has no default block' do
         mocked_class.song :meth
         expect { mocked_class.new.meth }.to raise_error(Mockingbird::UnpreparedMethodError, /meth/)
       end
@@ -170,17 +150,11 @@ describe 'songs' do
         mocked.meth.should == 123
       end
 
-      it 'reverts to the :default option if invoked and having no ivar' do
-        mocked_class.song :meth, default: 123
+      it 'reverts to the default block if invoked and having no ivar' do
+        mocked_class.song(:meth) { 123 }
         mocked = mocked_class.new
         mocked.instance_variable_get(:@meth).should be_nil
         mocked.meth.should == 123
-      end
-
-      it 'sets the ivar to the :default! option if present' do
-        mocked_class.song :meth, default!: 123
-        mocked = mocked_class.new
-        mocked.instance_variable_get(:@meth).should == 123
       end
 
       describe 'initialization' do
@@ -198,12 +172,6 @@ describe 'songs' do
         specify 'receives args' do
           mocked_class.song(:initialize) { |num1, num2| @num = num1 + num2 }
           mocked_class.new(25, 75).instance_variable_get(:@num).should == 100
-        end
-
-        specify 'default! variables are defined before initialize is called' do
-          mocked_class.song :abc, default!: 12
-          mocked_class.song(:initialize) { @abc *= 2 }
-          mocked_class.new.abc.should == 24
         end
 
         specify 'even works with inheritance' do
@@ -258,7 +226,7 @@ describe 'songs' do
       end
 
       it 'remembers what it was invoked with' do
-        mocked_class.song :meth, default: 123
+        mocked_class.song(:meth) { nil }
         mock = mocked_class.new
         mock.meth 1
         mock.meth 1, 2
@@ -285,10 +253,10 @@ describe 'songs' do
     it 'a repetition or further performance of the klass' do
       pristine_klass = Class.new do
         Mockingbird.for self do
-          song :find, default: 123
+          song(:find) { 123 }
           song(:bind) { 'abc' }
         end
-        song :peat, default: true
+        song(:peat)   { true }
         song(:repeat) { 321 }
       end
 

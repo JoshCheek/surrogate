@@ -4,30 +4,33 @@ describe Mockingbird do
   it 'passes this acceptance spec' do
     module Mock
       class User
+
         # things sung inside the block are sungd to User's singleton class (ie User.find)
         Mockingbird.for self do
 
-          # the block is used as a default value unless told to find something
+          # the block is used as a default value unless overridden by the spec
           song :find do |id|
             new id
           end
+
         end
 
         # things sung outside the block are sung at User (ie user.id)
 
         song :initialize do |id|
           @id = id # can set the @id ivar to give the #id method a default
+          @phone_numbers = []
         end
 
         song :id
-        song :name, default: 'Josh'
+        song(:name) { 'Josh' }
         song :address
 
-        # bang will set this as the ivar value before initialization
-        song :phone_numbers, default!: []
+        song :phone_numbers
 
-        # hook will be invoked after each invocation, args passed to method will be passed to hook
-        song :add_phone_number, default: nil, hook: lambda { |area_code, number| @phone_numbers << [area_code, number] }
+        song :add_phone_number do |area_code, number|
+          @phone_numbers << [area_code, number]
+        end
       end
     end
 
@@ -94,7 +97,7 @@ describe Mockingbird do
 
     # methods with multiple args
     user.phone_numbers.should be_empty
-    user.add_phone_number('123', '456-7890').should be_nil
+    user.add_phone_number '123', '456-7890'
     user.should have_been_told_to(:add_phone_number).with('123', '456-7890')
     # user.phone_numbers.should == [['123', '456-7890']] # <-- should we use a hook, or default block to make this happen?
 
