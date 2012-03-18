@@ -1,8 +1,8 @@
 require 'mockingbird/version'
-require 'Mockingbird/bird'
-require 'Mockingbird/egg'
-require 'Mockingbird/options'
-require 'Mockingbird/song_queue'
+require 'mockingbird/bird'
+require 'mockingbird/egg'
+require 'mockingbird/options'
+require 'mockingbird/song_queue'
 
 class Mockingbird
   UnpreparedMethodError = Class.new StandardError
