@@ -7,7 +7,7 @@ class Mockingbird
           @songs = mocked_class.song_names
           if @songs.empty?
             inherited_methods = mocked_class.instance_methods - mocked_class.instance_methods(false)
-            inherited_methods.sort == original_class.instance_methods.sort
+            inherited_methods.sort == (original_class.instance_methods - [:new]).sort
           else
             @songs_on_original_class = (original_class.instance_methods & @songs) 
             @songs_on_original_class.sort == @songs.sort
@@ -15,7 +15,7 @@ class Mockingbird
         end
         
         def has_same_class_methods?(original_class, mocked_class)
-          true
+          has_same_instance_methods?(original_class.singleton_class, mocked_class.singleton_class)
         end
 
         match do |mocked_class|

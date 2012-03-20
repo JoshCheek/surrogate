@@ -71,9 +71,72 @@ describe 'be_substitutable_for' do
     end
   end
 
+
+  context 'a class with class methods' do
+    # COPYPASTA
+
+    let(:original_class) do
+      Class.new do
+        def self.foo
+        end
+
+        def self.bar
+        end
+      end
+    end
+
+    context "when mocked class has no songs" do
+      let(:mocked_class)   { Mockingbird.for Class.new }
+      it "cannot be substituable for it" do
+        mocked_class.should_not be_substitutable_for original_class  
+      end
+    end
+
+    context 'when the mocked class has the same songs' do
+      let(:mocked_class) do
+        Class.new do
+          Mockingbird.for self do
+            song :foo
+            song :bar
+          end
+        end
+      end
+      it 'is substituable for it' do
+        mocked_class.should be_substitutable_for original_class
+      end
+    end
+
+    context 'when the mocked class has different songs' do
+      let(:mocked_class) do
+        Class.new do
+          Mockingbird.for self do
+            song :qux
+          end
+        end
+      end
+
+      it 'is not substituable for it' do
+        mocked_class.should_not be_substitutable_for original_class
+      end
+    end
+
+    context "when the mocked class has an extra song" do
+      let(:mocked_class) do
+        Class.new do
+          Mockingbird.for self do
+            song :foo
+            song :bar
+            song :qux
+          end
+        end
+      end
+      it 'is not substituable for it' do
+        mocked_class.should_not be_substitutable_for original_class
+      end
+    end
+  end
 end
 
-# class methods
 # inherited methods
 # methods on the mock that aren't songs
 # arity
