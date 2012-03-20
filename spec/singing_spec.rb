@@ -285,4 +285,14 @@ describe 'songs' do
       superclass.reprise.new.should be_a_kind_of superclass
     end
   end
+
+  describe '#song_names' do
+    it 'returns the names of the songs as symbols' do
+      mocked_class = Class.new do
+        Mockingbird.for self
+        song :abc
+      end
+      mocked_class.song_names.should == [:abc]
+    end
+  end
 end

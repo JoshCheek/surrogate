@@ -97,6 +97,10 @@ class Mockingbird
       def klass.song(song, options={}, &block)
         @egg.song song, options, block
       end
+      
+      def klass.song_names
+        @egg.song_names
+      end
     end
   end
 end

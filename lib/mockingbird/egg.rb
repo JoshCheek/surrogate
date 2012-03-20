@@ -24,6 +24,10 @@ class Mockingbird
       @songs ||= {}
     end
 
+    def song_names
+      songs.keys - [:initialize]
+    end
+
     # here we need to find better domain terminology
     def add_song_methods_for(songname)
       klass.send :define_method, songname do |*args, &block|
