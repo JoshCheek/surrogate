@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe 'RSpec matchers', 'have_been_asked_for_its' do
-  let(:mocked_class) { Mockingbird.for Class.new }
+  let(:mocked_class) { Surrogate.for Class.new }
   let(:instance) { mocked_class.new }
 
   describe 'default use case' do

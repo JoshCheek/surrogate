@@ -1,4 +1,4 @@
-class Mockingbird
+class Surrogate
   UnknownSong = Class.new StandardError
   class Bird
     attr_accessor :instance, :egg

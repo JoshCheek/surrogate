@@ -1,2 +1,2 @@
-require 'mockingbird'
-require 'mockingbird/rspec'
+require 'surrogate'
+require 'surrogate/rspec'

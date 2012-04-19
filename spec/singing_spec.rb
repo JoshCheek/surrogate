@@ -4,7 +4,7 @@ describe 'songs' do
   describe 'in the block' do
     it 'is a song for the class' do
       pristine_klass = Class.new do
-        Mockingbird.for self do
+        Surrogate.for self do
           song(:find) { 123 }
         end
       end
@@ -21,7 +21,7 @@ describe 'songs' do
   # that would make it easier to talk about these, as the descriptions I'm using are obtuse
 
   describe 'out of the block' do
-    let(:mocked_class) { Mockingbird.for Class.new }
+    let(:mocked_class) { Surrogate.for Class.new }
     let(:instance)     { mocked_class.new }
 
     it 'is a song for the instance' do
@@ -62,11 +62,11 @@ describe 'songs' do
               mock.will_wink_queue :quickly, :slowly
               mock.wink.should == :quickly
               mock.wink.should == :slowly
-              expect { mock.wink }.to raise_error Mockingbird::UnpreparedMethodError
+              expect { mock.wink }.to raise_error Surrogate::UnpreparedMethodError
             end
 
             specify 'when there is a default block' do
-              mocked_class = Mockingbird.for(Class.new)
+              mocked_class = Surrogate.for(Class.new)
               mocked_class.song(:connect) { :default }
               mock = mocked_class.new
               mock.will_connect_queue 1, 2
@@ -111,11 +111,11 @@ describe 'songs' do
               mock.will_have_age_queue 12, 34
               mock.age.should == 12
               mock.age.should == 34
-              expect { mock.age }.to raise_error Mockingbird::UnpreparedMethodError
+              expect { mock.age }.to raise_error Surrogate::UnpreparedMethodError
             end
 
             specify 'when there is a default block' do
-              mocked_class = Mockingbird.for(Class.new)
+              mocked_class = Surrogate.for(Class.new)
               mocked_class.song(:name) { 'default' }
               mock = mocked_class.new
               mock.will_have_name_queue 'a', 'b'
@@ -140,7 +140,7 @@ describe 'songs' do
 
       it 'raises an UnpreparedMethodError when it has no default block' do
         mocked_class.song :meth
-        expect { mocked_class.new.meth }.to raise_error(Mockingbird::UnpreparedMethodError, /meth/)
+        expect { mocked_class.new.meth }.to raise_error(Surrogate::UnpreparedMethodError, /meth/)
       end
 
       it 'considers ivars of the same name to be its default' do
@@ -178,7 +178,7 @@ describe 'songs' do
           superclass = Class.new
           superclass.send(:define_method, :initialize) { @a = 1 }
           subclass = Class.new superclass
-          mocked_subclass = Mockingbird.for Class.new subclass
+          mocked_subclass = Surrogate.for Class.new subclass
           mocked_subclass.song :abc
           mocked_subclass.new.instance_variable_get(:@a).should == 1
         end
@@ -190,7 +190,7 @@ describe 'songs' do
 
           specify 'recorded regardless of when initialize is defined in relation to mock' do
             klass = Class.new do
-              Mockingbird.for self
+              Surrogate.for self
               def initialize(a)
                 @a = a
               end
@@ -202,7 +202,7 @@ describe 'songs' do
               def initialize(a)
                 @a = a
               end
-              Mockingbird.for self
+              Surrogate.for self
             end
             klass.new(1).should have_been_initialized_with 1
             klass.new(1).instance_variable_get(:@a).should == 1
@@ -243,7 +243,7 @@ describe 'songs' do
         mocked_class.song :meth2
         mock = mocked_class.new
         expect { mock.invocations(:meth1) }.to_not raise_error
-        expect { mock.invocations(:meth3) }.to raise_error Mockingbird::UnknownSong, /doesn't know "meth3", only knows "initialize", "meth1", "meth2"/
+        expect { mock.invocations(:meth3) }.to raise_error Surrogate::UnknownSong, /doesn't know "meth3", only knows "initialize", "meth1", "meth2"/
       end
     end
   end
@@ -252,7 +252,7 @@ describe 'songs' do
   describe 'reprise' do
     it 'a repetition or further performance of the klass' do
       pristine_klass = Class.new do
-        Mockingbird.for self do
+        Surrogate.for self do
           song(:find) { 123 }
           song(:bind) { 'abc' }
         end
@@ -281,7 +281,7 @@ describe 'songs' do
     end
 
     it 'is a subclass of the reprised class' do
-      superclass = Mockingbird.for Class.new
+      superclass = Surrogate.for Class.new
       superclass.reprise.new.should be_a_kind_of superclass
     end
   end
@@ -289,7 +289,7 @@ describe 'songs' do
   describe '#song_names' do
     it 'returns the names of the songs as symbols' do
       mocked_class = Class.new do
-        Mockingbird.for self
+        Surrogate.for self
         song :abc
       end
       mocked_class.song_names.should == [:abc]

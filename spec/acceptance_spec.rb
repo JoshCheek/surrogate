@@ -1,15 +1,15 @@
 require 'spec_helper'
 
-describe Mockingbird do
+describe Surrogate do
   it 'passes this acceptance spec' do
     module Mock
       class User
 
         # things sung inside the block are sungd to User's singleton class (ie User.find)
-        Mockingbird.for self do
+        Surrogate.for self do
 
           # the block is used as a default value unless overridden by the spec
-          song :find do |id|
+          define :find do |id|
             new id
           end
 
@@ -17,18 +17,18 @@ describe Mockingbird do
 
         # things sung outside the block are sung at User (ie user.id)
 
-        song :initialize do |id|
+        define :initialize do |id|
           @id = id # can set the @id ivar to give the #id method a default
           @phone_numbers = []
         end
 
-        song :id
-        song(:name) { 'Josh' }
-        song :address
+        define :id
+        define(:name) { 'Josh' }
+        define :address
 
-        song :phone_numbers
+        define :phone_numbers
 
-        song :add_phone_number do |area_code, number|
+        define :add_phone_number do |area_code, number|
           @phone_numbers << [area_code, number]
         end
       end
@@ -92,7 +92,7 @@ describe Mockingbird do
     Mock::User.new(1).name.should == 'Josh'
 
     # error is raised if you try to access an attribute that hasn't been set and has no default
-    expect { Mock::User.new(1).address }.to raise_error Mockingbird::UnpreparedMethodError
+    expect { Mock::User.new(1).address }.to raise_error Surrogate::UnpreparedMethodError
     Mock::User.new(1).will_have_address('123 Fake St.').address.should == '123 Fake St.'
 
     # methods with multiple args

@@ -1,4 +1,4 @@
-class Mockingbird
+class Surrogate
   class SongQueue < Struct.new(:queue)
     QueueEmpty = Class.new StandardError
 

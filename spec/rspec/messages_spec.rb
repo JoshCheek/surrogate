@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-messages_for = Mockingbird::RSpec::MessagesFor
+messages_for = Surrogate::RSpec::MessagesFor
 
 describe messages_for, 'argument inspection' do
 

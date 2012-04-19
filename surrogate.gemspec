@@ -1,9 +1,9 @@
 # -*- encoding: utf-8 -*-
 $:.push File.expand_path("../lib", __FILE__)
-require "mockingbird/version"
+require "surrogate/version"
 
 Gem::Specification.new do |s|
-  s.name        = "mockingbird"
+  s.name        = "surrogate"
   s.version     = Mockingbird::VERSION
   s.authors     = ["Josh Cheek"]
   s.email       = ["josh.cheek@gmail.com"]
@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.summary     = %q{Framework to aid in handrolling mock/spy objects.}
   s.description = %q{Framework to aid in handrolling mock/spy objects.}
 
-  s.rubyforge_project = "cobbler"
+  s.rubyforge_project = "surrogate"
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")

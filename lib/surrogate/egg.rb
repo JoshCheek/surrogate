@@ -1,4 +1,4 @@
-class Mockingbird
+class Surrogate
   class Egg
     attr_accessor :klass
 
@@ -31,17 +31,17 @@ class Mockingbird
     # here we need to find better domain terminology
     def add_song_methods_for(songname)
       klass.send :define_method, songname do |*args, &block|
-        @mockingbird.play_song songname, args, &block
+        @surrogate.play_song songname, args, &block
       end
 
       # verbs
       klass.send :define_method, "will_#{songname}" do |*args, &block|
-        @mockingbird.prepare_song songname, args, &block
+        @surrogate.prepare_song songname, args, &block
         self
       end
 
       klass.send :define_method, "will_#{songname}_queue" do |*args, &block|
-        @mockingbird.prepare_song_queue songname, args, &block
+        @surrogate.prepare_song_queue songname, args, &block
         self
       end
 

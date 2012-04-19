@@ -1,7 +1,7 @@
 require 'erb'
 
 
-class Mockingbird
+class Surrogate
   module RSpec
     module MessagesFor
 

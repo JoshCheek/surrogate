@@ -1,4 +1,4 @@
-class Mockingbird
+class Surrogate
   class Options
     attr_accessor :options, :default_proc
 

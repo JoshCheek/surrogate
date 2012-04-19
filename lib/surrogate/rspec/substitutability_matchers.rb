@@ -1,4 +1,4 @@
-class Mockingbird
+class Surrogate
   module RSpec
     module MessagesFor
       ::RSpec::Matchers.define :be_substitutable_for do |original_class|
@@ -9,11 +9,11 @@ class Mockingbird
             inherited_methods = mocked_class.instance_methods - mocked_class.instance_methods(false)
             inherited_methods.sort == (original_class.instance_methods - [:new]).sort
           else
-            @songs_on_original_class = (original_class.instance_methods & @songs) 
+            @songs_on_original_class = (original_class.instance_methods & @songs)
             @songs_on_original_class.sort == @songs.sort
           end
         end
-        
+
         def has_same_class_methods?(original_class, mocked_class)
           has_same_instance_methods?(original_class.singleton_class, mocked_class.singleton_class)
         end
