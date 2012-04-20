@@ -3,13 +3,13 @@ require 'surrogate/bird'
 require 'surrogate/egg'
 require 'surrogate/options'
 require 'surrogate/method_queue'
-require 'surrogate/nest_builder'
+require 'surrogate/endower'
 
 class Surrogate
   UnpreparedMethodError = Class.new StandardError
 
-  def self.for(klass, &playlist)
-    NestBuilder.build klass, &playlist
+  def self.endow(klass, &playlist)
+    Endower.endow klass, &playlist
     klass
   end
 end

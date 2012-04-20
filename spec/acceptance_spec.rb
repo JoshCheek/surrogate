@@ -6,7 +6,7 @@ describe Surrogate do
       class User
 
         # things sung inside the block are sungd to User's singleton class (ie User.find)
-        Surrogate.for self do
+        Surrogate.endow self do
 
           # the block is used as a default value unless overridden by the spec
           define :find do |id|

@@ -4,7 +4,7 @@ describe 'define' do
   describe 'in the block' do
     it 'is an api method for the class' do
       pristine_klass = Class.new do
-        Surrogate.for self do
+        Surrogate.endow self do
           define(:find) { 123 }
         end
       end
@@ -18,7 +18,7 @@ describe 'define' do
 
 
   describe 'out of the block' do
-    let(:mocked_class) { Surrogate.for Class.new }
+    let(:mocked_class) { Surrogate.endow Class.new }
     let(:instance)     { mocked_class.new }
 
     it 'is an api method for the instance' do
@@ -63,7 +63,7 @@ describe 'define' do
             end
 
             specify 'when there is a default block' do
-              mocked_class = Surrogate.for(Class.new)
+              mocked_class = Surrogate.endow(Class.new)
               mocked_class.define(:connect) { :default }
               mock = mocked_class.new
               mock.will_connect_queue 1, 2
@@ -112,7 +112,7 @@ describe 'define' do
             end
 
             specify 'when there is a default block' do
-              mocked_class = Surrogate.for(Class.new)
+              mocked_class = Surrogate.endow(Class.new)
               mocked_class.define(:name) { 'default' }
               mock = mocked_class.new
               mock.will_have_name_queue 'a', 'b'
@@ -175,7 +175,7 @@ describe 'define' do
           superclass = Class.new
           superclass.send(:define_method, :initialize) { @a = 1 }
           subclass = Class.new superclass
-          mocked_subclass = Surrogate.for Class.new subclass
+          mocked_subclass = Surrogate.endow Class.new subclass
           mocked_subclass.define :abc
           mocked_subclass.new.instance_variable_get(:@a).should == 1
         end
@@ -187,7 +187,7 @@ describe 'define' do
 
           specify 'recorded regardless of when initialize is defined in relation to mock' do
             klass = Class.new do
-              Surrogate.for self
+              Surrogate.endow self
               def initialize(a)
                 @a = a
               end
@@ -199,7 +199,7 @@ describe 'define' do
               def initialize(a)
                 @a = a
               end
-              Surrogate.for self
+              Surrogate.endow self
             end
             klass.new(1).should have_been_initialized_with 1
             klass.new(1).instance_variable_get(:@a).should == 1
@@ -249,7 +249,7 @@ describe 'define' do
   describe 'reprise' do
     it 'a repetition or further performance of the klass' do
       pristine_klass = Class.new do
-        Surrogate.for self do
+        Surrogate.endow self do
           define(:find) { 123 }
           define(:bind) { 'abc' }
         end
@@ -278,7 +278,7 @@ describe 'define' do
     end
 
     it 'is a subclass of the reprised class' do
-      superclass = Surrogate.for Class.new
+      superclass = Surrogate.endow Class.new
       superclass.reprise.new.should be_a_kind_of superclass
     end
   end
@@ -286,7 +286,7 @@ describe 'define' do
   describe '#api_method_names' do
     it 'returns the names of the api methods as symbols' do
       mocked_class = Class.new do
-        Surrogate.for self
+        Surrogate.endow self
         define :abc
       end
       mocked_class.api_method_names.should == [:abc]

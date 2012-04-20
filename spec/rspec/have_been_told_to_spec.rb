@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe 'RSpec matchers', 'have_been_told_to' do
-  let(:mocked_class) { Surrogate.for Class.new }
+  let(:mocked_class) { Surrogate.endow Class.new }
   let(:instance) { mocked_class.new }
 
   describe 'default use case' do

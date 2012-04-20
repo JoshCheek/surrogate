@@ -5,7 +5,7 @@ describe 'be_substitutable_for' do
 
   context "a class with no methods" do
     let(:original_class) { Class.new }
-    let(:mocked_class)   { Surrogate.for Class.new }
+    let(:mocked_class)   { Surrogate.endow Class.new }
 
     it "can be substituable for it" do
       mocked_class.should be_substitutable_for original_class
@@ -24,7 +24,7 @@ describe 'be_substitutable_for' do
     end
 
     context "when mocked class has no api methods" do
-      let(:mocked_class)   { Surrogate.for Class.new }
+      let(:mocked_class)   { Surrogate.endow Class.new }
       it "cannot be substituable for it" do
         mocked_class.should_not be_substitutable_for original_class
       end
@@ -33,7 +33,7 @@ describe 'be_substitutable_for' do
     context 'when the mocked class has the same api methods' do
       let(:mocked_class) do
         Class.new do
-          Surrogate.for self
+          Surrogate.endow self
           define :foo
           define :bar
         end
@@ -46,7 +46,7 @@ describe 'be_substitutable_for' do
     context 'when the mocked class has different api methods' do
       let(:mocked_class) do
         Class.new do
-          Surrogate.for self
+          Surrogate.endow self
           define :qux
         end
       end
@@ -59,7 +59,7 @@ describe 'be_substitutable_for' do
     context "when the mocked class has an extra api methods" do
       let(:mocked_class) do
         Class.new do
-          Surrogate.for self
+          Surrogate.endow self
           define :foo
           define :bar
           define :qux
@@ -86,7 +86,7 @@ describe 'be_substitutable_for' do
     end
 
     context "when mocked class has no api methods" do
-      let(:mocked_class)   { Surrogate.for Class.new }
+      let(:mocked_class)   { Surrogate.endow Class.new }
       it "cannot be substituable for it" do
         mocked_class.should_not be_substitutable_for original_class
       end
@@ -95,7 +95,7 @@ describe 'be_substitutable_for' do
     context 'when the mocked class has the same api methods' do
       let(:mocked_class) do
         Class.new do
-          Surrogate.for self do
+          Surrogate.endow self do
             define :foo
             define :bar
           end
@@ -109,7 +109,7 @@ describe 'be_substitutable_for' do
     context 'when the mocked class has different api methods' do
       let(:mocked_class) do
         Class.new do
-          Surrogate.for self do
+          Surrogate.endow self do
             define :qux
           end
         end
@@ -123,7 +123,7 @@ describe 'be_substitutable_for' do
     context "when the mocked class has an extra api method" do
       let(:mocked_class) do
         Class.new do
-          Surrogate.for self do
+          Surrogate.endow self do
             define :foo
             define :bar
             define :qux

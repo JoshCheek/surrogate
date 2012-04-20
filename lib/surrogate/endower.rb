@@ -1,7 +1,9 @@
 class Surrogate
-  class NestBuilder
-    def self.build(klass, &playlist)
-      new(klass, &playlist).build
+
+  # adds surrogate behaviour to your class / singleton class / instances
+  class Endower
+    def self.endow(klass, &playlist)
+      new(klass, &playlist).endow
     end
 
     attr_accessor :klass, :playlist
@@ -10,14 +12,14 @@ class Surrogate
       self.klass, self.playlist = klass, playlist
     end
 
-    def build
-      build_for_klass
-      build_for_singleton_class
+    def endow
+      endow_klass
+      endow_singleton_class
     end
 
   private
 
-    def build_for_klass
+    def endow_klass
       an_egg_for                             klass
       enable_defining_methods                klass
       record_initialization_for_instances_of klass
@@ -27,7 +29,7 @@ class Surrogate
       can_get_a_new                          klass
     end
 
-    def build_for_singleton_class
+    def endow_singleton_class
       egg = an_egg_for singleton
       enable_defining_methods singleton
       singleton.instance_eval &playlist if playlist
@@ -61,7 +63,7 @@ class Surrogate
       klass.define_singleton_method :reprise do
         new_klass = Class.new self
         surrogate = @surrogate
-        Surrogate.for new_klass do
+        Surrogate.endow new_klass do
           surrogate.api_methods.each do |method_name, options|
             define method_name, options.to_hash, &options.default_proc
           end
