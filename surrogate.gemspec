@@ -4,7 +4,7 @@ require "surrogate/version"
 
 Gem::Specification.new do |s|
   s.name        = "surrogate"
-  s.version     = Mockingbird::VERSION
+  s.version     = Surrogate::VERSION
   s.authors     = ["Josh Cheek"]
   s.email       = ["josh.cheek@gmail.com"]
   s.homepage    = ""

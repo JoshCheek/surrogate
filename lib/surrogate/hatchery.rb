@@ -32,18 +32,16 @@ class Surrogate
 
       # verbs
       klass.send :define_method, "will_#{method_name}" do |*args, &block|
-        @surrogate.prepare_method method_name, args, &block
-        self
-      end
-
-      klass.send :define_method, "will_#{method_name}_queue" do |*args, &block|
-        @surrogate.prepare_method_queue method_name, args, &block
+        if args.size == 1
+          @surrogate.prepare_method method_name, args, &block
+        else
+          @surrogate.prepare_method_queue method_name, args, &block
+        end
         self
       end
 
       # nouns
       klass.send :alias_method, "will_have_#{method_name}", "will_#{method_name}"
-      klass.send :alias_method, "will_have_#{method_name}_queue", "will_#{method_name}_queue"
     end
   end
 end

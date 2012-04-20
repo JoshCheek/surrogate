@@ -45,7 +45,7 @@ describe Surrogate do
     user_class.find(2).should == :user1
 
     # set a queue of default values
-    user_class.will_find_queue :user1, :user2, :user3    # set three overrides
+    user_class.will_find :user1, :user2, :user3          # set three overrides
     user_class.find(11).should == :user1                 # first override
     user_class.find(22).should == :user2                 # second override
     user_class.find(33).should == :user3                 # third override

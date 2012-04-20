@@ -47,16 +47,16 @@ describe 'define' do
           end
         end
 
-        describe 'will_<api_method>_queue' do
+        describe 'will_<api_method> with multiple arguments' do
           it 'returns the object' do
             instance = mocked_class.new
-            instance.will_wink_queue(1, 2, 3).should equal instance
+            instance.will_wink(1, 2, 3).should equal instance
           end
 
           context 'it creates a queue of things to find then returns to normal behaviour' do
             specify 'when there is no default block' do
               mock = mocked_class.new
-              mock.will_wink_queue :quickly, :slowly
+              mock.will_wink :quickly, :slowly
               mock.wink.should == :quickly
               mock.wink.should == :slowly
               expect { mock.wink }.to raise_error Surrogate::UnpreparedMethodError
@@ -66,7 +66,7 @@ describe 'define' do
               mocked_class = Surrogate.endow(Class.new)
               mocked_class.define(:connect) { :default }
               mock = mocked_class.new
-              mock.will_connect_queue 1, 2
+              mock.will_connect 1, 2
               mock.connect.should == 1
               mock.connect.should == 2
               mock.connect.should == :default
@@ -96,16 +96,16 @@ describe 'define' do
           end
         end
 
-        describe 'wil_have_<api_method>_queue' do
+        describe 'wil_have_<api_method> with multiple arguments' do
           it 'returns the object' do
             instance = mocked_class.new
-            instance.will_have_age_queue(1,2,3).should equal instance
+            instance.will_have_age(1,2,3).should equal instance
           end
 
           context 'it creates a queue of things to find then returns to normal behaviour' do
             specify 'when there is no default block' do
               mock = mocked_class.new
-              mock.will_have_age_queue 12, 34
+              mock.will_have_age 12, 34
               mock.age.should == 12
               mock.age.should == 34
               expect { mock.age }.to raise_error Surrogate::UnpreparedMethodError
@@ -115,7 +115,7 @@ describe 'define' do
               mocked_class = Surrogate.endow(Class.new)
               mocked_class.define(:name) { 'default' }
               mock = mocked_class.new
-              mock.will_have_name_queue 'a', 'b'
+              mock.will_have_name 'a', 'b'
               mock.name.should == 'a'
               mock.name.should == 'b'
               mock.name.should == 'default'
