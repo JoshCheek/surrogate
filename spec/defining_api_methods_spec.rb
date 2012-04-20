@@ -9,7 +9,7 @@ describe 'define' do
         end
       end
 
-      klass1 = pristine_klass.reprise
+      klass1 = pristine_klass.clone
       klass1.should_not have_been_told_to :find
       klass1.find(1).should == 123
       klass1.should have_been_told_to(:find).with(1)
@@ -246,7 +246,7 @@ describe 'define' do
   end
 
 
-  describe 'reprise' do
+  describe 'clone' do
     it 'a repetition or further performance of the klass' do
       pristine_klass = Class.new do
         Surrogate.endow self do
@@ -257,13 +257,13 @@ describe 'define' do
         define(:repeat) { 321 }
       end
 
-      klass1 = pristine_klass.reprise
+      klass1 = pristine_klass.clone
       klass1.should_not have_been_told_to :find
       klass1.find(1).should == 123
       klass1.should have_been_told_to(:find).with(1)
       klass1.bind.should == 'abc'
 
-      klass2 = pristine_klass.reprise
+      klass2 = pristine_klass.clone
       klass2.will_find 456
       klass2.find(2).should == 456
       klass1.find.should == 123
@@ -277,9 +277,9 @@ describe 'define' do
       klass1.new.repeat.should == 321
     end
 
-    it 'is a subclass of the reprised class' do
+    it 'is a subclass of the cloned class' do
       superclass = Surrogate.endow Class.new
-      superclass.reprise.new.should be_a_kind_of superclass
+      superclass.clone.new.should be_a_kind_of superclass
     end
   end
 

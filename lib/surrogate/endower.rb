@@ -1,6 +1,8 @@
 class Surrogate
 
   # adds surrogate behaviour to your class / singleton class / instances
+  #
+  # please refactor me!
   class Endower
     def self.endow(klass, &playlist)
       new(klass, &playlist).endow
@@ -60,19 +62,22 @@ class Surrogate
     end
 
     def can_get_a_new(klass)
-      klass.define_singleton_method :reprise do
-        new_klass = Class.new self
-        surrogate = @surrogate
-        Surrogate.endow new_klass do
-          surrogate.api_methods.each do |method_name, options|
-            define method_name, options.to_hash, &options.default_proc
+      klass.extend Module.new {
+        # use a module so that the method is inherited (important for substitutability)
+        def clone
+          new_klass = Class.new self
+          surrogate = @surrogate
+          Surrogate.endow new_klass do
+            surrogate.api_methods.each do |method_name, options|
+              define method_name, options.to_hash, &options.default_proc
+            end
           end
+          @hatchery.api_methods.each do |method_name, options|
+            new_klass.define method_name, options.to_hash, &options.default_proc
+          end
+          new_klass
         end
-        @hatchery.api_methods.each do |method_name, options|
-          new_klass.define method_name, options.to_hash, &options.default_proc
-        end
-        new_klass
-      end
+      }
     end
 
     def remember_invocations_for_instances_of(klass)
@@ -86,13 +91,16 @@ class Surrogate
     end
 
     def hijack_instantiation_of(klass)
-      def klass.new(*args)
-        instance = allocate
-        hatchery = @hatchery
-        instance.instance_eval { @surrogate = Hatchling.new instance, hatchery }
-        instance.send :initialize, *args
-        instance
-      end
+      # use a module so that the method is inherited (important for substitutability)
+      klass.extend Module.new {
+        def new(*args)
+          instance = allocate
+          hatchery = @hatchery
+          instance.instance_eval { @surrogate = Hatchling.new instance, hatchery }
+          instance.send :initialize, *args
+          instance
+        end
+      }
     end
 
     def enable_defining_methods(klass)

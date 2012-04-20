@@ -36,7 +36,7 @@ describe Surrogate do
 
 
     # don't affect the real user class
-    user_class = Mock::User.reprise
+    user_class = Mock::User.clone
 
 
     # =====  set a default  =====
@@ -53,7 +53,7 @@ describe Surrogate do
     # might also be nice to provide a way to raise an error
 
     # tracking invocations
-    user_class = Mock::User.reprise
+    user_class = Mock::User.clone
     user_class.should_not have_been_told_to :find
     user_class.find 12
     user_class.find 12
