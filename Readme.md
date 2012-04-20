@@ -1,4 +1,43 @@
-Explanation and examples coming soon.
+Explanation and examples coming soon, but here is a simple example I wrote up for a lightning talk:
+
+    require 'surrogate'
+    require 'surrogate/rspec'
+
+    module Mock
+      class User
+        Surrogate.endow self
+        define(:name) { 'Josh' }
+        define :phone_numbers
+        define :add_phone_number do |area_code, number|
+          @phone_numbers << [area_code, number]
+        end
+      end
+    end
+
+    class User
+      def name()end
+      def phone_numbers()end
+      def add_phone_number()end
+    end
+
+    describe do
+      it 'ensures the mock lib looks like real lib' do
+        Mock::User.should substitute_for User
+      end
+
+      let(:user) { Mock::User.new }
+
+      example 'you can tell it how to behave and ask what happened with it' do
+        user.will_have_name "Sally"
+
+        user.should_not have_been_asked_for_its :name
+        user.name.should == "Sally"
+        user.should have_been_asked_for_its :name
+      end
+    end
+
+
+
 
 TODO
 ----
