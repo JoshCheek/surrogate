@@ -102,6 +102,13 @@ describe Surrogate do
     # user.phone_numbers.should == [['123', '456-7890']] # <-- should we use a hook, or default block to make this happen?
 
 
+    # =====  raise errors  =====
+
+    # pass the error as the return value, it will be raised when method is invoked
+    error = StandardError.new("some message")
+    user.will_add_phone_number error
+    expect { user.add_phone_number }.to raise_error StandardError, "some message"
+
     # =====  Substitutability  =====
 
     # real user is not a suitable substitute if missing methods that mock user has

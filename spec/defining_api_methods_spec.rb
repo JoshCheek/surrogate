@@ -73,6 +73,25 @@ describe 'define' do
             end
           end
         end
+
+        describe 'when an argument is an error' do
+          it 'raises the error on method invocation' do
+            mocked_class = Surrogate.endow(Class.new)
+            mocked_class.define :connect
+            mock = mocked_class.new
+            error = StandardError.new("some message")
+
+            # for single invocation
+            mock.will_connect error
+            expect { mock.connect }.to raise_error StandardError, "some message"
+
+            # for queue
+            mock.will_connect 1, error, 2
+            mock.connect.should == 1
+            expect { mock.connect }.to raise_error StandardError, "some message"
+            mock.connect.should == 2
+          end
+        end
       end
 
 

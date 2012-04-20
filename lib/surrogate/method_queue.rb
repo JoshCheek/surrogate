@@ -4,7 +4,9 @@ class Surrogate
 
     def dequeue
       raise QueueEmpty if empty?
-      queue.shift
+      current = queue.shift
+      raise current if current.kind_of? Exception
+      current
     end
 
     def empty?

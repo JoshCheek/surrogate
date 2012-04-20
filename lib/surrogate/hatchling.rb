@@ -15,8 +15,14 @@ class Surrogate
       invoked_methods[method_name] << args
       return get_default method_name, args unless has_ivar? method_name
       ivar = get_ivar method_name
-      return ivar unless ivar.kind_of? MethodQueue
-      play_from_queue ivar, method_name
+      case ivar
+      when MethodQueue
+        play_from_queue ivar, method_name
+      when Exception
+        raise ivar
+      else
+        ivar
+      end
     end
 
     def prepare_method(method_name, args, &block)
