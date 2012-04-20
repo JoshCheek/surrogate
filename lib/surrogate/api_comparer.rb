@@ -19,7 +19,8 @@ class Surrogate
     end
 
     def compare
-      { instance: {
+      @compare ||= {
+        instance: {
           not_on_surrogate: instance_not_on_surrogate,
           not_on_actual:    instance_not_on_actual,
         },
