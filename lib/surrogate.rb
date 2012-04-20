@@ -1,6 +1,6 @@
 require 'surrogate/version'
-require 'surrogate/bird'
-require 'surrogate/egg'
+require 'surrogate/hatchling'
+require 'surrogate/hatchery'
 require 'surrogate/options'
 require 'surrogate/method_queue'
 require 'surrogate/endower'

@@ -20,7 +20,7 @@ class Surrogate
   private
 
     def endow_klass
-      an_egg_for                             klass
+      a_hatchery_for                         klass
       enable_defining_methods                klass
       record_initialization_for_instances_of klass
       remember_invocations_for_instances_of  klass
@@ -30,10 +30,10 @@ class Surrogate
     end
 
     def endow_singleton_class
-      egg = an_egg_for singleton
+      hatchery = a_hatchery_for singleton
       enable_defining_methods singleton
       singleton.instance_eval &playlist if playlist
-      klass.instance_variable_set :@surrogate, egg.hatch(klass)
+      klass.instance_variable_set :@surrogate, Hatchling.new(klass, hatchery)
       klass
     end
 
@@ -68,7 +68,7 @@ class Surrogate
             define method_name, options.to_hash, &options.default_proc
           end
         end
-        @egg.api_methods.each do |method_name, options|
+        @hatchery.api_methods.each do |method_name, options|
           new_klass.define method_name, options.to_hash, &options.default_proc
         end
         new_klass
@@ -81,15 +81,15 @@ class Surrogate
       end
     end
 
-    def an_egg_for(klass)
-      klass.instance_variable_set :@egg, Surrogate::Egg.new(klass)
+    def a_hatchery_for(klass)
+      klass.instance_variable_set :@hatchery, Surrogate::Hatchery.new(klass)
     end
 
     def hijack_instantiation_of(klass)
       def klass.new(*args)
         instance = allocate
-        egg = @egg
-        instance.instance_eval { @surrogate = egg.hatch instance }
+        hatchery = @hatchery
+        instance.instance_eval { @surrogate = Hatchling.new instance, hatchery }
         instance.send :initialize, *args
         instance
       end
@@ -97,11 +97,11 @@ class Surrogate
 
     def enable_defining_methods(klass)
       def klass.define(method_name, options={}, &block)
-        @egg.define method_name, options, block
+        @hatchery.define method_name, options, block
       end
 
       def klass.api_method_names
-        @egg.api_method_names
+        @hatchery.api_method_names
       end
     end
   end

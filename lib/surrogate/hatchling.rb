@@ -1,14 +1,14 @@
 class Surrogate
   UnknownMethod = Class.new StandardError
-  class Bird
-    attr_accessor :instance, :egg
+  class Hatchling
+    attr_accessor :instance, :hatchery
 
-    def initialize(instance, egg)
-      self.instance, self.egg = instance, egg
+    def initialize(instance, hatchery)
+      self.instance, self.hatchery = instance, hatchery
     end
 
     def api_methods
-      egg.api_methods
+      hatchery.api_methods
     end
 
     def invoke_method(method_name, args, &block)

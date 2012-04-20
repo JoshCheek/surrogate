@@ -1,14 +1,10 @@
 class Surrogate
-  class Egg
+  class Hatchery
     attr_accessor :klass
 
     def initialize(klass)
       self.klass = klass
       defines_methods
-    end
-
-    def hatch(instance)
-      Bird.new instance, self
     end
 
     def defines_methods
