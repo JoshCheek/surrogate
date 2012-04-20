@@ -105,7 +105,7 @@ describe Surrogate do
     # =====  Substitutability  =====
 
     # real user is not a suitable substitute if missing methods that mock user has
-    user_class.should_not be_substitutable_for Class.new
+    user_class.should_not substitute_for Class.new
 
     # real user must have all of mock user's methods to be substitutable
     substitutable_real_user_class = Class.new do
@@ -117,24 +117,15 @@ describe Surrogate do
       def phone_numbers() end
       def add_phone_number(area_code, number) end
     end
-    user_class.should be_substitutable_for substitutable_real_user_class
+    user_class.should substitute_for substitutable_real_user_class
 
-    # real user is not a suitable substitutable if has extra methods
-    real_user_class = substitutable_real_user_class.reprise
-    def real_user.some_class_meth() end
-    user_class.should_not be_substitutable_for real_user_class
+    # real user class is not a suitable substitutable if has extra methods
+    real_user_class = substitutable_real_user_class.clone
+    def real_user_class.some_class_meth() end
+    user_class.should_not substitute_for real_user_class
 
-    real_user_class = substitutable_real_user_class.reprise
+    real_user_class = substitutable_real_user_class.clone
     real_user_class.send(:define_method, :some_instance_method) {}
-    user_class.should_not be_substitutable_for real_user
-
-    # real user is not a suitable substitutable_real_user_class unless arities match
-    real_user_class = substitutable_real_user_class.reprise
-    def real_user_class.find(arg1, arg2) end
-    user_class.should_not be_substitutable_for real_user_class
-
-    real_user_class = substitutable_real_user_class.reprise
-    real_user_class.send(:define_method, :id) { |arg1, arg2, arg3| }
-    user_class.should_not be_substitutable_for real_user_class
+    user_class.should_not substitute_for real_user_class
   end
 end

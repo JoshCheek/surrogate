@@ -1,7 +1,7 @@
 class Surrogate
   module RSpec
     module MessagesFor
-      ::RSpec::Matchers.define :be_substitutable_for do |original_class|
+      ::RSpec::Matchers.define :substitute_for do |original_class|
 
         match do |mocked_class|
           comparison = ApiComparer.new(mocked_class, original_class).compare
