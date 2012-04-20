@@ -1,5 +1,5 @@
 class Surrogate
-  class SongQueue < Struct.new(:queue)
+  class MethodQueue < Struct.new(:queue)
     QueueEmpty = Class.new StandardError
 
     def dequeue

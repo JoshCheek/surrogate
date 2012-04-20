@@ -1,1 +1,1 @@
-require 'surrogate/rspec/song_matchers'
+require 'surrogate/rspec/api_method_matchers'

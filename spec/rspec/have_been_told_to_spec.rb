@@ -5,7 +5,7 @@ describe 'RSpec matchers', 'have_been_told_to' do
   let(:instance) { mocked_class.new }
 
   describe 'default use case' do
-    before { mocked_class.song :kick, default: [] }
+    before { mocked_class.define :kick, default: [] }
 
     example 'passes if has been invoked at least once' do
       instance.should_not have_been_told_to :kick
@@ -33,7 +33,7 @@ describe 'RSpec matchers', 'have_been_told_to' do
 
 
   describe 'specifying which arguments it should have been invoked with' do
-    before { mocked_class.song :smile, default: nil }
+    before { mocked_class.define :smile, default: nil }
 
     example 'default use case' do
       instance.should_not have_been_told_to(:smile).with(1, 2, 3)
@@ -62,7 +62,7 @@ describe 'RSpec matchers', 'have_been_told_to' do
 
 
   describe 'specifying number of times invoked' do
-    before { mocked_class.song :wink, default: nil }
+    before { mocked_class.define :wink, default: nil }
 
     example 'default use case' do
       instance.should have_been_told_to(:wink).times(0)
@@ -92,7 +92,7 @@ describe 'RSpec matchers', 'have_been_told_to' do
   end
 
   describe 'conjunction of with(args) and times(n)' do
-    before { mocked_class.song :wink, default: nil }
+    before { mocked_class.define :wink, default: nil }
 
     example 'default use case' do
       instance.should have_been_told_to(:wink).times(0).with(1, '2')

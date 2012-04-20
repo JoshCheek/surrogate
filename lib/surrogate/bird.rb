@@ -1,5 +1,5 @@
 class Surrogate
-  UnknownSong = Class.new StandardError
+  UnknownMethod = Class.new StandardError
   class Bird
     attr_accessor :instance, :egg
 
@@ -7,71 +7,71 @@ class Surrogate
       self.instance, self.egg = instance, egg
     end
 
-    def songs
-      egg.songs
+    def api_methods
+      egg.api_methods
     end
 
-    def play_song(songname, args, &block)
-      played_songs[songname] << args
-      return get_default songname, args unless has_ivar? songname
-      ivar = get_ivar songname
-      return ivar unless ivar.kind_of? SongQueue
-      play_from_queue ivar, songname
+    def invoke_method(method_name, args, &block)
+      invoked_methods[method_name] << args
+      return get_default method_name, args unless has_ivar? method_name
+      ivar = get_ivar method_name
+      return ivar unless ivar.kind_of? MethodQueue
+      play_from_queue ivar, method_name
     end
 
-    def prepare_song(songname, args, &block)
-      set_ivar songname, *args
+    def prepare_method(method_name, args, &block)
+      set_ivar method_name, *args
     end
 
-    def prepare_song_queue(songname, args, &block)
-      set_ivar songname, SongQueue.new(args)
+    def prepare_method_queue(method_name, args, &block)
+      set_ivar method_name, MethodQueue.new(args)
     end
 
-    def invocations(songname)
-      played_songs[songname]
+    def invocations(method_name)
+      invoked_methods[method_name]
     end
 
   private
 
-    def played_songs
-      @played_songs ||= Hash.new do |hash, songname|
-        must_know songname
-        hash[songname] = []
+    def invoked_methods
+      @invoked_methods ||= Hash.new do |hash, method_name|
+        must_know method_name
+        hash[method_name] = []
       end
     end
 
-    def get_default(songname, args)
-      songs[songname].default instance, args do
-        raise UnpreparedMethodError, "#{songname} has been invoked without being told how to behave"
+    def get_default(method_name, args)
+      api_methods[method_name].default instance, args do
+        raise UnpreparedMethodError, "#{method_name} has been invoked without being told how to behave"
       end
     end
 
-    def play_from_queue(queue, songname)
+    def play_from_queue(queue, method_name)
       result = queue.dequeue
-      unset_ivar songname if queue.empty?
+      unset_ivar method_name if queue.empty?
       result
     end
 
-    def must_know(songname)
-      return if songs.has_key? songname
-      known_songs = songs.keys.map(&:to_s).map(&:inspect).join ', '
-      raise UnknownSong, "doesn't know \"#{songname}\", only knows #{known_songs}"
+    def must_know(method_name)
+      return if api_methods.has_key? method_name
+      known_methods = api_methods.keys.map(&:to_s).map(&:inspect).join ', '
+      raise UnknownMethod, "doesn't know \"#{method_name}\", only knows #{known_methods}"
     end
 
-    def has_ivar?(songname)
-      instance.instance_variable_defined? "@#{songname}"
+    def has_ivar?(method_name)
+      instance.instance_variable_defined? "@#{method_name}"
     end
 
-    def set_ivar(songname, value)
-      instance.instance_variable_set "@#{songname}", value
+    def set_ivar(method_name, value)
+      instance.instance_variable_set "@#{method_name}", value
     end
 
-    def get_ivar(songname)
-      instance.instance_variable_get "@#{songname}"
+    def get_ivar(method_name)
+      instance.instance_variable_get "@#{method_name}"
     end
 
-    def unset_ivar(songname)
-      instance.send :remove_instance_variable, "@#{songname}"
+    def unset_ivar(method_name)
+      instance.send :remove_instance_variable, "@#{method_name}"
     end
   end
 end

@@ -23,19 +23,19 @@ describe 'be_substitutable_for' do
       end
     end
 
-    context "when mocked class has no songs" do
+    context "when mocked class has no api methods" do
       let(:mocked_class)   { Surrogate.for Class.new }
       it "cannot be substituable for it" do
         mocked_class.should_not be_substitutable_for original_class
       end
     end
 
-    context 'when the mocked class has the same songs' do
+    context 'when the mocked class has the same api methods' do
       let(:mocked_class) do
         Class.new do
           Surrogate.for self
-          song :foo
-          song :bar
+          define :foo
+          define :bar
         end
       end
       it 'is substituable for it' do
@@ -43,11 +43,11 @@ describe 'be_substitutable_for' do
       end
     end
 
-    context 'when the mocked class has different songs' do
+    context 'when the mocked class has different api methods' do
       let(:mocked_class) do
         Class.new do
           Surrogate.for self
-          song :qux
+          define :qux
         end
       end
 
@@ -56,13 +56,13 @@ describe 'be_substitutable_for' do
       end
     end
 
-    context "when the mocked class has an extra song" do
+    context "when the mocked class has an extra api methods" do
       let(:mocked_class) do
         Class.new do
           Surrogate.for self
-          song :foo
-          song :bar
-          song :qux
+          define :foo
+          define :bar
+          define :qux
         end
       end
       it 'is not substituable for it' do
@@ -85,19 +85,19 @@ describe 'be_substitutable_for' do
       end
     end
 
-    context "when mocked class has no songs" do
+    context "when mocked class has no api methods" do
       let(:mocked_class)   { Surrogate.for Class.new }
       it "cannot be substituable for it" do
         mocked_class.should_not be_substitutable_for original_class
       end
     end
 
-    context 'when the mocked class has the same songs' do
+    context 'when the mocked class has the same api methods' do
       let(:mocked_class) do
         Class.new do
           Surrogate.for self do
-            song :foo
-            song :bar
+            define :foo
+            define :bar
           end
         end
       end
@@ -106,11 +106,11 @@ describe 'be_substitutable_for' do
       end
     end
 
-    context 'when the mocked class has different songs' do
+    context 'when the mocked class has different api methods' do
       let(:mocked_class) do
         Class.new do
           Surrogate.for self do
-            song :qux
+            define :qux
           end
         end
       end
@@ -120,13 +120,13 @@ describe 'be_substitutable_for' do
       end
     end
 
-    context "when the mocked class has an extra song" do
+    context "when the mocked class has an extra api method" do
       let(:mocked_class) do
         Class.new do
           Surrogate.for self do
-            song :foo
-            song :bar
-            song :qux
+            define :foo
+            define :bar
+            define :qux
           end
         end
       end
@@ -138,5 +138,5 @@ describe 'be_substitutable_for' do
 end
 
 # inherited methods
-# methods on the mock that aren't songs
+# methods on the mock that aren't api methods
 # arity

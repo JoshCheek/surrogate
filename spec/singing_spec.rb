@@ -1,11 +1,11 @@
 require 'spec_helper'
 
-describe 'songs' do
+describe 'define' do
   describe 'in the block' do
-    it 'is a song for the class' do
+    it 'is an api method for the class' do
       pristine_klass = Class.new do
         Surrogate.for self do
-          song(:find) { 123 }
+          define(:find) { 123 }
         end
       end
 
@@ -17,24 +17,21 @@ describe 'songs' do
   end
 
 
-  # are there parts of songs like "setup", "body", "conclusion"?
-  # that would make it easier to talk about these, as the descriptions I'm using are obtuse
-
   describe 'out of the block' do
     let(:mocked_class) { Surrogate.for Class.new }
     let(:instance)     { mocked_class.new }
 
-    it 'is a song for the instance' do
-      mocked_class.song(:book) { 'book' }
+    it 'is an api method for the instance' do
+      mocked_class.define(:book) { 'book' }
       instance.book.should == 'book'
     end
 
     describe 'declaring the behaviour' do
       describe 'for verbs' do
-        before     { mocked_class.song :wink }
+        before     { mocked_class.define :wink }
 
-        describe 'will_<song>' do
-          it 'overrides the default value for the song' do
+        describe 'will_<api_method>' do
+          it 'overrides the default value for the api method' do
             mock1 = mocked_class.new
             mock2 = mocked_class.new
             mock1.will_wink :quickly
@@ -50,7 +47,7 @@ describe 'songs' do
           end
         end
 
-        describe 'will_<song>_queue' do
+        describe 'will_<api_method>_queue' do
           it 'returns the object' do
             instance = mocked_class.new
             instance.will_wink_queue(1, 2, 3).should equal instance
@@ -67,7 +64,7 @@ describe 'songs' do
 
             specify 'when there is a default block' do
               mocked_class = Surrogate.for(Class.new)
-              mocked_class.song(:connect) { :default }
+              mocked_class.define(:connect) { :default }
               mock = mocked_class.new
               mock.will_connect_queue 1, 2
               mock.connect.should == 1
@@ -80,10 +77,10 @@ describe 'songs' do
 
 
       describe 'for nouns' do
-        before { mocked_class.song :age }
+        before { mocked_class.define :age }
 
-        describe 'will_have_<song>' do
-          it 'defines will_have_<song> which overrides the default block' do
+        describe 'will_have_<api_method>' do
+          it 'defines will_have_<api_method> which overrides the default block' do
             mock1 = mocked_class.new
             mock2 = mocked_class.new
             mock1.will_have_age 12
@@ -99,7 +96,7 @@ describe 'songs' do
           end
         end
 
-        describe 'wil_have_<song>_queue' do
+        describe 'wil_have_<api_method>_queue' do
           it 'returns the object' do
             instance = mocked_class.new
             instance.will_have_age_queue(1,2,3).should equal instance
@@ -116,7 +113,7 @@ describe 'songs' do
 
             specify 'when there is a default block' do
               mocked_class = Surrogate.for(Class.new)
-              mocked_class.song(:name) { 'default' }
+              mocked_class.define(:name) { 'default' }
               mock = mocked_class.new
               mock.will_have_name_queue 'a', 'b'
               mock.name.should == 'a'
@@ -130,47 +127,47 @@ describe 'songs' do
 
 
 
-    context 'the song' do
+    context 'the api method' do
       it 'takes any number of arguments' do
-        mocked_class.song(:meth) { 1 }
+        mocked_class.define(:meth) { 1 }
         mocked_class.new.meth.should == 1
         mocked_class.new.meth(1).should == 1
         mocked_class.new.meth(1, 2).should == 1
       end
 
       it 'raises an UnpreparedMethodError when it has no default block' do
-        mocked_class.song :meth
+        mocked_class.define :meth
         expect { mocked_class.new.meth }.to raise_error(Surrogate::UnpreparedMethodError, /meth/)
       end
 
       it 'considers ivars of the same name to be its default' do
-        mocked_class.song :meth
+        mocked_class.define :meth
         mocked = mocked_class.new
         mocked.instance_variable_set :@meth, 123
         mocked.meth.should == 123
       end
 
       it 'reverts to the default block if invoked and having no ivar' do
-        mocked_class.song(:meth) { 123 }
+        mocked_class.define(:meth) { 123 }
         mocked = mocked_class.new
         mocked.instance_variable_get(:@meth).should be_nil
         mocked.meth.should == 123
       end
 
       describe 'initialization' do
-        specify 'song can be an initialize method' do
-          mocked_class.song(:initialize) { @abc = 123 }
+        specify 'api methods can be an initialize method' do
+          mocked_class.define(:initialize) { @abc = 123 }
           mocked_class.new.instance_variable_get(:@abc).should == 123
         end
 
         specify 'initialize exsits even if error is raised' do
-          mocked_class.song(:initialize) { raise "simulate runtime error" }
+          mocked_class.define(:initialize) { raise "simulate runtime error" }
           expect { mocked_class.new }.to raise_error(RuntimeError, /simulate/)
           expect { mocked_class.new }.to raise_error(RuntimeError, /simulate/)
         end
 
         specify 'receives args' do
-          mocked_class.song(:initialize) { |num1, num2| @num = num1 + num2 }
+          mocked_class.define(:initialize) { |num1, num2| @num = num1 + num2 }
           mocked_class.new(25, 75).instance_variable_get(:@num).should == 100
         end
 
@@ -179,11 +176,11 @@ describe 'songs' do
           superclass.send(:define_method, :initialize) { @a = 1 }
           subclass = Class.new superclass
           mocked_subclass = Surrogate.for Class.new subclass
-          mocked_subclass.song :abc
+          mocked_subclass.define :abc
           mocked_subclass.new.instance_variable_get(:@a).should == 1
         end
 
-        context 'when not a song' do
+        context 'when not an api method' do
           it 'respects arity (this is probably 1.9.3 only)' do
             expect { mocked_class.new(1) }.to raise_error ArgumentError, 'wrong number of arguments(1 for 0)'
           end
@@ -212,13 +209,13 @@ describe 'songs' do
 
       describe 'it takes a block whos return value will be used as the default' do
         specify 'the block is instance evaled' do
-          mocked_class.song(:meth) { self }
+          mocked_class.define(:meth) { self }
           instance = mocked_class.new
           instance.meth.should equal instance
         end
 
         specify 'arguments passed to the method will be passed to the block' do
-          mocked_class.song(:meth) { |*args| args }
+          mocked_class.define(:meth) { |*args| args }
           instance = mocked_class.new
           instance.meth(1).should == [1]
           instance.meth(1, 2).should == [1, 2]
@@ -226,7 +223,7 @@ describe 'songs' do
       end
 
       it 'remembers what it was invoked with' do
-        mocked_class.song(:meth) { nil }
+        mocked_class.define(:meth) { nil }
         mock = mocked_class.new
         mock.meth 1
         mock.meth 1, 2
@@ -238,12 +235,12 @@ describe 'songs' do
         ]
       end
 
-      it 'raises an error if asked about invocations for songs it does not know' do
-        mocked_class.song :meth1
-        mocked_class.song :meth2
+      it 'raises an error if asked about invocations for api methods it does not know' do
+        mocked_class.define :meth1
+        mocked_class.define :meth2
         mock = mocked_class.new
         expect { mock.invocations(:meth1) }.to_not raise_error
-        expect { mock.invocations(:meth3) }.to raise_error Surrogate::UnknownSong, /doesn't know "meth3", only knows "initialize", "meth1", "meth2"/
+        expect { mock.invocations(:meth3) }.to raise_error Surrogate::UnknownMethod, /doesn't know "meth3", only knows "initialize", "meth1", "meth2"/
       end
     end
   end
@@ -253,11 +250,11 @@ describe 'songs' do
     it 'a repetition or further performance of the klass' do
       pristine_klass = Class.new do
         Surrogate.for self do
-          song(:find) { 123 }
-          song(:bind) { 'abc' }
+          define(:find) { 123 }
+          define(:bind) { 'abc' }
         end
-        song(:peat)   { true }
-        song(:repeat) { 321 }
+        define(:peat)   { true }
+        define(:repeat) { 321 }
       end
 
       klass1 = pristine_klass.reprise
@@ -286,13 +283,13 @@ describe 'songs' do
     end
   end
 
-  describe '#song_names' do
-    it 'returns the names of the songs as symbols' do
+  describe '#api_method_names' do
+    it 'returns the names of the api methods as symbols' do
       mocked_class = Class.new do
         Surrogate.for self
-        song :abc
+        define :abc
       end
-      mocked_class.song_names.should == [:abc]
+      mocked_class.api_method_names.should == [:abc]
     end
   end
 end

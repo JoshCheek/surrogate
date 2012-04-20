@@ -5,7 +5,7 @@ describe 'RSpec matchers', 'have_been_asked_for_its' do
   let(:instance) { mocked_class.new }
 
   describe 'default use case' do
-    before { mocked_class.song :name, default: 'Ayaan' }
+    before { mocked_class.define :name, default: 'Ayaan' }
 
     example 'passes if has been invoked at least once' do
       instance.should_not have_been_asked_for_its :name
@@ -33,7 +33,7 @@ describe 'RSpec matchers', 'have_been_asked_for_its' do
 
 
   describe 'specifying which arguments it should have been invoked with' do
-    before { mocked_class.song :size, default: nil }
+    before { mocked_class.define :size, default: nil }
 
     example 'default use case' do
       instance.should_not have_been_asked_for_its(:size).with(1, 2, 3)
@@ -72,7 +72,7 @@ describe 'RSpec matchers', 'have_been_asked_for_its' do
 
 
   describe 'specifying number of times invoked' do
-    before { mocked_class.song :value, default: nil }
+    before { mocked_class.define :value, default: nil }
 
     example 'default use case' do
       instance.should have_been_asked_for_its(:value).times(0)
@@ -102,7 +102,7 @@ describe 'RSpec matchers', 'have_been_asked_for_its' do
   end
 
   describe 'conjunction of with(args) and times(n)' do
-    before { mocked_class.song :value, default: nil }
+    before { mocked_class.define :value, default: nil }
 
     example 'default use case' do
       instance.should have_been_asked_for_its(:value).times(0).with(1, '2')
