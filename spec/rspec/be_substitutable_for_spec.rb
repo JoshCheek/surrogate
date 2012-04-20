@@ -1,142 +1,76 @@
 require 'spec_helper'
-require 'surrogate/rspec/substitutability_matchers'
 
 describe 'be_substitutable_for' do
 
-  context "a class with no methods" do
-    let(:original_class) { Class.new }
-    let(:mocked_class)   { Surrogate.endow Class.new }
+  context "returns true iff api methods and inherited methods match exactly to the other object's methods. Examples:" do
+    context "a surrogate with no api methods" do
+      let(:surrogate) { Surrogate.endow Class.new }
 
-    it "can be substituable for it" do
-      mocked_class.should be_substitutable_for original_class
-    end
-  end
+      example "is substitutable for a class with no methods" do
+        surrogate.should be_substitutable_for Class.new
+      end
 
-  context "a class with instance methods" do
-    let(:original_class) do
-      Class.new do
-        def foo
-        end
+      example "is not substitutable for a class with instance methods" do
+        surrogate.should_not be_substitutable_for Class.new { def foo()end }
+      end
 
-        def bar
-        end
+      example "is not substitutable for a class with class methods" do
+        surrogate.should_not be_substitutable_for Class.new { def self.foo()end }
+      end
+
+      example "is not substitutable for a class with inherited instance methods" do
+        parent = Class.new { def foo()end }
+        surrogate.should_not be_substitutable_for Class.new(parent)
+      end
+
+      example "is not substitutable for a class with inherited class methods" do
+        parent = Class.new { def self.foo()end }
+        surrogate.should_not be_substitutable_for Class.new(parent)
       end
     end
 
-    context "when mocked class has no api methods" do
-      let(:mocked_class)   { Surrogate.endow Class.new }
-      it "cannot be substituable for it" do
-        mocked_class.should_not be_substitutable_for original_class
-      end
-    end
 
-    context 'when the mocked class has the same api methods' do
-      let(:mocked_class) do
-        Class.new do
-          Surrogate.endow self
-          define :foo
-          define :bar
-        end
-      end
-      it 'is substituable for it' do
-        mocked_class.should be_substitutable_for original_class
-      end
-    end
+    context "a surrogate with an instance level api method" do
+      let(:surrogate) { Class.new { Surrogate.endow self; define :foo } }
 
-    context 'when the mocked class has different api methods' do
-      let(:mocked_class) do
-        Class.new do
-          Surrogate.endow self
-          define :qux
-        end
+      example "is substitutable for a class with the same method" do
+        surrogate.should be_substitutable_for Class.new { def foo()end }
       end
 
-      it 'is not substituable for it' do
-        mocked_class.should_not be_substitutable_for original_class
-      end
-    end
-
-    context "when the mocked class has an extra api methods" do
-      let(:mocked_class) do
-        Class.new do
-          Surrogate.endow self
-          define :foo
-          define :bar
-          define :qux
-        end
-      end
-      it 'is not substituable for it' do
-        mocked_class.should_not be_substitutable_for original_class
-      end
-    end
-  end
-
-
-  context 'a class with class methods' do
-    # COPYPASTA
-
-    let(:original_class) do
-      Class.new do
-        def self.foo
-        end
-
-        def self.bar
-        end
-      end
-    end
-
-    context "when mocked class has no api methods" do
-      let(:mocked_class)   { Surrogate.endow Class.new }
-      it "cannot be substituable for it" do
-        mocked_class.should_not be_substitutable_for original_class
-      end
-    end
-
-    context 'when the mocked class has the same api methods' do
-      let(:mocked_class) do
-        Class.new do
-          Surrogate.endow self do
-            define :foo
-            define :bar
-          end
-        end
-      end
-      it 'is substituable for it' do
-        mocked_class.should be_substitutable_for original_class
-      end
-    end
-
-    context 'when the mocked class has different api methods' do
-      let(:mocked_class) do
-        Class.new do
-          Surrogate.endow self do
-            define :qux
-          end
-        end
+      example "is substitutable for a class that inherits the method" do
+        parent = Class.new { def foo()end }
+        surrogate.should be_substitutable_for Class.new(parent)
       end
 
-      it 'is not substituable for it' do
-        mocked_class.should_not be_substitutable_for original_class
+      example "is not substitutable for a class without the method" do
+        surrogate.should_not be_substitutable_for Class.new
       end
-    end
 
-    context "when the mocked class has an extra api method" do
-      let(:mocked_class) do
-        Class.new do
-          Surrogate.endow self do
-            define :foo
-            define :bar
-            define :qux
-          end
-        end
+      example "is not substitutable for a class with a different method" do
+        surrogate.should_not be_substitutable_for Class.new { def bar()end }
       end
-      it 'is not substituable for it' do
-        mocked_class.should_not be_substitutable_for original_class
+
+      example "is not substitutable for a class with additional methods" do
+        other = Class.new { def foo()end; def bar()end }
+        surrogate.should_not be_substitutable_for other
+      end
+
+      example "is not substitutable for a class with the method and inerited additional methods" do
+        parent = Class.new { def bar()end }
+        surrogate.should_not be_substitutable_for Class.new(parent) { def foo()end }
+      end
+
+      example "is not substitutable for a class with the method and additional class methods" do
+        surrogate.should_not be_substitutable_for Class.new { def foo()end; def self.bar()end }
+      end
+
+      example "is not substitutable for a class with the method and inherited additional class methods" do
+        parent = Class.new { def self.bar()end }
+        surrogate.should_not be_substitutable_for Class.new(parent) { def foo()end }
       end
     end
   end
 end
 
-# inherited methods
 # methods on the mock that aren't api methods
 # arity

@@ -32,7 +32,7 @@ class Surrogate
     def endow_singleton_class
       hatchery = a_hatchery_for singleton
       enable_defining_methods singleton
-      singleton.instance_eval &playlist if playlist
+      singleton.module_eval &playlist if playlist
       klass.instance_variable_set :@surrogate, Hatchling.new(klass, hatchery)
       klass
     end
