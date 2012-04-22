@@ -193,35 +193,34 @@ describe 'define' do
         specify 'even works with inheritance' do
           superclass = Class.new
           superclass.send(:define_method, :initialize) { @a = 1 }
-          subclass = Class.new superclass
-          mocked_subclass = Surrogate.endow Class.new subclass
-          mocked_subclass.define :abc
-          mocked_subclass.new.instance_variable_get(:@a).should == 1
+          subclass = Surrogate.endow Class.new superclass
+          subclass.define :abc
+          subclass.new.instance_variable_get(:@a).should == 1
         end
 
         context 'when not an api method' do
           it 'respects arity (this is probably 1.9.3 only)' do
-            expect { mocked_class.new(1) }.to raise_error ArgumentError, 'wrong number of arguments(1 for 0)'
+            expect { mocked_class.new 1 }.to raise_error ArgumentError, 'wrong number of arguments(1 for 0)'
           end
 
-          specify 'recorded regardless of when initialize is defined in relation to mock' do
-            klass = Class.new do
-              Surrogate.endow self
-              def initialize(a)
-                @a = a
+          describe 'invocations are recorded anyway' do
+            specify 'even when initialize is defined after surrogate block' do
+              klass = Class.new do
+                Surrogate.endow self
+                def initialize(a) @a = a end
               end
+              klass.new(1).should have_been_initialized_with 1
+              klass.new(1).instance_variable_get(:@a).should == 1
             end
-            klass.new(1).should have_been_initialized_with 1
-            klass.new(1).instance_variable_get(:@a).should == 1
 
-            klass = Class.new do
-              def initialize(a)
-                @a = a
+            specify 'even when initialize is defined before surrogate block' do
+              klass = Class.new do
+                def initialize(a) @a = a end
+                Surrogate.endow self
               end
-              Surrogate.endow self
+              klass.new(1).should have_been_initialized_with 1
+              klass.new(1).instance_variable_get(:@a).should == 1
             end
-            klass.new(1).should have_been_initialized_with 1
-            klass.new(1).instance_variable_get(:@a).should == 1
           end
         end
       end

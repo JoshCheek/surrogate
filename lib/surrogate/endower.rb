@@ -23,11 +23,11 @@ class Surrogate
 
     def endow_klass
       add_hatchery_to                        klass
+      klass.extend ClassMethods
       enable_defining_methods                klass
       record_initialization_for_instances_of klass
       remember_invocations_for_instances_of  klass
       remember_invocations_for_instances_of  klass.singleton_class
-      klass.extend ClassMethods
     end
 
     def endow_singleton_class
@@ -38,12 +38,15 @@ class Surrogate
       klass
     end
 
-    # yeesh :( try to find a better way to do this
+    # yeesh :( pretty sure there isn't a better way to do this
     def record_initialization_for_instances_of(klass)
       def klass.method_added(meth)
-        return unless meth == :initialize && !@hijacking_initialize
+        return if meth != :initialize || @hijacking_initialize
         @hijacking_initialize = true
         current_initialize = instance_method :initialize
+
+        # `define' records the args while maintaining the old behaviour
+        # we have to do it stupidly like this because there is no to_proc on an unbound method
         define :initialize do |*args, &block|
           current_initialize.bind(self).call(*args, &block)
         end
