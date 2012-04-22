@@ -228,10 +228,6 @@ class Surrogate
         use_case.match?
       end
 
-      chain :nothing do
-        use_case.expected_arguments = nothing
-      end
-
       failure_message_for_should do
         use_case.failure_message_for_should
       end

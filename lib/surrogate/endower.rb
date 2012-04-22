@@ -1,6 +1,6 @@
 class Surrogate
 
-  # adds surrogate behaviour to your class / singleton class / instances
+  # Adds surrogate behaviour to your class / singleton class / instances
   #
   # please refactor me!
   class Endower
@@ -22,20 +22,19 @@ class Surrogate
   private
 
     def endow_klass
-      a_hatchery_for                         klass
+      add_hatchery_to                        klass
       enable_defining_methods                klass
       record_initialization_for_instances_of klass
       remember_invocations_for_instances_of  klass
       remember_invocations_for_instances_of  klass.singleton_class
-      hijack_instantiation_of                klass
-      can_get_a_new                          klass
+      klass.extend ClassMethods
     end
 
     def endow_singleton_class
-      hatchery = a_hatchery_for singleton
+      hatchery = add_hatchery_to singleton
       enable_defining_methods singleton
       singleton.module_eval &playlist if playlist
-      klass.instance_variable_set :@surrogate, Hatchling.new(klass, hatchery)
+      klass.instance_variable_set :@hatchling, Hatchling.new(klass, hatchery)
       klass
     end
 
@@ -61,46 +60,14 @@ class Surrogate
       klass.singleton_class
     end
 
-    def can_get_a_new(klass)
-      klass.extend Module.new {
-        # use a module so that the method is inherited (important for substitutability)
-        def clone
-          new_klass = Class.new self
-          surrogate = @surrogate
-          Surrogate.endow new_klass do
-            surrogate.api_methods.each do |method_name, options|
-              define method_name, options.to_hash, &options.default_proc
-            end
-          end
-          @hatchery.api_methods.each do |method_name, options|
-            new_klass.define method_name, options.to_hash, &options.default_proc
-          end
-          new_klass
-        end
-      }
-    end
-
     def remember_invocations_for_instances_of(klass)
       klass.send :define_method, :invocations do |method_name|
-        @surrogate.invocations method_name
+        @hatchling.invocations method_name
       end
     end
 
-    def a_hatchery_for(klass)
+    def add_hatchery_to(klass)
       klass.instance_variable_set :@hatchery, Surrogate::Hatchery.new(klass)
-    end
-
-    def hijack_instantiation_of(klass)
-      # use a module so that the method is inherited (important for substitutability)
-      klass.extend Module.new {
-        def new(*args)
-          instance = allocate
-          hatchery = @hatchery
-          instance.instance_eval { @surrogate = Hatchling.new instance, hatchery }
-          instance.send :initialize, *args
-          instance
-        end
-      }
     end
 
     def enable_defining_methods(klass)
@@ -111,6 +78,28 @@ class Surrogate
       def klass.api_method_names
         @hatchery.api_method_names
       end
+    end
+  end
+
+
+  # use a module so that the method is inherited (important for substitutability)
+  module ClassMethods
+    def clone
+      hatchling, hatchery = @hatchling, @hatchery
+      Class.new self do
+        Surrogate.endow self do
+          hatchling.api_methods.each { |name, options| define name, options.to_hash, &options.default_proc }
+        end
+        hatchery.api_methods.each { |name, options| define name, options.to_hash, &options.default_proc }
+      end
+    end
+
+    # Custom new, because user can define initialize, and ivars should be set before it
+    def new(*args)
+      instance = allocate
+      instance.instance_variable_set :@hatchling, Hatchling.new(instance, @hatchery)
+      instance.send :initialize, *args
+      instance
     end
   end
 end

@@ -1,5 +1,8 @@
 class Surrogate
   UnknownMethod = Class.new StandardError
+
+  # This contains the unique behaviour for each instance
+  # It handles method invocation and records the appropriate information
   class Hatchling
     attr_accessor :instance, :hatchery
 
@@ -15,6 +18,8 @@ class Surrogate
       invoked_methods[method_name] << args
       return get_default method_name, args unless has_ivar? method_name
       ivar = get_ivar method_name
+
+      # This may soon need classes for each type which know how to invoke themselves
       case ivar
       when MethodQueue
         play_from_queue ivar, method_name
