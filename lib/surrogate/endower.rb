@@ -2,7 +2,7 @@ class Surrogate
 
   # Adds surrogate behaviour to your class / singleton class / instances
   #
-  # please refactor me!
+  # please refactor me! ...may not be possible :(
   class Endower
     def self.endow(klass, &playlist)
       new(klass, &playlist).endow

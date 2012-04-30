@@ -125,14 +125,21 @@ describe Surrogate do
       def add_phone_number(area_code, number) end
     end
     user_class.should substitute_for substitutable_real_user_class
+    user_class.should substitute_for substitutable_real_user_class, subset: true
 
-    # real user class is not a suitable substitutable if has extra methods
+    # when real user class has extra methods, it is only substitutable as a subset
     real_user_class = substitutable_real_user_class.clone
     def real_user_class.some_class_meth() end
     user_class.should_not substitute_for real_user_class
 
-    real_user_class = substitutable_real_user_class.clone
+    real_user_class = substitutable_real_user_class.dup
     real_user_class.send(:define_method, :some_instance_method) {}
     user_class.should_not substitute_for real_user_class
+    user_class.should substitute_for real_user_class, subset: true
+
+    # subset substitutability does not work for superset
+    real_user_class = substitutable_real_user_class.dup
+    real_user_class.send :undef_method, :address
+    user_class.should_not substitute_for real_user_class, subset: true
   end
 end
