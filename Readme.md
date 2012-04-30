@@ -45,8 +45,8 @@ TODO
 * Figure out whether I'm supposed to be using clone or dup for the object -.^ (looks like there may also be an `initialize_copy` method I can take advantage of instead of crazy stupid shit I'm doing now)
 
 
-Features for future vuersions
------------------------------
+Features for future versions
+----------------------------
 
 * arity option
 * need some way to talk about and record blocks being passed
