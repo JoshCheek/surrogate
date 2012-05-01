@@ -22,7 +22,7 @@ Features
 Usage
 =====
 
-Define a surrogate
+Endow a class with surrogate abilities
 
 ```ruby
 class Mock
