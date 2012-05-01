@@ -335,10 +335,29 @@ MockUser.should_not substitute_for User, subset: true
 ```
 
 
-But why?
-========
+How do I introduce my mocks?
+============================
+
+This is known as dependency injection. There are many ways you can do this, you can pass the object into
+the initializer, you can pass a factory to your class, you can give the class that depends on the mock a
+setter and then override it whenever you feel it is necessary, you can use RSpec's `#stub` method to put
+it into place.
+
+Personally, I use [Deject](https://rubygems.org/gems/deject) another gem I wrote. For more on why I feel
+it is a better solution than the above methods, see it's [readme](https://github.com/JoshCheek/deject/blob/21d108e3fdeb72f85d5fcf308ed2b83cea2316f6/Readme.md#about-the-code).
+
+
+But why write this?
+===================
 
 Need to put an explanation here soon. In the meantime, I wrote a [blog](http://blog.8thlight.com/josh-cheek/2011/11/28/three-reasons-to-roll-your-own-mocks.html) that touches on the reasons.
+
+
+Special Thanks
+==============
+
+* [Corey Haines](http://coreyhaines.com/) for pairing on it with me
+* [8th Light](http://8thlight.com/) for giving me time to work on this during our weekly Wazas, and the general encouragement and interest
 
 
 TODO
