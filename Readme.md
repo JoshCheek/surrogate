@@ -356,7 +356,8 @@ Need to put an explanation here soon. In the meantime, I wrote a [blog](http://b
 Special Thanks
 ==============
 
-* [Corey Haines](http://coreyhaines.com/) for pairing on it with me
+* [Corey Haines](http://coreyhaines.com/) for pairing on substitutability with me
+* [Enova](http://www.enovafinancial.com/) for giving me time and motivation to work on this during Enova Labs.
 * [8th Light](http://8thlight.com/) for giving me time to work on this during our weekly Wazas, and the general encouragement and interest
 
 
