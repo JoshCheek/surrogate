@@ -4,14 +4,14 @@ class Surrogate
   #
   # please refactor me! ...may not be possible :(
   class Endower
-    def self.endow(klass, &playlist)
-      new(klass, &playlist).endow
+    def self.endow(klass, &block)
+      new(klass, &block).endow
     end
 
-    attr_accessor :klass, :playlist
+    attr_accessor :klass, :block
 
-    def initialize(klass, &playlist)
-      self.klass, self.playlist = klass, playlist
+    def initialize(klass, &block)
+      self.klass, self.block = klass, block
     end
 
     def endow
@@ -33,7 +33,7 @@ class Surrogate
     def endow_singleton_class
       hatchery = add_hatchery_to singleton
       enable_defining_methods singleton
-      singleton.module_eval &playlist if playlist
+      singleton.module_eval &block if block
       klass.instance_variable_set :@hatchling, Hatchling.new(klass, hatchery)
       klass
     end
