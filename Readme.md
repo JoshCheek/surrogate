@@ -22,10 +22,18 @@ Features
 Usage
 =====
 
+Define a surrogate
+
+```ruby
+class Mock
+  Surrogate.endow self
+end
+```
+
 Define a class method by using `define` in the block when endowing your class.
 
 ```ruby
-lass MockClient
+class MockClient
   Surrogate.endow self do
     define(:default_url) { 'http://example.com' }
   end
