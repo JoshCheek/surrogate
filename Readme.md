@@ -344,7 +344,7 @@ setter and then override it whenever you feel it is necessary, you can use RSpec
 it into place.
 
 Personally, I use [Deject](https://rubygems.org/gems/deject) another gem I wrote. For more on why I feel
-it is a better solution than the above methods, see it's [readme](https://github.com/JoshCheek/deject/blob/21d108e3fdeb72f85d5fcf308ed2b83cea2316f6/Readme.md#about-the-code).
+it is a better solution than the above methods, see it's [readme](https://github.com/JoshCheek/deject/tree/938edc985c65358c074a7c7b7bbf18dc11e9450e#why-write-this).
 
 
 But why write this?
