@@ -22,7 +22,7 @@ Features
 Usage
 =====
 
-Endow a class with surrogate abilities
+**Endow** a class with surrogate abilities
 
 ```ruby
 class Mock
@@ -30,7 +30,7 @@ class Mock
 end
 ```
 
-Define a class method by using `define` in the block when endowing your class.
+Define a **class method** by using `define` in the block when endowing your class.
 
 ```ruby
 class MockClient
@@ -42,7 +42,7 @@ end
 MockClient.default_url # => "http://example.com"
 ```
 
-Define an instance method by using `define` outside the block after endowing your class.
+Define an **instance method** by using `define` outside the block after endowing your class.
 
 ```ruby
 class MockClient
@@ -53,7 +53,7 @@ end
 MockClient.new.request # => ["result1", "result2"]
 ```
 
-If you care about the arguments, your block can receive them.
+If you care about the **arguments**, your block can receive them.
 
 ```ruby
 class MockClient
@@ -64,7 +64,7 @@ end
 MockClient.new.request 3 # => ["result1", "result2", "result3"]
 ```
 
-You don't need a default if you set the ivar of the same name
+You don't need a **default if you set the ivar** of the same name
 
 ```ruby
 class MockClient
@@ -75,7 +75,7 @@ end
 MockClient.new(12).id # => 12
 ```
 
-Override defaults with `will_<verb>` and `will_have_<noun>`
+**Override defaults** with `will_<verb>` and `will_have_<noun>`
 
 ```ruby
 class MockMP3
@@ -95,7 +95,7 @@ mp3.will_have_info artist: 'Symphony of Science', title: 'Children of Africa'
 mp3.info # => {:artist=>"Symphony of Science", :title=>"Children of Africa"}
 ```
 
-Errors get raised
+**Errors** get raised
 
 ```ruby
 class MockClient
@@ -113,7 +113,7 @@ rescue StandardError => e
 end
 ```
 
-Queue up return values
+**Queue** up return values
 
 ```ruby
 class MockPlayer
@@ -127,11 +127,11 @@ player.move # => 1
 player.move # => 9
 player.move # => 3
 
-# then back to default behaviour
+# then back to default behaviour (or error if none provided)
 player.move # => 20
 ```
 
-You can define initialize
+You can define **initialize**
 
 ```ruby
 class MockUser
@@ -162,7 +162,7 @@ require 'surrogate/rspec'
 Nouns
 -----
 
-Given this mock
+Given this mock and assuming the following examples happen within a spec
 
 ```ruby
 class MockMP3
@@ -171,7 +171,7 @@ class MockMP3
 end
 ```
 
-Query with `have_been_asked_for_its`
+Check if **was invoked** with `have_been_asked_for_its`
 
 ```ruby
 mp3.should_not have_been_asked_for_its :info
@@ -179,7 +179,7 @@ mp3.info
 mp3.should have_been_asked_for_its :info
 ```
 
-Invocation cardinality by chaining `times(n)`
+Invocation **cardinality** by chaining `times(n)`
 
 ```ruby
 mp3.info
@@ -187,7 +187,7 @@ mp3.info
 mp3.should have_been_asked_for_its(:info).times(2)
 ```
 
-Invocation arguments by chaining `with(args)`
+Invocation **arguments** by chaining `with(args)`
 
 ```ruby
 mp3.info :title
@@ -201,7 +201,7 @@ mp3.info
 mp3.should have_been_asked_for_its(:info).with(no_args)
 ```
 
-Some set of args some set of times by chaining `with(args)` and `times(n)`
+Cardinality of a specific set of args `with(args)` and `times(n)`
 
 ```ruby
 mp3.info :title
@@ -215,7 +215,7 @@ mp3.should have_been_asked_for_its(:info).with(:artist).times(1)
 Verbs
 -----
 
-Given this mock
+Given this mock and assuming the following examples happen within a spec
 
 ```ruby
 class MockMP3
@@ -224,7 +224,7 @@ class MockMP3
 end
 ```
 
-Query with `have_been_told_to`
+Check if **was invoked** with `have_been_told_to`
 
 ```ruby
 mp3.should_not have_been_told_to :play
@@ -251,7 +251,7 @@ user.id.should == 12
 user.should have_been_initialized_with 12
 ```
 
-Initialization is always recorded, so that you don't have to override it just to get it to record the args.
+Initialization is **always recorded**, so that you don't have to override it just to be able to query.
 
 ```ruby
 class MockUser < Struct.new(:id)
@@ -269,9 +269,13 @@ Substitutability
 After you've implemented the real version of your mock (assuming a [top-down](http://vimeo.com/31267109) style of development),
 how do you prevent your real object from getting out of synch with your mock?
 
-Assert that your mock has the same interface as your real class.
+Assert that your mock has the **same interface** as your real class.
 This will fail if the mock inherits methods methods not on the real class. And it will fail
 if the real class has or lacks any methods defined on the mock or inherited by the mock.
+
+Presently, it will ignore methods defined directly in the mock (as it adds quite a few of its own methods,
+and generally considers them to be helpers). In a future version, you will be able to tell it to treat other methods
+as part of the API (will fail if they don't match, and maybe record their values).
 
 ```ruby
 class User
@@ -306,7 +310,7 @@ MockUser.should_not substitute_for UserWithNameAndAddress
 ```
 
 Sometimes you don't want to have to implement the entire interface.
-In these cases, you can assert that the methods on the mock are a subset
+In these cases, you can assert that the methods on the mock are a **subset**
 of the methods on the real class.
 
 ```ruby
@@ -340,24 +344,17 @@ Need to put an explanation here soon. In the meantime, I wrote a [blog](http://b
 TODO
 ----
 
-* Get a real Readme!
+* Add a better explanation for motivations
 * Figure out whether I'm supposed to be using clone or dup for the object -.^ (looks like there may also be an `initialize_copy` method I can take advantage of instead of crazy stupid shit I'm doing now)
 
 
 Future Features
 ---------------
 
-* Support all RSpec matchers (hash_including, anything, etc)
-* have some sort of reinitialization that can hook into setup/teardown steps
+* Support all RSpec matchers (hash_including, anything, etc. see them in RSpec::Mocks::ArgumentMatchers)
+* have some sort of reinitialization that can hook into setup/teardown steps of test suite
 * Support arity checking as part of substitutability
 * Support for blocks
 * Ability to disassociate the method name from the test (e.g. you shouldn't need to change a test just because you change a name)
-
-
-Features for future versions
-----------------------------
-
-* arity option
-* need some way to talk about and record blocks being passed
-* support all rspec matchers (RSpec::Mocks::ArgumentMatchers)
+* declare normal methods as being part of the API (e.g. for inheritance)
 * assertions for order of invocations & methods
