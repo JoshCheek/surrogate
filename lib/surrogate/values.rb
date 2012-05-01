@@ -12,7 +12,7 @@ class Surrogate
       elsif arg.kind_of? Exception
         Raisable.new arg
       elsif arg.kind_of? Value
-        Recursive.new arg
+        arg
       else
         Value.new arg
       end
@@ -41,13 +41,6 @@ class Surrogate
     class Raisable < Value
       def value(*)
         raise @value
-      end
-    end
-
-
-    class Recursive < Value
-      def value(hatchling, method_name)
-        @value.value hatchling, method_name
       end
     end
 
