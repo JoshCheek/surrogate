@@ -49,11 +49,7 @@ class Surrogate
 
     def add_helpers_for(method_name, helper_name)
       klass.send :define_method, helper_name do |*args, &block|
-        if args.size == 1
-          @hatchling.prepare_method method_name, args, &block
-        else
-          @hatchling.prepare_method_queue method_name, args, &block
-        end
+        @hatchling.prepare_method method_name, args, &block
         self
       end
     end

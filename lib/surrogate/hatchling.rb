@@ -1,6 +1,7 @@
 class Surrogate
   UnknownMethod = Class.new StandardError
 
+
   # This contains the unique behaviour for each instance
   # It handles method invocation and records the appropriate information
   class Hatchling
@@ -17,29 +18,32 @@ class Surrogate
     def invoke_method(method_name, args, &block)
       invoked_methods[method_name] << args
       return get_default method_name, args unless has_ivar? method_name
-      ivar = get_ivar method_name
-
-      # This may soon need classes for each type which know how to invoke themselves
-      case ivar
-      when MethodQueue
-        play_from_queue ivar, method_name
-      when Exception
-        raise ivar
-      else
-        ivar
-      end
+      Value.factory(get_ivar method_name).value(self, method_name)
     end
 
     def prepare_method(method_name, args, &block)
-      set_ivar method_name, *args
-    end
-
-    def prepare_method_queue(method_name, args, &block)
-      set_ivar method_name, MethodQueue.new(args)
+      set_ivar method_name, Value.factory(*args, &block)
     end
 
     def invocations(method_name)
       invoked_methods[method_name]
+    end
+
+    # maybe these four should be extracted into their own class
+    def has_ivar?(method_name)
+      instance.instance_variable_defined? "@#{method_name}"
+    end
+
+    def set_ivar(method_name, value)
+      instance.instance_variable_set "@#{method_name}", value
+    end
+
+    def get_ivar(method_name)
+      instance.instance_variable_get "@#{method_name}"
+    end
+
+    def unset_ivar(method_name)
+      instance.send :remove_instance_variable, "@#{method_name}"
     end
 
   private
@@ -57,32 +61,10 @@ class Surrogate
       end
     end
 
-    def play_from_queue(queue, method_name)
-      result = queue.dequeue
-      unset_ivar method_name if queue.empty?
-      result
-    end
-
     def must_know(method_name)
       return if api_methods.has_key? method_name
       known_methods = api_methods.keys.map(&:to_s).map(&:inspect).join ', '
       raise UnknownMethod, "doesn't know \"#{method_name}\", only knows #{known_methods}"
-    end
-
-    def has_ivar?(method_name)
-      instance.instance_variable_defined? "@#{method_name}"
-    end
-
-    def set_ivar(method_name, value)
-      instance.instance_variable_set "@#{method_name}", value
-    end
-
-    def get_ivar(method_name)
-      instance.instance_variable_get "@#{method_name}"
-    end
-
-    def unset_ivar(method_name)
-      instance.send :remove_instance_variable, "@#{method_name}"
     end
   end
 end

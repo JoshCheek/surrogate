@@ -2,7 +2,7 @@ require 'surrogate/version'
 require 'surrogate/hatchling'
 require 'surrogate/hatchery'
 require 'surrogate/options'
-require 'surrogate/method_queue'
+require 'surrogate/values'
 require 'surrogate/endower'
 require 'surrogate/api_comparer'
 
