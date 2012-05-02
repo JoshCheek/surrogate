@@ -3,6 +3,7 @@ class Surrogate
   # Adds surrogate behaviour to your class / singleton class / instances
   #
   # please refactor me! ...may not be possible :(
+  # Can we move all method definitions into this class?
   class Endower
     def self.endow(klass, &block)
       new(klass, &block).endow
@@ -22,12 +23,11 @@ class Surrogate
   private
 
     def endow_klass
-      add_hatchery_to                        klass
       klass.extend ClassMethods
+      add_hatchery_to                        klass
       enable_defining_methods                klass
       record_initialization_for_instances_of klass
       remember_invocations_for_instances_of  klass
-      remember_invocations_for_instances_of  klass.singleton_class
     end
 
     def endow_singleton_class
@@ -35,6 +35,7 @@ class Surrogate
       enable_defining_methods singleton
       singleton.module_eval &block if block
       klass.instance_variable_set :@hatchling, Hatchling.new(klass, hatchery)
+      remember_invocations_for_instances_of  singleton
       klass
     end
 
@@ -87,6 +88,9 @@ class Surrogate
 
   # use a module so that the method is inherited (important for substitutability)
   module ClassMethods
+
+    # Should this be dup? (dup seems to copy singleton methods) and may be able to use #initialize_copy to reset ivars
+    # Can we just remove this feature an instead provide a reset feature which could be hooked into in before/after blocks (e.g. https://github.com/rspec/rspec-core/blob/622505d616d950ed53d12c6e82dbb953ba6241b4/lib/rspec/core/mocking/with_rspec.rb)
     def clone
       hatchling, hatchery = @hatchling, @hatchery
       Class.new self do
@@ -97,7 +101,8 @@ class Surrogate
       end
     end
 
-    # Custom new, because user can define initialize, and ivars should be set before it
+    # Custom new, because user can define initialize, and we need to record it
+    # Can we move this into the redefinition of initialize and have it explicitly record itself?
     def new(*args)
       instance = allocate
       instance.instance_variable_set :@hatchling, Hatchling.new(instance, @hatchery)
