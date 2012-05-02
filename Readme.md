@@ -379,3 +379,7 @@ Future Features
 * Ability to disassociate the method name from the test (e.g. you shouldn't need to change a test just because you change a name)
 * declare normal methods as being part of the API (e.g. for inheritance)
 * assertions for order of invocations & methods
+* class generator? (supports a top-down style of development for when you write your mocks before you write your implementations)
+* extract surrogate/rspec into its own gem?
+* deal with hard dependency on rspec-mocks
+* support subset-substitutabilty not being able to touch real methods (e.g. #respond_to?)
