@@ -30,11 +30,11 @@ class Surrogate
     private
 
     def klass_can_define_api_methods
-      klass.singleton_class.send :define_method, :define, &method(:define)
+      klass.singleton_class.__send__ :define_method, :define, &method(:define)
     end
 
     def add_api_method_for(method_name)
-      klass.send :define_method, method_name do |*args, &block|
+      klass.__send__ :define_method, method_name do |*args, &block|
         @hatchling.invoke_method method_name, args, &block
       end
     end
@@ -48,7 +48,7 @@ class Surrogate
     end
 
     def add_helpers_for(method_name, helper_name)
-      klass.send :define_method, helper_name do |*args, &block|
+      klass.__send__ :define_method, helper_name do |*args, &block|
         @hatchling.prepare_method method_name, args, &block
         self
       end

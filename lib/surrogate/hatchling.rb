@@ -43,7 +43,7 @@ class Surrogate
     end
 
     def unset_ivar(method_name)
-      instance.send :remove_instance_variable, "@#{method_name}"
+      instance.__send__ :remove_instance_variable, "@#{method_name}"
     end
 
   private

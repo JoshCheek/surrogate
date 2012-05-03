@@ -55,7 +55,7 @@ class Surrogate
         @hijacking_initialize = false
       end
       initialize = klass.instance_method :initialize
-      klass.send :define_method, :initialize do |*args, &block|
+      klass.__send__ :define_method, :initialize do |*args, &block|
         initialize.bind(self).call(*args, &block)
       end
     end
@@ -65,7 +65,7 @@ class Surrogate
     end
 
     def remember_invocations_for_instances_of(klass)
-      klass.send :define_method, :invocations do |method_name|
+      klass.__send__ :define_method, :invocations do |method_name|
         @hatchling.invocations method_name
       end
     end
