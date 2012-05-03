@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.version     = Surrogate::VERSION
   s.authors     = ["Josh Cheek"]
   s.email       = ["josh.cheek@gmail.com"]
-  s.homepage    = ""
+  s.homepage    = "https://github.com/JoshCheek/surrogate"
   s.summary     = %q{Framework to aid in handrolling mock/spy objects.}
   s.description = %q{Framework to aid in handrolling mock/spy objects.}
 
