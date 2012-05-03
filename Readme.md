@@ -251,17 +251,6 @@ user.id.should == 12
 user.should have_been_initialized_with 12
 ```
 
-Initialization is **always recorded**, so that you don't have to override it just to be able to query.
-
-```ruby
-class MockUser < Struct.new(:id)
-  Surrogate.endow self
-end
-user = MockUser.new 12
-user.id.should == 12
-user.should have_been_initialized_with 12
-```
-
 
 Substitutability
 ----------------
