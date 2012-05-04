@@ -180,49 +180,38 @@ class Surrogate
 
 
 
-    # Bottom bits are the same, top bits are not. Is there a way to remove this duplication?
+    # is there a better way to do this?
+    common_functionality = lambda do |use_case, matcher, morphable=false|
+      if morphable
+        matcher.chain(:times) { |number|     use_case.times  number     }
+        matcher.chain(:with)  { |*arguments| use_case.with   *arguments }
+      end
+
+      matcher.match do |mocked_instance|
+        use_case.instance = mocked_instance
+        use_case.match?
+      end
+
+      matcher.failure_message_for_should     { use_case.failure_message_for_should }
+      matcher.failure_message_for_should_not { use_case.failure_message_for_should_not }
+    end
 
 
     # have_been_told_to
     ::RSpec::Matchers.define :have_been_told_to do |verb|
-      use_case = Handler.new verb, :verb
-      chain(:times) { |number| use_case.times number }
-      chain(:with)  { |*arguments| use_case.with *arguments }
-
-      match do |mocked_instance|
-        use_case.instance = mocked_instance
-        use_case.match?
-      end
-      failure_message_for_should     { use_case.failure_message_for_should }
-      failure_message_for_should_not { use_case.failure_message_for_should_not }
+      common_functionality[Handler.new(verb, :verb), self, true]
     end
 
 
     # have_been_asked_for_its
     ::RSpec::Matchers.define :have_been_asked_for_its do |noun|
-      use_case = Handler.new noun, :noun
-      chain(:times) { |number| use_case.times number }
-      chain(:with)  { |*arguments| use_case.with *arguments }
-
-      match do |mocked_instance|
-        use_case.instance = mocked_instance
-        use_case.match?
-      end
-      failure_message_for_should     { use_case.failure_message_for_should }
-      failure_message_for_should_not { use_case.failure_message_for_should_not }
+      common_functionality[Handler.new(noun, :noun), self, true]
     end
 
 
     # have_been_initialized_with
     ::RSpec::Matchers.define :have_been_initialized_with do |*init_args|
-      use_case = Handler.new(:initialize, :verb).with(*init_args)
-
-      match do |mocked_instance|
-        use_case.instance = mocked_instance
-        use_case.match?
-      end
-      failure_message_for_should     { use_case.failure_message_for_should }
-      failure_message_for_should_not { use_case.failure_message_for_should_not }
+      common_functionality[Handler.new(:initialize, :verb).with(*init_args), self]
     end
   end
 end
