@@ -50,9 +50,9 @@ class Surrogate
       end
 
       def inspect_arguments(arguments)
-        inspected_arguments = arguments.map { |argument| MessagesFor.inspect_argument argument }
+        inspected_arguments = arguments.map { |argument| inspect_argument argument }
         inspected_arguments << 'no_args' if inspected_arguments.empty?
-        %Q(`#{inspected_arguments.join ", "}')
+        "`" << inspected_arguments.join(", ") << "'"
       end
 
       def inspect_argument(to_inspect)
@@ -68,7 +68,7 @@ class Surrogate
 
 
     class Handler < Struct.new(:subject, :language_type)
-      attr_accessor :instance, :message_type
+      attr_accessor :instance
 
       def message_for(message_category, message_type)
         MessagesFor.message_for(language_type, message_category, message_type, binding)
@@ -79,7 +79,7 @@ class Surrogate
       end
 
       def message_type
-        @message_type || :default
+        :default
       end
 
       def invocations
@@ -105,12 +105,25 @@ class Surrogate
       def failure_message_for_should_not
         message_for :should_not, message_type
       end
+
+      def times(times_invoked)
+        # is there a good way to remove these conditionals?
+        extend (kind_of?(MatchWithArguments) ? MatchNumTimesWith : MatchNumTimes)
+        self.expected_times_invoked = times_invoked
+        self
+      end
+
+      def with(*arguments)
+        extend (kind_of?(MatchNumTimes) ? MatchNumTimesWith : MatchWithArguments)
+        self.expected_arguments = arguments
+        self
+      end
     end
 
 
     module MatchWithArguments
-      def self.extended(klass)
-        klass.message_type = :with
+      def message_type
+        :with
       end
 
       attr_accessor :expected_arguments
@@ -132,8 +145,8 @@ class Surrogate
 
 
     module MatchNumTimes
-      def self.extended(klass)
-        klass.message_type = :times
+      def message_type
+        :times
       end
 
       attr_accessor :expected_times_invoked
@@ -145,8 +158,8 @@ class Surrogate
 
 
     module MatchNumTimesWith
-      def self.extended(klass)
-        klass.message_type = :with_times
+      def message_type
+        :with_times
       end
 
       attr_accessor :expected_times_invoked, :expected_arguments
@@ -167,27 +180,19 @@ class Surrogate
 
 
 
+    # Bottom bits are the same, top bits are not. Is there a way to remove this duplication?
 
 
     # have_been_told_to
     ::RSpec::Matchers.define :have_been_told_to do |verb|
       use_case = Handler.new verb, :verb
+      chain(:times) { |number| use_case.times number }
+      chain(:with)  { |*arguments| use_case.with *arguments }
 
       match do |mocked_instance|
         use_case.instance = mocked_instance
         use_case.match?
       end
-
-      chain :times do |number|
-        use_case.extend (use_case.kind_of?(MatchWithArguments) ? MatchNumTimesWith : MatchNumTimes)
-        use_case.expected_times_invoked = number
-      end
-
-      chain :with do |*arguments|
-        use_case.extend (use_case.kind_of?(MatchNumTimes) ? MatchNumTimesWith : MatchWithArguments)
-        use_case.expected_arguments = arguments
-      end
-
       failure_message_for_should     { use_case.failure_message_for_should }
       failure_message_for_should_not { use_case.failure_message_for_should_not }
     end
@@ -196,22 +201,13 @@ class Surrogate
     # have_been_asked_for_its
     ::RSpec::Matchers.define :have_been_asked_for_its do |noun|
       use_case = Handler.new noun, :noun
+      chain(:times) { |number| use_case.times number }
+      chain(:with)  { |*arguments| use_case.with *arguments }
 
       match do |mocked_instance|
         use_case.instance = mocked_instance
         use_case.match?
       end
-
-      chain :times do |number|
-        use_case.extend (use_case.kind_of?(MatchWithArguments) ? MatchNumTimesWith : MatchNumTimes)
-        use_case.expected_times_invoked = number
-      end
-
-      chain :with do |*arguments|
-        use_case.extend (use_case.kind_of?(MatchNumTimes) ? MatchNumTimesWith : MatchWithArguments)
-        use_case.expected_arguments = arguments
-      end
-
       failure_message_for_should     { use_case.failure_message_for_should }
       failure_message_for_should_not { use_case.failure_message_for_should_not }
     end
@@ -219,22 +215,14 @@ class Surrogate
 
     # have_been_initialized_with
     ::RSpec::Matchers.define :have_been_initialized_with do |*init_args|
-      use_case = Handler.new :initialize, :verb
-      use_case.extend MatchWithArguments
-      use_case.expected_arguments = init_args
+      use_case = Handler.new(:initialize, :verb).with(*init_args)
 
       match do |mocked_instance|
         use_case.instance = mocked_instance
         use_case.match?
       end
-
-      failure_message_for_should do
-        use_case.failure_message_for_should
-      end
-
-      failure_message_for_should_not do
-        use_case.failure_message_for_should_not
-      end
+      failure_message_for_should     { use_case.failure_message_for_should }
+      failure_message_for_should_not { use_case.failure_message_for_should_not }
     end
   end
 end
