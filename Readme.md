@@ -318,7 +318,7 @@ end
 # doesn't matter that real user has a name as long as it has initialize and id
 MockUser.should substitute_for User, subset: true
 
-# but now it fails b/c it has no addres
+# but now it fails b/c it has no address
 MockUser.define :address
 MockUser.should_not substitute_for User, subset: true
 ```
@@ -332,7 +332,7 @@ the initializer, you can pass a factory to your class, you can give the class th
 setter and then override it whenever you feel it is necessary, you can use RSpec's `#stub` method to put
 it into place.
 
-Personally, I use [Deject](https://rubygems.org/gems/deject) another gem I wrote. For more on why I feel
+Personally, I use [Deject](https://rubygems.org/gems/deject), another gem I wrote. For more on why I feel
 it is a better solution than the above methods, see it's [readme](https://github.com/JoshCheek/deject/tree/938edc985c65358c074a7c7b7bbf18dc11e9450e#why-write-this).
 
 
