@@ -181,7 +181,7 @@ class Surrogate
 
 
     # is there a better way to do this?
-    common_functionality = lambda do |use_case, matcher, morphable=false|
+    surrogate_matcher = lambda do |use_case, matcher, morphable=false|
       if morphable
         matcher.chain(:times) { |number|     use_case.times  number     }
         matcher.chain(:with)  { |*arguments| use_case.with   *arguments }
@@ -199,19 +199,19 @@ class Surrogate
 
     # have_been_told_to
     ::RSpec::Matchers.define :have_been_told_to do |verb|
-      common_functionality[Handler.new(verb, :verb), self, true]
+      surrogate_matcher[Handler.new(verb, :verb), self, true]
     end
 
 
     # have_been_asked_for_its
     ::RSpec::Matchers.define :have_been_asked_for_its do |noun|
-      common_functionality[Handler.new(noun, :noun), self, true]
+      surrogate_matcher[Handler.new(noun, :noun), self, true]
     end
 
 
     # have_been_initialized_with
     ::RSpec::Matchers.define :have_been_initialized_with do |*init_args|
-      common_functionality[Handler.new(:initialize, :verb).with(*init_args), self]
+      surrogate_matcher[Handler.new(:initialize, :verb).with(*init_args), self]
     end
   end
 end
