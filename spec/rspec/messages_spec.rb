@@ -12,7 +12,7 @@ describe messages_for, 'argument inspection' do
     end
 
     it 'inspects no_args matcher' do
-      messages_for.inspect_argument(no_args).should == 'no_args'
+      messages_for.inspect_argument(no_args).should == 'no args'
     end
   end
 
@@ -23,11 +23,11 @@ describe messages_for, 'argument inspection' do
     end
 
     it "joins arguments with commas" do
-      messages_for.inspect_arguments(['x', no_args]).should == "`\"x\", no_args'"
+      messages_for.inspect_arguments(['x', no_args]).should == "`\"x\", no args'"
     end
 
     it 'returns no_args when the array is empty' do
-      messages_for.inspect_arguments([]).should == "`no_args'"
+      messages_for.inspect_arguments([]).should == "`no args'"
     end
   end
 end

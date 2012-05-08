@@ -51,13 +51,13 @@ class Surrogate
 
       def inspect_arguments(arguments)
         inspected_arguments = arguments.map { |argument| inspect_argument argument }
-        inspected_arguments << 'no_args' if inspected_arguments.empty?
+        inspected_arguments << 'no args' if inspected_arguments.empty?
         "`" << inspected_arguments.join(", ") << "'"
       end
 
       def inspect_argument(to_inspect)
-        if to_inspect.kind_of? ::RSpec::Mocks::ArgumentMatchers::NoArgsMatcher
-          "no_args"
+        if RSpec.rspec_mocks_is_loaded? && to_inspect.respond_to?(:description)
+          to_inspect.description
         else
           to_inspect.inspect
         end
@@ -67,6 +67,7 @@ class Surrogate
     end
 
 
+    # sigh, surely there is a better name!
     class Handler < Struct.new(:subject, :language_type)
       attr_accessor :instance
 
@@ -121,19 +122,28 @@ class Surrogate
     end
 
 
+    module ArgumentComparer
+      def args_match?(actual_arguments)
+        if RSpec.rspec_mocks_is_loaded?
+          rspec_arg_expectation = ::RSpec::Mocks::ArgumentExpectation.new *expected_arguments
+          rspec_arg_expectation.args_match? *actual_arguments
+        else
+          expected_arguments == actual_arguments
+        end
+      end
+    end
+
     module MatchWithArguments
+      include ArgumentComparer
+
+      attr_accessor :expected_arguments
+
       def message_type
         :with
       end
 
-      attr_accessor :expected_arguments
-
-      def match? # eventually this will need to get a lot smarter
-        if expected_arguments.size == 1 && expected_arguments.first.kind_of?(::RSpec::Mocks::ArgumentMatchers::NoArgsMatcher)
-          invocations.include? []
-        else
-          invocations.include? expected_arguments
-        end
+      def match?
+        invocations.any? { |invocation| args_match? invocation }
       end
 
       def actual_invocation
@@ -158,6 +168,8 @@ class Surrogate
 
 
     module MatchNumTimesWith
+      include ArgumentComparer
+
       def message_type
         :with_times
       end
@@ -165,7 +177,7 @@ class Surrogate
       attr_accessor :expected_times_invoked, :expected_arguments
 
       def times_invoked_with_expected_args
-        invocations.select { |invocation| invocation == expected_arguments }.size
+        invocations.select { |invocation| args_match? invocation }.size
       end
 
       def match?
@@ -179,8 +191,6 @@ class Surrogate
     end
 
 
-
-    # is there a better way to do this?
     surrogate_matcher = lambda do |use_case, matcher, morphable=false|
       if morphable
         matcher.chain(:times) { |number|     use_case.times  number     }
