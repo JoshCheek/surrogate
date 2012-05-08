@@ -7,8 +7,13 @@ class Surrogate
     # convert raw arguments into a value
     def self.factory(*args, &block)
       arg = args.first
+      # if arg.kind_of? Exception
+      #   Raiseable.new arg
+      # else
+      #   MethodQueue.new args
+      # end
       if args.size > 1
-        MethodQueue.new args
+        ValueQueue.new args
       elsif arg.kind_of? Exception
         Raisable.new arg
       elsif arg.kind_of? Value
@@ -45,7 +50,7 @@ class Surrogate
     end
 
 
-    class MethodQueue < Value
+    class ValueQueue < Value
       QueueEmpty = Class.new StandardError
 
       def value(hatchling, method_name)

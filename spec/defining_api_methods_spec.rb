@@ -56,9 +56,9 @@ describe 'define' do
           context 'it creates a queue of things to find then returns to normal behaviour' do
             specify 'when there is no default block' do
               mock = mocked_class.new
-              mock.will_wink :quickly, :slowly
+              mock.will_wink :quickly, [:slowly]
               mock.wink.should == :quickly
-              mock.wink.should == :slowly
+              mock.wink.should == [:slowly]
               expect { mock.wink }.to raise_error Surrogate::UnpreparedMethodError
             end
 
