@@ -56,7 +56,7 @@ class Surrogate
       end
 
       def inspect_argument(to_inspect)
-        if RSpec.rspec_mocks_is_loaded? && to_inspect.respond_to?(:description)
+        if RSpec.rspec_mocks_loaded? && to_inspect.respond_to?(:description)
           to_inspect.description
         else
           to_inspect.inspect
@@ -124,7 +124,7 @@ class Surrogate
 
     module ArgumentComparer
       def args_match?(actual_arguments)
-        if RSpec.rspec_mocks_is_loaded?
+        if RSpec.rspec_mocks_loaded?
           rspec_arg_expectation = ::RSpec::Mocks::ArgumentExpectation.new *expected_arguments
           rspec_arg_expectation.args_match? *actual_arguments
         else

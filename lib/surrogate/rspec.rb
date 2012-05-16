@@ -3,7 +3,7 @@
 class Surrogate
   module RSpec
     class << self
-      def rspec_mocks_is_loaded?
+      def rspec_mocks_loaded?
         return @mocks_loaded if @alrady_checked_mocks
         @alrady_checked_mocks = true
         require 'rspec/mocks' # can't figure out a way to do this lazily
@@ -12,7 +12,7 @@ class Surrogate
         @mocks_loaded = false
       end
 
-      def rspec_mocks_is_loaded=(bool)
+      def rspec_mocks_loaded=(bool)
         @alrady_checked_mocks = true
         @mocks_loaded = bool
       end
