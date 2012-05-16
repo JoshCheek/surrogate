@@ -361,7 +361,6 @@ TODO
 Future Features
 ---------------
 
-* Support all RSpec matchers (hash_including, anything, etc. see them in RSpec::Mocks::ArgumentMatchers)
 * have some sort of reinitialization that can hook into setup/teardown steps of test suite
 * Support arity checking as part of substitutability
 * Support for blocks

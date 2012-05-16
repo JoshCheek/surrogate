@@ -60,12 +60,17 @@ describe 'RSpec matchers', 'have_been_asked_for_its' do
     end
 
     describe 'integration with rspec argument_matchers' do
-      it 'works with no_args' do
+      it 'works with rspec matchers' do
         instance.should_not have_been_asked_for_its(:size).with(no_args)
         instance.size(1)
         instance.should_not have_been_asked_for_its(:size).with(no_args)
         instance.size
         instance.should have_been_asked_for_its(:size).with(no_args)
+
+        instance.should_not have_been_asked_for_its(:size).with(hash_including all: true)
+        instance.size any: false, all: true
+        instance.should have_been_asked_for_its(:size).with(hash_including all: true)
+        instance.should_not have_been_asked_for_its(:size).with(hash_including all: false)
       end
     end
   end

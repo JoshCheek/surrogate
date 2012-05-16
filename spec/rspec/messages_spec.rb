@@ -11,8 +11,9 @@ describe messages_for, 'argument inspection' do
       messages_for.inspect_argument([/a/]).should == "[/a/]"
     end
 
-    it 'inspects no_args matcher' do
+    it 'inspects rspec matchers' do
       messages_for.inspect_argument(no_args).should == 'no args'
+      messages_for.inspect_argument(hash_including abc: 123).should == 'hash_including(:abc=>123)'
     end
   end
 
