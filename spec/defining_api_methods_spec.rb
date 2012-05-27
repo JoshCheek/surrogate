@@ -1,6 +1,9 @@
 require 'spec_helper'
 
 describe 'define' do
+  let(:mocked_class) { Surrogate.endow Class.new }
+  let(:instance)     { mocked_class.new }
+
   describe 'in the block' do
     it 'is an api method for the class' do
       pristine_klass = Class.new do
@@ -18,248 +21,246 @@ describe 'define' do
 
 
   describe 'out of the block' do
-    let(:mocked_class) { Surrogate.endow Class.new }
-    let(:instance)     { mocked_class.new }
-
     it 'is an api method for the instance' do
       mocked_class.define(:book) { 'book' }
       instance.book.should == 'book'
     end
+  end
 
-    describe 'declaring the behaviour' do
-      describe 'for verbs' do
-        before     { mocked_class.define :wink }
+  describe 'declaring the behaviour' do
 
-        describe 'will_<api_method>' do
-          it 'overrides the default value for the api method' do
-            mock1 = mocked_class.new
-            mock2 = mocked_class.new
-            mock1.will_wink :quickly
-            mock2.will_wink :slowly
-            mock1.wink.should == :quickly
-            mock2.wink.should == :slowly
-            mock1.wink.should == :quickly
-          end
+    describe 'for verbs' do
+      before     { mocked_class.define :wink }
 
-          it 'returns the object' do
-            instance = mocked_class.new
-            instance.will_wink(:quickly).should equal instance
-          end
+      describe 'will_<api_method>' do
+        it 'overrides the default value for the api method' do
+          mock1 = mocked_class.new
+          mock2 = mocked_class.new
+          mock1.will_wink :quickly
+          mock2.will_wink :slowly
+          mock1.wink.should == :quickly
+          mock2.wink.should == :slowly
+          mock1.wink.should == :quickly
         end
 
-        describe 'will_<api_method> with multiple arguments' do
-          it 'returns the object' do
-            instance = mocked_class.new
-            instance.will_wink(1, 2, 3).should equal instance
-          end
+        it 'returns the object' do
+          instance = mocked_class.new
+          instance.will_wink(:quickly).should equal instance
+        end
+      end
 
-          context 'it creates a queue of things to find then returns to normal behaviour' do
-            specify 'when there is no default block' do
-              mock = mocked_class.new
-              mock.will_wink :quickly, [:slowly]
-              mock.wink.should == :quickly
-              mock.wink.should == [:slowly]
-              expect { mock.wink }.to raise_error Surrogate::UnpreparedMethodError
-            end
-
-            specify 'when there is a default block' do
-              mocked_class = Surrogate.endow(Class.new)
-              mocked_class.define(:connect) { :default }
-              mock = mocked_class.new
-              mock.will_connect 1, 2
-              mock.connect.should == 1
-              mock.connect.should == 2
-              mock.connect.should == :default
-            end
-          end
+      describe 'will_<api_method> with multiple arguments' do
+        it 'returns the object' do
+          instance = mocked_class.new
+          instance.will_wink(1, 2, 3).should equal instance
         end
 
-        describe 'when an argument is an error' do
-          it 'raises the error on method invocation' do
-            mocked_class = Surrogate.endow(Class.new)
-            mocked_class.define :connect
+        context 'it creates a queue of things to find then returns to normal behaviour' do
+          specify 'when there is no default block' do
             mock = mocked_class.new
-            error = StandardError.new("some message")
+            mock.will_wink :quickly, [:slowly]
+            mock.wink.should == :quickly
+            mock.wink.should == [:slowly]
+            expect { mock.wink }.to raise_error Surrogate::UnpreparedMethodError
+          end
 
-            # for single invocation
-            mock.will_connect error
-            expect { mock.connect }.to raise_error StandardError, "some message"
-
-            # for queue
-            mock.will_connect 1, error, 2
+          specify 'when there is a default block' do
+            mocked_class = Surrogate.endow(Class.new)
+            mocked_class.define(:connect) { :default }
+            mock = mocked_class.new
+            mock.will_connect 1, 2
             mock.connect.should == 1
-            expect { mock.connect }.to raise_error StandardError, "some message"
             mock.connect.should == 2
+            mock.connect.should == :default
           end
         end
       end
 
+      describe 'when an argument is an error' do
+        it 'raises the error on method invocation' do
+          mocked_class = Surrogate.endow(Class.new)
+          mocked_class.define :connect
+          mock = mocked_class.new
+          error = StandardError.new("some message")
 
-      describe 'for nouns' do
-        before { mocked_class.define :age }
+          # for single invocation
+          mock.will_connect error
+          expect { mock.connect }.to raise_error StandardError, "some message"
 
-        describe 'will_have_<api_method>' do
-          it 'defines will_have_<api_method> which overrides the default block' do
-            mock1 = mocked_class.new
-            mock2 = mocked_class.new
-            mock1.will_have_age 12
-            mock2.will_have_age 34
-            mock1.age.should == 12
-            mock2.age.should == 34
-            mock1.age.should == 12
-          end
-
-          it 'returns the object' do
-            instance = mocked_class.new
-            instance.will_have_age(123).should equal instance
-          end
-        end
-
-        describe 'wil_have_<api_method> with multiple arguments' do
-          it 'returns the object' do
-            instance = mocked_class.new
-            instance.will_have_age(1,2,3).should equal instance
-          end
-
-          context 'it creates a queue of things to find then returns to normal behaviour' do
-            specify 'when there is no default block' do
-              mock = mocked_class.new
-              mock.will_have_age 12, 34
-              mock.age.should == 12
-              mock.age.should == 34
-              expect { mock.age }.to raise_error Surrogate::UnpreparedMethodError
-            end
-
-            specify 'when there is a default block' do
-              mocked_class = Surrogate.endow(Class.new)
-              mocked_class.define(:name) { 'default' }
-              mock = mocked_class.new
-              mock.will_have_name 'a', 'b'
-              mock.name.should == 'a'
-              mock.name.should == 'b'
-              mock.name.should == 'default'
-            end
-          end
+          # for queue
+          mock.will_connect 1, error, 2
+          mock.connect.should == 1
+          expect { mock.connect }.to raise_error StandardError, "some message"
+          mock.connect.should == 2
         end
       end
     end
 
 
+    describe 'for nouns' do
+      before { mocked_class.define :age }
 
-    context 'the api method' do
-      it 'takes any number of arguments' do
-        mocked_class.define(:meth) { 1 }
-        mocked_class.new.meth.should == 1
-        mocked_class.new.meth(1).should == 1
-        mocked_class.new.meth(1, 2).should == 1
-      end
-
-      it 'raises an UnpreparedMethodError when it has no default block' do
-        mocked_class.define :meth
-        expect { mocked_class.new.meth }.to raise_error(Surrogate::UnpreparedMethodError, /meth/)
-      end
-
-      it 'considers ivars of the same name to be its default' do
-        mocked_class.define :meth
-        mocked = mocked_class.new
-        mocked.instance_variable_set :@meth, 123
-        mocked.meth.should == 123
-      end
-
-      it 'reverts to the default block if invoked and having no ivar' do
-        mocked_class.define(:meth) { 123 }
-        mocked = mocked_class.new
-        mocked.instance_variable_get(:@meth).should be_nil
-        mocked.meth.should == 123
-      end
-
-      describe 'initialization' do
-        specify 'api methods can be an initialize method' do
-          mocked_class.define(:initialize) { @abc = 123 }
-          mocked_class.new.instance_variable_get(:@abc).should == 123
+      describe 'will_have_<api_method>' do
+        it 'defines will_have_<api_method> which overrides the default block' do
+          mock1 = mocked_class.new
+          mock2 = mocked_class.new
+          mock1.will_have_age 12
+          mock2.will_have_age 34
+          mock1.age.should == 12
+          mock2.age.should == 34
+          mock1.age.should == 12
         end
 
-        specify 'initialize exsits even if error is raised' do
-          mocked_class.define(:initialize) { raise "simulate runtime error" }
-          expect { mocked_class.new }.to raise_error(RuntimeError, /simulate/)
-          expect { mocked_class.new }.to raise_error(RuntimeError, /simulate/)
+        it 'returns the object' do
+          instance = mocked_class.new
+          instance.will_have_age(123).should equal instance
+        end
+      end
+
+      describe 'wil_have_<api_method> with multiple arguments' do
+        it 'returns the object' do
+          instance = mocked_class.new
+          instance.will_have_age(1,2,3).should equal instance
         end
 
-        specify 'receives args' do
-          mocked_class.define(:initialize) { |num1, num2| @num = num1 + num2 }
-          mocked_class.new(25, 75).instance_variable_get(:@num).should == 100
-        end
-
-        specify 'even works with inheritance' do
-          superclass = Class.new
-          superclass.send(:define_method, :initialize) { @a = 1 }
-          subclass = Surrogate.endow Class.new superclass
-          subclass.define :abc
-          subclass.new.instance_variable_get(:@a).should == 1
-        end
-
-        context 'when not an api method' do
-          it 'respects arity (this is probably 1.9.3 only)' do
-            expect { mocked_class.new 1 }.to raise_error ArgumentError, 'wrong number of arguments(1 for 0)'
+        context 'it creates a queue of things to find then returns to normal behaviour' do
+          specify 'when there is no default block' do
+            mock = mocked_class.new
+            mock.will_have_age 12, 34
+            mock.age.should == 12
+            mock.age.should == 34
+            expect { mock.age }.to raise_error Surrogate::UnpreparedMethodError
           end
 
-          describe 'invocations are recorded anyway' do
-            specify 'even when initialize is defined after surrogate block' do
-              klass = Class.new do
-                Surrogate.endow self
-                def initialize(a) @a = a end
-              end
-              klass.new(1).should have_been_initialized_with 1
-              klass.new(1).instance_variable_get(:@a).should == 1
-            end
-
-            specify 'even when initialize is defined before surrogate block' do
-              klass = Class.new do
-                def initialize(a) @a = a end
-                Surrogate.endow self
-              end
-              klass.new(1).should have_been_initialized_with 1
-              klass.new(1).instance_variable_get(:@a).should == 1
-            end
+          specify 'when there is a default block' do
+            mocked_class = Surrogate.endow(Class.new)
+            mocked_class.define(:name) { 'default' }
+            mock = mocked_class.new
+            mock.will_have_name 'a', 'b'
+            mock.name.should == 'a'
+            mock.name.should == 'b'
+            mock.name.should == 'default'
           end
         end
       end
+    end
+  end
 
-      describe 'it takes a block whos return value will be used as the default' do
-        specify 'the block is instance evaled' do
-          mocked_class.define(:meth) { self }
-          instance = mocked_class.new
-          instance.meth.should equal instance
+
+
+  context 'the api method' do
+    it 'takes any number of arguments' do
+      mocked_class.define(:meth) { 1 }
+      mocked_class.new.meth.should == 1
+      mocked_class.new.meth(1).should == 1
+      mocked_class.new.meth(1, 2).should == 1
+    end
+
+    it 'raises an UnpreparedMethodError when it has no default block' do
+      mocked_class.define :meth
+      expect { mocked_class.new.meth }.to raise_error(Surrogate::UnpreparedMethodError, /meth/)
+    end
+
+    it 'considers ivars of the same name to be its default when it has no suffix' do
+      mocked_class.define :meth
+      mocked = mocked_class.new
+      mocked.instance_variable_set :@meth, 123
+      mocked.meth.should == 123
+    end
+
+    it 'reverts to the default block if invoked and having no ivar' do
+      mocked_class.define(:meth) { 123 }
+      mocked = mocked_class.new
+      mocked.instance_variable_get(:@meth).should be_nil
+      mocked.meth.should == 123
+    end
+
+    describe 'initialization' do
+      specify 'api methods can be an initialize method' do
+        mocked_class.define(:initialize) { @abc = 123 }
+        mocked_class.new.instance_variable_get(:@abc).should == 123
+      end
+
+      specify 'initialize exsits even if error is raised' do
+        mocked_class.define(:initialize) { raise "simulate runtime error" }
+        expect { mocked_class.new }.to raise_error(RuntimeError, /simulate/)
+        expect { mocked_class.new }.to raise_error(RuntimeError, /simulate/)
+      end
+
+      specify 'receives args' do
+        mocked_class.define(:initialize) { |num1, num2| @num = num1 + num2 }
+        mocked_class.new(25, 75).instance_variable_get(:@num).should == 100
+      end
+
+      specify 'even works with inheritance' do
+        superclass = Class.new
+        superclass.send(:define_method, :initialize) { @a = 1 }
+        subclass = Surrogate.endow Class.new superclass
+        subclass.define :abc
+        subclass.new.instance_variable_get(:@a).should == 1
+      end
+
+      context 'when not an api method' do
+        it 'respects arity (this is probably 1.9.3 only)' do
+          expect { mocked_class.new 1 }.to raise_error ArgumentError, 'wrong number of arguments(1 for 0)'
         end
 
-        specify 'arguments passed to the method will be passed to the block' do
-          mocked_class.define(:meth) { |*args| args }
-          instance = mocked_class.new
-          instance.meth(1).should == [1]
-          instance.meth(1, 2).should == [1, 2]
+        describe 'invocations are recorded anyway' do
+          specify 'even when initialize is defined after surrogate block' do
+            klass = Class.new do
+              Surrogate.endow self
+              def initialize(a) @a = a end
+            end
+            klass.new(1).should have_been_initialized_with 1
+            klass.new(1).instance_variable_get(:@a).should == 1
+          end
+
+          specify 'even when initialize is defined before surrogate block' do
+            klass = Class.new do
+              def initialize(a) @a = a end
+              Surrogate.endow self
+            end
+            klass.new(1).should have_been_initialized_with 1
+            klass.new(1).instance_variable_get(:@a).should == 1
+          end
         end
       end
+    end
 
-      it 'remembers what it was invoked with' do
-        mocked_class.define(:meth) { nil }
-        mock = mocked_class.new
-        mock.meth 1
-        mock.meth 1, 2
-        mock.meth [1, 2]
-        mock.invocations(:meth).should == [
-          [1],
-          [1, 2],
-          [[1, 2]],
-        ]
+    describe 'it takes a block whos return value will be used as the default' do
+      specify 'the block is instance evaled' do
+        mocked_class.define(:meth) { self }
+        instance = mocked_class.new
+        instance.meth.should equal instance
       end
 
-      it 'raises an error if asked about invocations for api methods it does not know' do
-        mocked_class.define :meth1
-        mocked_class.define :meth2
-        mock = mocked_class.new
-        expect { mock.invocations(:meth1) }.to_not raise_error
-        expect { mock.invocations(:meth3) }.to raise_error Surrogate::UnknownMethod, /doesn't know "meth3", only knows "initialize", "meth1", "meth2"/
+      specify 'arguments passed to the method will be passed to the block' do
+        mocked_class.define(:meth) { |*args| args }
+        instance = mocked_class.new
+        instance.meth(1).should == [1]
+        instance.meth(1, 2).should == [1, 2]
       end
+    end
+
+    it 'remembers what it was invoked with' do
+      mocked_class.define(:meth) { nil }
+      mock = mocked_class.new
+      mock.meth 1
+      mock.meth 1, 2
+      mock.meth [1, 2]
+      mock.invocations(:meth).should == [
+        [1],
+        [1, 2],
+        [[1, 2]],
+      ]
+    end
+
+    it 'raises an error if asked about invocations for api methods it does not know' do
+      mocked_class.define :meth1
+      mocked_class.define :meth2
+      mock = mocked_class.new
+      expect { mock.invocations(:meth1) }.to_not raise_error
+      expect { mock.invocations(:meth3) }.to raise_error Surrogate::UnknownMethod, /doesn't know "meth3", only knows "initialize", "meth1", "meth2"/
     end
   end
 
