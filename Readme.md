@@ -64,13 +64,14 @@ end
 MockClient.new.request 3 # => ["result1", "result2", "result3"]
 ```
 
-You don't need a **default if you set the ivar** of the same name
+You don't need a **default if you set the ivar** of the same name (replace `?` with `_p` for predicates, since you can't have question marks in ivar names)
 
 ```ruby
 class MockClient
   Surrogate.endow self
-  define(:initialize) { |id| @id = id }
+  define(:initialize) { |id| @id, @connected_p = id, true }
   define :id
+  define :connected?
 end
 MockClient.new(12).id # => 12
 ```

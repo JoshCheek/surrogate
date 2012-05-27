@@ -168,6 +168,13 @@ describe 'define' do
       mocked.meth.should == 123
     end
 
+    it 'considers ivars ending in _p to be its default when it ends in a question mark' do
+      mocked_class.define :meth?
+      mocked = mocked_class.new
+      mocked.instance_variable_set :@meth_p, 123
+      mocked.meth?.should == 123
+    end
+
     it 'reverts to the default block if invoked and having no ivar' do
       mocked_class.define(:meth) { 123 }
       mocked = mocked_class.new

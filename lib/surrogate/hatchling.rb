@@ -31,19 +31,28 @@ class Surrogate
 
     # maybe these four should be extracted into their own class
     def has_ivar?(method_name)
-      instance.instance_variable_defined? "@#{method_name}"
+      instance.instance_variable_defined? ivar_for method_name
     end
 
     def set_ivar(method_name, value)
-      instance.instance_variable_set "@#{method_name}", value
+      instance.instance_variable_set ivar_for(method_name), value
     end
 
     def get_ivar(method_name)
-      instance.instance_variable_get "@#{method_name}"
+      instance.instance_variable_get ivar_for method_name
     end
 
     def unset_ivar(method_name)
-      instance.__send__ :remove_instance_variable, "@#{method_name}"
+      instance.__send__ :remove_instance_variable, ivar_for(method_name)
+    end
+
+    def ivar_for(method_name)
+      case method_name
+      when /\?$/
+        "@#{method_name.to_s.chop}_p"
+      else
+        "@#{method_name}"
+      end
     end
 
   private
