@@ -76,7 +76,7 @@ class Surrogate
 
     def enable_defining_methods(klass)
       def klass.define(method_name, options={}, &block)
-        @hatchery.define method_name, options, block
+        @hatchery.define method_name, options, &block
       end
 
       def klass.api_method_names

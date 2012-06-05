@@ -11,7 +11,7 @@ class Surrogate
       klass_can_define_api_methods
     end
 
-    def define(method_name, options={}, block)
+    def define(method_name, options={}, &block)
       add_api_method_for method_name
       add_verb_helpers_for method_name
       add_noun_helpers_for method_name

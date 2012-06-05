@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
 
-  # specify any dependencies here; for example:
+  s.add_runtime_dependency 'bindable_block', '= 0.0.4'
+
   s.add_development_dependency "rspec", '~> 2.8.0' # TODO: Figure out how far back we can work with
-  # s.add_runtime_dependency "rest-client"
 end

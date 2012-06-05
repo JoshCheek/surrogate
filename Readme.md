@@ -358,6 +358,8 @@ TODO
 
 * Add a better explanation for motivations
 * Figure out whether I'm supposed to be using clone or dup for the object -.^ (looks like there may also be an `initialize_copy` method I can take advantage of instead of crazy stupid shit I'm doing now)
+* don't blow up when delegating to the Object#initialize with args
+* queues should not reset when done, they should raise
 
 
 Future Features

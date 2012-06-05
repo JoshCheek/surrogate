@@ -6,31 +6,48 @@ describe 'define' do
 
   describe 'in the block' do
     it 'is an api method for the class' do
-      pristine_klass = Class.new do
-        Surrogate.endow self do
-          define(:find) { 123 }
-        end
-      end
-
-      klass1 = pristine_klass.clone
-      klass1.should_not have_been_told_to :find
-      klass1.find(1).should == 123
-      klass1.should have_been_told_to(:find).with(1)
+      pristine_klass = Class.new { Surrogate.endow(self) { define :find } }
+      pristine_klass.singleton_class.api_method_names.should == [:find]
     end
   end
 
 
   describe 'out of the block' do
     it 'is an api method for the instance' do
-      mocked_class.define(:book) { 'book' }
-      instance.book.should == 'book'
+      mocked_class.define :book
+      mocked_class.api_method_names.should == [:book]
+    end
+  end
+
+  describe 'definition default block invocation' do
+    xit "something about raising an error if arity is wrong" do
+      mocked_class.define(:a) { |arg| 1 }
+      mocked_class.new.a.should == 1
+      mocked_class.new.a(2).should == 1
+      mocked_class.new.a(3).should == 1
+    end
+
+    it "is passed the arguments" do
+      arg = nil
+      mocked_class.define(:meth) { |inner_arg| arg = inner_arg }.new.meth(1212)
+      arg.should == 1212
+    end
+
+    it "is passed the block" do
+      block = nil
+      mocked_class.define(:meth) { |&inner_block| block = inner_block }.new.meth { 12 }
+      block.call.should == 12
+    end
+
+    it "returns the value that the method returns" do
+      mocked_class.define(:meth) { 1234 }.new.meth.should == 1234
     end
   end
 
   describe 'declaring the behaviour' do
 
     describe 'for verbs' do
-      before     { mocked_class.define :wink }
+      before { mocked_class.define :wink }
 
       describe 'will_<api_method>' do
         it 'overrides the default value for the api method' do
