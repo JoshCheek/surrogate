@@ -260,8 +260,8 @@ After you've implemented the real version of your mock (assuming a [top-down](ht
 how do you prevent your real object from getting out of synch with your mock?
 
 Assert that your mock has the **same interface** as your real class.
-This will fail if the mock inherits methods methods not on the real class. And it will fail
-if the real class has or lacks any methods defined on the mock or inherited by the mock.
+This will fail if the mock inherits methods which are not on the real class. It will also fail
+if the real class has any methods which have not been defined on the mock or inherited by the mock.
 
 Presently, it will ignore methods defined directly in the mock (as it adds quite a few of its own methods,
 and generally considers them to be helpers). In a future version, you will be able to tell it to treat other methods
