@@ -191,39 +191,85 @@ class Surrogate
     end
 
 
-    surrogate_matcher = lambda do |use_case, matcher, morphable=false|
-      if morphable
-        matcher.chain(:times) { |number|     use_case.times  number     }
-        matcher.chain(:with)  { |*arguments| use_case.with   *arguments }
+
+    module CommonMatcher
+      attr_reader :handler
+
+      def initialize(expected)
+        @handler = Handler.new expected, self.class::LANGUAGE_TYPE
       end
 
-      matcher.match do |mocked_instance|
-        use_case.instance = mocked_instance
-        use_case.match?
+      def matches?(mocked_instance)
+        handler.instance = mocked_instance
+        handler.match?
       end
 
-      matcher.failure_message_for_should     { use_case.failure_message_for_should }
-      matcher.failure_message_for_should_not { use_case.failure_message_for_should_not }
+      def failure_message_for_should_not
+        handler.failure_message_for_should_not
+      end
+
+      def failure_message_for_should
+        handler.failure_message_for_should
+      end
+    end
+
+    class HaveBeenInitializedWith
+      LANGUAGE_TYPE = :verb
+
+      include CommonMatcher
+
+      def initialize(*initialization_args, &block)
+        super :initialize
+        handler.with *initialization_args, &block
+      end
     end
 
 
-    # have_been_told_to
-    ::RSpec::Matchers.define :have_been_told_to do |verb|
-      surrogate_matcher[Handler.new(verb, :verb), self, true]
+    class HaveBeenAskedForIts
+      LANGUAGE_TYPE = :noun
+
+      include CommonMatcher
+
+      def times(number)
+        handler.times number
+        self
+      end
+
+      def with(*arguments, &block)
+        handler.with *arguments, &block
+        self
+      end
     end
 
 
-    # have_been_asked_for_its
-    ::RSpec::Matchers.define :have_been_asked_for_its do |noun|
-      surrogate_matcher[Handler.new(noun, :noun), self, true]
+    class HaveBeenToldTo
+      LANGUAGE_TYPE = :verb
+
+      include CommonMatcher
+
+      def times(number)
+        handler.times number
+        self
+      end
+
+      def with(*arguments, &block)
+        handler.with *arguments, &block
+        self
+      end
     end
 
+    module Matchers
+      def have_been_told_to(expected)
+        HaveBeenToldTo.new expected
+      end
 
-    # have_been_initialized_with
-    ::RSpec::Matchers.define :have_been_initialized_with do |*init_args|
-      surrogate_matcher[Handler.new(:initialize, :verb).with(*init_args), self]
+      def have_been_asked_for_its(expected)
+        HaveBeenAskedForIts.new expected
+      end
+
+      def have_been_initialized_with(*initialization_args, &block)
+        HaveBeenInitializedWith.new *initialization_args, &block
+      end
     end
   end
 end
-
-

@@ -20,6 +20,11 @@ class Surrogate
   end
 end
 
+require 'rspec/core'
 require 'surrogate'
 require 'surrogate/rspec/api_method_matchers'
 require 'surrogate/rspec/substitutability_matchers'
+
+RSpec.configure do |config|
+  config.include Surrogate::RSpec::Matchers
+end
