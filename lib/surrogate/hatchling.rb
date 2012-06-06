@@ -16,6 +16,7 @@ class Surrogate
     end
 
     def invoke_method(method_name, args, &block)
+      args << block if block
       invoked_methods[method_name] << args
       return get_default method_name, args, &block unless has_ivar? method_name
       Value.factory(get_ivar method_name).value(self, method_name)
