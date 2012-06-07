@@ -114,8 +114,9 @@ class Surrogate
         self
       end
 
-      def with(*arguments)
+      def with(*arguments, &expectation_block)
         extend (kind_of?(MatchNumTimes) ? MatchNumTimesWith : MatchWithArguments)
+        arguments << expectation_block if expectation_block
         self.expected_arguments = arguments
         self
       end
@@ -136,6 +137,45 @@ class Surrogate
     module MatchWithArguments
       include ArgumentComparer
 
+      class BlockAsserter
+        def initialize(block_to_test)
+          self.block_to_test = block_to_test
+        end
+
+        def returns(value=nil, &block)
+          @returns = block || lambda { value }
+        end
+
+        def before(&block)
+          @before = block
+        end
+
+        def after(&block)
+          @after = block
+        end
+
+        def arity(n)
+          @arity = n
+        end
+
+        def match?
+          @before && @before.call
+          if @returns
+            return_value = (@returns.call == block_to_test.call)
+          else
+            block_to_test.call
+            return_value = true
+          end
+          return_value &&= (block_to_test.arity == @arity) if @arity
+          @after && @after.call
+          return_value
+        end
+
+        private
+
+        attr_accessor :block_to_test
+      end
+
       attr_accessor :expected_arguments
 
       def message_type
@@ -143,7 +183,25 @@ class Surrogate
       end
 
       def match?
-        invocations.any? { |invocation| args_match? invocation }
+        if expected_arguments.last.kind_of? Proc
+          begin
+            invocations.select { |invocation| block_matches? invocation }
+                       .any?
+                       # .any?   { |invocation| args_match?    invocation }
+          ensure
+          end
+        else
+          invocations.any? { |invocation| args_match? invocation }
+        end
+      end
+
+      def block_matches?(invocation)
+        return unless invocation.last.kind_of? Proc
+        block_that_tests = expected_arguments.last
+        block_to_test = invocation.last
+        asserter = BlockAsserter.new(block_to_test)
+        block_that_tests.call asserter
+        asserter.match?
       end
 
       def actual_invocation
@@ -212,6 +270,7 @@ class Surrogate
         handler.failure_message_for_should
       end
     end
+
 
     class HaveBeenInitializedWith
       LANGUAGE_TYPE = :verb
