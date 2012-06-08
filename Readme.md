@@ -360,6 +360,8 @@ TODO
 * Figure out whether I'm supposed to be using clone or dup for the object -.^ (looks like there may also be an `initialize_copy` method I can take advantage of instead of crazy stupid shit I'm doing now)
 * don't blow up when delegating to the Object#initialize with args
 * queues should not reset when done, they should raise
+* config: rspec_mocks loaded, whether unprepared blocks should raise or just return nil
+* there's probably a bug if you pass a proc as an arg, where it looks like it came in the block slot. if so, swap out arrays of invocations for some kind of argument data structure
 
 
 Future Features
