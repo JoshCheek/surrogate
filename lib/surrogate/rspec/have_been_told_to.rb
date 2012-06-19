@@ -40,15 +40,12 @@ class Surrogate
 
         def args_match?(expected_arguments, actual_arguments)
           if expected_arguments.last.kind_of? Proc
-            block_asserter = lambda {
-              return unless actual_arguments.last.kind_of? Proc
-              block_that_tests = expected_arguments.last
-              block_to_test = actual_arguments.last
-              asserter = Handler::BlockAsserter.new(block_to_test)
-              block_that_tests.call asserter
-              asserter.match?
-            }
-            block_asserter.call
+            return unless actual_arguments.last.kind_of? Proc
+            block_that_tests = expected_arguments.last
+            block_to_test = actual_arguments.last
+            asserter = Handler::BlockAsserter.new(block_to_test)
+            block_that_tests.call asserter
+            asserter.match?
           else
             if RSpec.rspec_mocks_loaded?
               rspec_arg_expectation = ::RSpec::Mocks::ArgumentExpectation.new *expected_arguments
