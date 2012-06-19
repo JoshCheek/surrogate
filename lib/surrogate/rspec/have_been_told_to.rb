@@ -14,10 +14,6 @@ class Surrogate
           self.times_predicate = times_predicate
         end
 
-        def result
-          get_message
-        end
-
         def get_message
           raise "I should have been overridden"
         end
