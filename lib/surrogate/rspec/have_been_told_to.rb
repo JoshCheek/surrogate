@@ -152,16 +152,16 @@ class Surrogate
           },
         }
 
-        attr_accessor :message_type, :with_filter, :times_predicate, :method_name, :message_category, :invocations
+        attr_accessor :message_type, :with_filter, :times_predicate, :method_name, :should_or_shouldnt, :invocations
 
-        def messages(message_category, message_type, with_filter, times_predicate, method_name, invocations)
+        def messages(should_or_shouldnt, message_type, with_filter, times_predicate, method_name, invocations)
           self.invocations = invocations
           self.method_name = method_name
-          self.message_category = message_category
+          self.should_or_shouldnt = should_or_shouldnt
           self.with_filter = with_filter
           self.times_predicate = times_predicate
           self.message_type = message_type
-          message = MESSAGES[message_category].fetch(message_type)
+          message = MESSAGES[should_or_shouldnt].fetch(message_type)
           ERB.new(message).result(binding)
         end
 
