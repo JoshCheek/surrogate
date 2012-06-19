@@ -95,13 +95,6 @@ class Surrogate
         end
       end
 
-      def expected_arguments
-        with_filter.args
-      end
-
-      def expected_times_invoked
-        times_predicate.expected_times_invoked
-      end
 
 
       def times_msg(n)

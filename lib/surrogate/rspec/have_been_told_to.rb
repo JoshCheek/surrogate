@@ -73,7 +73,7 @@ class Surrogate
         end
 
         def expected_times_invoked
-          @env.expected_times_invoked
+          times_predicate.expected_times_invoked
         end
       end
 
