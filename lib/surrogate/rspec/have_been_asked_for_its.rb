@@ -15,42 +15,47 @@ class Surrogate
       end
 
       class WithFilter
-        attr_accessor :args, :block
+        attr_accessor :args, :block, :pass
 
-        def initialize(args, &block)
+        def initialize(args=[], pass=default_filter, &block)
           self.args = args
           self.block = block
+          self.pass = pass
         end
 
         def filter(invocations)
+          invocations.select &pass
+        end
 
+      private
+
+        def default_filter
+          Proc.new { true }
         end
       end
 
-      attr_reader :handler, :times_predicate
+      attr_reader :handler, :times_predicate, :with_filter
 
       def initialize(expected)
         self.subject = expected
         self.message_type = :default
         @times_predicate = TimesPredicate.new(0, :<)
+        @with_filter = WithFilter.new
       end
 
       def matches?(mocked_instance)
         self.instance = mocked_instance
+        invocations = with_filter.filter(self.invocations)
 
-        # :)
         if message_type == :with_times
           times_predicate.matches?(invocations.select { |invocation| args_match? invocation })
 
-        # :)
         elsif message_type == :default
           times_predicate.matches?(invocations)
 
-        # :)
         elsif message_type == :times
           times_predicate.matches?(invocations)
 
-        # :(
         elsif message_type == :with
           if expected_arguments.last.kind_of? Proc
             block_asserter = lambda { |invocation|
