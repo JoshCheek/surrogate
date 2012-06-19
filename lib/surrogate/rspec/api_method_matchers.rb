@@ -67,16 +67,30 @@ class Surrogate
     end
 
 
+    # IGNORE EVERYTHING ABOVE THIS LINE ##################################################
+
+
     # sigh, surely there is a better name!
     class Handler < Struct.new(:subject, :language_type)
       attr_accessor :instance
 
       def message_for(message_category, message_type)
-        MessagesFor.message_for(language_type, message_category, message_type, binding)
+        message = MessagesFor::MESSAGES[language_type][message_category].fetch(message_type)
+        ERB.new(message).result(binding)
       end
 
-      def inspect_arguments(args)
-        MessagesFor.inspect_arguments args
+      def inspect_arguments(arguments)
+        inspected_arguments = arguments.map { |argument| inspect_argument argument }
+        inspected_arguments << 'no args' if inspected_arguments.empty?
+        "`" << inspected_arguments.join(", ") << "'"
+      end
+
+      def inspect_argument(to_inspect)
+        if RSpec.rspec_mocks_loaded? && to_inspect.respond_to?(:description)
+          to_inspect.description
+        else
+          to_inspect.inspect
+        end
       end
 
       def message_type
