@@ -84,8 +84,8 @@ class Surrogate
       def invocations
         instance.invocations(subject)
       end
+
       # keep
-      #
       def failure_message_for_should
         message_for :should, message_type
       end
