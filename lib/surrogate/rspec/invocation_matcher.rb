@@ -103,7 +103,7 @@ class Surrogate
         invocations.size
       end
 
-      def inspect(arguments)
+      def inspect_arguments(arguments)
         ArgsInspector.inspect arguments
       end
 
