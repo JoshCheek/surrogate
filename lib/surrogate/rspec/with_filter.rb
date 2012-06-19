@@ -40,10 +40,11 @@ class Surrogate
         attr_accessor :block_to_test
       end
 
+      # rename args to invocation
       attr_accessor :args, :block, :pass, :filter_name
 
       def initialize(args=[], filter_name=:default_filter, &block)
-        self.args = args
+        self.args = Invocation.new args, &block
         self.block = block
         self.pass = send filter_name
         self.filter_name = filter_name
@@ -67,20 +68,21 @@ class Surrogate
         lambda { |invocation| args_match? args, invocation }
       end
 
-      def args_match?(expected_arguments, actual_arguments)
-        if expected_arguments.last.kind_of? Proc
-          return unless actual_arguments.last.kind_of? Proc
-          block_that_tests = expected_arguments.last
-          block_to_test = actual_arguments.last
+      def args_match?(expected_invocation, actual_invocation)
+        if expected_invocation.has_block?
+          return unless actual_invocation.has_block?
+          block_that_tests = expected_invocation.block
+          block_to_test = actual_invocation.block
           asserter = BlockAsserter.new(block_to_test)
           block_that_tests.call asserter
           asserter.match?
         else
           if RSpec.rspec_mocks_loaded?
-            rspec_arg_expectation = ::RSpec::Mocks::ArgumentExpectation.new *expected_arguments
-            rspec_arg_expectation.args_match? *actual_arguments
+            rspec_arg_expectation = ::RSpec::Mocks::ArgumentExpectation.new *expected_invocation.args
+            rspec_arg_expectation.args_match? *actual_invocation.args
           else
-            expected_arguments == actual_arguments
+            # can we move this into the invocation?
+            expected_arguments.args == actual_arguments.args
           end
         end
       end

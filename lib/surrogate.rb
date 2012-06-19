@@ -5,6 +5,7 @@ require 'surrogate/options'
 require 'surrogate/values'
 require 'surrogate/endower'
 require 'surrogate/api_comparer'
+require 'surrogate/invocation'
 
 class Surrogate
   UnpreparedMethodError = Class.new StandardError

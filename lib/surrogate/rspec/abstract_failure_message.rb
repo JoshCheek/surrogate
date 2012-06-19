@@ -2,8 +2,8 @@ class Surrogate
   module RSpec
     class AbstractFailureMessage
       class ArgsInspector
-        def self.inspect(arguments)
-          inspected_arguments = arguments.map { |argument| inspect_argument argument }
+        def self.inspect(invocation)
+          inspected_arguments = invocation.args.map { |argument| inspect_argument argument }
           inspected_arguments << 'no args' if inspected_arguments.empty?
           "`" << inspected_arguments.join(", ") << "'"
         end
@@ -35,7 +35,12 @@ class Surrogate
       end
 
       def inspect_arguments(arguments)
-        ArgsInspector.inspect arguments
+        # can we fix this as soon as an array enters the system instead of catching it here?
+        if arguments.kind_of? Invocation
+          ArgsInspector.inspect arguments
+        else
+          ArgsInspector.inspect Invocation.new arguments
+        end
       end
 
       def expected_arguments

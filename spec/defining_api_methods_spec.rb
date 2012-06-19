@@ -271,11 +271,11 @@ describe 'define' do
       mock = mocked_class.new
       mock.meth 1
       mock.meth 1, 2
-      mock.invocations(:meth).should == [[1], [1, 2]]
+      mock.invocations(:meth).should == [Surrogate::Invocation.new([1]), Surrogate::Invocation.new([1, 2])]
 
       val = 0
       mock.meth(1, 2) { val =  3 }
-      expect { mock.invocations(:meth).last.last.call }.to change { val }.from(0).to(3)
+      expect { mock.invocations(:meth).last.block.call }.to change { val }.from(0).to(3)
     end
 
     it 'raises an error if asked about invocations for api methods it does not know' do

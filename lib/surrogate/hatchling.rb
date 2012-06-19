@@ -16,9 +16,9 @@ class Surrogate
     end
 
     def invoke_method(method_name, args, &block)
-      args << block if block
-      invoked_methods[method_name] << args
-      return get_default method_name, args, &block unless has_ivar? method_name
+      invocation = Invocation.new(args, &block)
+      invoked_methods[method_name] << invocation
+      return get_default method_name, invocation, &block unless has_ivar? method_name
       Value.factory(get_ivar method_name).value(self, method_name)
     end
 
@@ -65,8 +65,8 @@ class Surrogate
       end
     end
 
-    def get_default(method_name, args, &block)
-      api_methods[method_name].default instance, args, block do
+    def get_default(method_name, invocation)
+      api_methods[method_name].default instance, invocation do
         raise UnpreparedMethodError, "#{method_name} has been invoked without being told how to behave"
       end
     end

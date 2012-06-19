@@ -20,7 +20,7 @@ class Surrogate
       options
     end
 
-    def default(instance, args, block, &no_default)
+    def default(instance, invocation, &no_default)
       if options.has_key? :default
         options[:default]
       elsif default_proc
@@ -31,7 +31,7 @@ class Surrogate
         # the options, then we only have to bind it to an instance and invoke
         BindableBlock.new(instance.class, &default_proc)
                      .bind(instance)
-                     .call(*args, &block)
+                     .call(*invocation.args, &invocation.block)
       else
         no_default.call
       end
