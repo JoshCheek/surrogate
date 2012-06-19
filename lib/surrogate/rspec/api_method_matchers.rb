@@ -136,12 +136,7 @@ class Surrogate
 
       def match?
         if expected_arguments.last.kind_of? Proc
-          begin
-            invocations.select { |invocation| block_matches? invocation }
-                       .any?
-                       # .any?   { |invocation| args_match?    invocation }
-          ensure
-          end
+          invocations.select { |invocation| block_matches? invocation }.any?
         else
           invocations.any? { |invocation| args_match? invocation }
         end
