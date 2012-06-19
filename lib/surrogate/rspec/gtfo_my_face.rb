@@ -136,15 +136,17 @@ class Surrogate
     # it should be able to figure everything out from these without needing the bs switches
     class FailureMessages
       attr_accessor :message_type, :times_predicate, :method_name, :should_or_shouldnt, :invocations, :with_filter
+      attr_accessor :messages
 
-      def initialize(method_name, with_filter, times_predicate)
+      def initialize(method_name, invocations, with_filter, times_predicate, messages)
         self.method_name = method_name
+        self.invocations = invocations
         self.with_filter = with_filter
         self.times_predicate = times_predicate
+        self.messages = messages
       end
 
-      def messages(should_or_shouldnt, invocations, messages)
-        self.invocations = invocations
+      def message_for(should_or_shouldnt)
         self.should_or_shouldnt = should_or_shouldnt
         message = messages[should_or_shouldnt].fetch(message_type)
         ERB.new(message).result(binding)
