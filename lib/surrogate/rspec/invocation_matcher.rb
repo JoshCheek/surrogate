@@ -21,6 +21,45 @@ class Surrogate
 
 
     class WithFilter
+      class BlockAsserter
+        def initialize(block_to_test)
+          self.block_to_test = block_to_test
+        end
+
+        def returns(value=nil, &block)
+          @returns = block || lambda { value }
+        end
+
+        def before(&block)
+          @before = block
+        end
+
+        def after(&block)
+          @after = block
+        end
+
+        def arity(n)
+          @arity = n
+        end
+
+        def match?
+          @before && @before.call
+          if @returns
+            return_value = (@returns.call == block_to_test.call)
+          else
+            block_to_test.call
+            return_value = true
+          end
+          return_value &&= (block_to_test.arity == @arity) if @arity
+          @after && @after.call
+          return_value
+        end
+
+        private
+
+        attr_accessor :block_to_test
+      end
+
       attr_accessor :args, :block, :pass, :filter_name
 
       def initialize(args=[], filter_name=:default_filter, &block)
@@ -53,7 +92,7 @@ class Surrogate
           return unless actual_arguments.last.kind_of? Proc
           block_that_tests = expected_arguments.last
           block_to_test = actual_arguments.last
-          asserter = Handler::BlockAsserter.new(block_to_test)
+          asserter = BlockAsserter.new(block_to_test)
           block_that_tests.call asserter
           asserter.match?
         else
