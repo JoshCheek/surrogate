@@ -45,10 +45,6 @@ class Surrogate
       end
 
 
-
-
-
-
       attr_accessor :instance, :subject, :language_type, :message_type
       attr_accessor :expected_times_invoked, :expected_arguments
 
