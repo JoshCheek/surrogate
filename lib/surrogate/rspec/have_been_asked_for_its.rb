@@ -72,18 +72,7 @@ class Surrogate
 
       def matches?(mocked_instance)
         self.instance = mocked_instance
-        if message_type == :with_times
-          times_predicate.matches? with_filter.filter invocations
-
-        elsif message_type == :default
-          times_predicate.matches?(invocations)
-
-        elsif message_type == :times
-          times_predicate.matches?(invocations)
-
-        elsif message_type == :with
-          times_predicate.matches? with_filter.filter invocations
-        end
+        times_predicate.matches? with_filter.filter invocations
       end
 
       attr_accessor :instance, :subject, :message_type
