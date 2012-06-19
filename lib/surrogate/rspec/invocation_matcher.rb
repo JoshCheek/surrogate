@@ -91,10 +91,6 @@ class Surrogate
         surrogate.invocations(method_name)
       end
 
-      def failure_message_for_should
-        message_for :should
-      end
-
       def failure_message_for_should_not
         message_for :should_not
       end

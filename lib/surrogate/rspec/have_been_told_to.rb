@@ -93,10 +93,8 @@ class Surrogate
       end
 
 
-
-      def message_for(message_category)
+      def failure_message_for_should
         message =
-          if message_category == :should
             if times_predicate.default? && with_filter.default?
               FailureMessageShouldDefault.new
             elsif times_predicate.default?
@@ -106,6 +104,12 @@ class Surrogate
             else
               FailureMessageWithTimes.new
             end
+        FailureMessages.new(method_name, invocations, with_filter, times_predicate, message).render
+      end
+
+      def message_for(message_category)
+        message =
+          if message_category == :should
           else message_category == :should
             if times_predicate.default? && with_filter.default?
               FailureMessageShouldNotDefault.new
