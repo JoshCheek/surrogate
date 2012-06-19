@@ -68,8 +68,8 @@ class Surrogate
           end
         end
 
-        def times_msg(num)
-          @env.times_msg num
+        def times_msg(n)
+          "#{n} time#{'s' unless n == 1}"
         end
 
         def expected_times_invoked

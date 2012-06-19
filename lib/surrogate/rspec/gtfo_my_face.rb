@@ -94,12 +94,6 @@ class Surrogate
           to_inspect.inspect
         end
       end
-
-
-
-      def times_msg(n)
-        "#{n} time#{'s' unless n == 1}"
-      end
     end
   end
 end
