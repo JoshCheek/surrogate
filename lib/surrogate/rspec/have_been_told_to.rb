@@ -32,8 +32,17 @@ class Surrogate
         end
 
         def message_type
-          @env.message_type
+          if times_predicate.default? && with_filter.default?
+            :default
+          elsif times_predicate.default?
+            :with
+          elsif with_filter.default?
+            :times
+          else
+            :with_times
+          end
         end
+
 
         def actual_invocation
           times_invoked = invocations.size

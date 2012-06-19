@@ -81,18 +81,6 @@ class Surrogate
         message.result(self)
       end
 
-      def message_type
-        if times_predicate.default? && with_filter.default?
-          :default
-        elsif times_predicate.default?
-          :with
-        elsif with_filter.default?
-          :times
-        else
-          :with_times
-        end
-      end
-
       def inspect_arguments(arguments)
         inspected_arguments = arguments.map { |argument| inspect_argument argument }
         inspected_arguments << 'no args' if inspected_arguments.empty?
