@@ -33,12 +33,12 @@ class Surrogate
 
       class FailureMessageWithTimes < AbstractFailureMessage
         def get_message
-          "should have been told to #{ method_name } #{ times_msg expected_times_invoked } with #{ inspect_arguments expected_arguments }, but #{ actual_invocation }"
-        end
-
-        def actual_invocation
-          return "was never told to" if times_invoked.zero?
-          "got it #{times_msg times_invoked_with_expected_args}"
+          message = "should have been told to #{ method_name } #{ times_msg expected_times_invoked } with #{ inspect_arguments expected_arguments }, but "
+          if times_invoked.zero?
+            message << "was never told to"
+          else
+            message << "got it #{times_msg times_invoked_with_expected_args}"
+          end
         end
       end
 
