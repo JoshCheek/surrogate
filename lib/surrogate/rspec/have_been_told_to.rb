@@ -134,10 +134,6 @@ class Surrogate
           times:      "shouldn't have been told to <%= subject %> <%= times_msg expected_times_invoked %>, but was",
           with_times: "should not have been told to <%= subject %> <%= times_msg expected_times_invoked %> with <%= inspect_arguments expected_arguments %>, but <%= actual_invocation %>",
         },
-        other: {
-          not_invoked: "was never told to",
-          invoked_description: "got it",
-        },
       }
 
       def message_for(message_category, message_type)
@@ -167,12 +163,12 @@ class Surrogate
         times_invoked = invocations.size
         times_invoked_with_expected_args = invocations.select { |invocation| args_match? invocation }.size
         if message_type == :with
-          return message_for :other, :not_invoked if times_invoked.zero?
+          return "was never told to" if times_invoked.zero?
           inspected_invocations = invocations.map { |invocation| inspect_arguments invocation }
           "got #{inspected_invocations.join ', '}"
         else
-          return message_for :other, :not_invoked if times_invoked.zero?
-          "#{message_for :other, :invoked_description} #{times_msg times_invoked_with_expected_args}"
+          return "was never told to" if times_invoked.zero?
+          "got it #{times_msg times_invoked_with_expected_args}"
         end
       end
 
