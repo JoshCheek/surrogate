@@ -109,15 +109,28 @@ class Surrogate
 
 
       def message_for(message_category)
-        message = if times_predicate.default? && with_filter.default?
-                    MESSAGES[message_category].fetch(:default)
-                  elsif times_predicate.default?
-                    MESSAGES[message_category].fetch(:with)
-                  elsif with_filter.default?
-                    MESSAGES[message_category].fetch(:times)
-                  else
-                    MESSAGES[message_category].fetch(:with_times)
-                  end
+        message =
+          if message_category == :should
+            if times_predicate.default? && with_filter.default?
+              MESSAGES[message_category].fetch(:default)
+            elsif times_predicate.default?
+              MESSAGES[message_category].fetch(:with)
+            elsif with_filter.default?
+              MESSAGES[message_category].fetch(:times)
+            else
+              MESSAGES[message_category].fetch(:with_times)
+            end
+          else message_category == :should
+            if times_predicate.default? && with_filter.default?
+              MESSAGES[message_category].fetch(:default)
+            elsif times_predicate.default?
+              MESSAGES[message_category].fetch(:with)
+            elsif with_filter.default?
+              MESSAGES[message_category].fetch(:times)
+            else
+              MESSAGES[message_category].fetch(:with_times)
+            end
+          end
         FailureMessages.new(method_name, invocations, with_filter, times_predicate, message).render
       end
     end
