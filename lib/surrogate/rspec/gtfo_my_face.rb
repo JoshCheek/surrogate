@@ -135,7 +135,7 @@ class Surrogate
     # pass in the invoked args.
     # it should be able to figure everything out from these without needing the bs switches
     class FailureMessages
-      attr_accessor :message_type, :times_predicate, :method_name, :should_or_shouldnt, :invocations, :with_filter
+      attr_accessor :times_predicate, :method_name, :should_or_shouldnt, :invocations, :with_filter
       attr_accessor :messages
 
       def initialize(method_name, invocations, with_filter, times_predicate, messages)
