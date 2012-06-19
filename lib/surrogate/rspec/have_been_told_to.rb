@@ -121,9 +121,27 @@ class Surrogate
 
 
       # === messages (can we get this out of here) ===
+      MESSAGES = {
+        should: {
+          default:    "was never told to <%= subject %>",
+          with:       "should have been told to <%= subject %> with <%= inspect_arguments expected_arguments %>, but <%= actual_invocation %>",
+          times:      "should have been told to <%= subject %> <%= times_msg expected_times_invoked %> but was told to <%= subject %> <%= times_msg times_invoked %>",
+          with_times: "should have been told to <%= subject %> <%= times_msg expected_times_invoked %> with <%= inspect_arguments expected_arguments %>, but <%= actual_invocation %>",
+          },
+        should_not: {
+          default:    "shouldn't have been told to <%= subject %>, but was told to <%= subject %> <%= times_msg times_invoked %>",
+          with:       "should not have been told to <%= subject %> with <%= inspect_arguments expected_arguments %>, but <%= actual_invocation %>",
+          times:      "shouldn't have been told to <%= subject %> <%= times_msg expected_times_invoked %>, but was",
+          with_times: "should not have been told to <%= subject %> <%= times_msg expected_times_invoked %> with <%= inspect_arguments expected_arguments %>, but <%= actual_invocation %>",
+        },
+        other: {
+          not_invoked: "was never told to",
+          invoked_description: "got it",
+        },
+      }
 
       def message_for(message_category, message_type)
-        message = MessagesFor::MESSAGES[:verb][message_category].fetch(message_type)
+        message = MESSAGES[message_category].fetch(message_type)
         ERB.new(message).result(binding)
       end
 
