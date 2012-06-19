@@ -113,10 +113,6 @@ class Surrogate
       def expected_times_invoked
         times_predicate.expected_times_invoked
       end
-
-      def times_invoked_with_expected_args
-        invocations.size
-      end
     end
 
 
