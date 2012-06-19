@@ -136,10 +136,7 @@ class Surrogate
         self.expected_arguments = arguments
         self
       end
-    end
 
-
-    module ArgumentComparer
       def args_match?(actual_arguments)
         if RSpec.rspec_mocks_loaded?
           rspec_arg_expectation = ::RSpec::Mocks::ArgumentExpectation.new *expected_arguments
@@ -150,9 +147,9 @@ class Surrogate
       end
     end
 
-    module MatchWithArguments
-      include ArgumentComparer
 
+
+    module MatchWithArguments
       class BlockAsserter
         def initialize(block_to_test)
           self.block_to_test = block_to_test
@@ -242,8 +239,6 @@ class Surrogate
 
 
     module MatchNumTimesWith
-      include ArgumentComparer
-
       def message_type
         :with_times
       end
@@ -288,51 +283,6 @@ class Surrogate
     end
 
 
-    class HaveBeenInitializedWith
-      LANGUAGE_TYPE = :verb
-
-      include CommonMatcher
-
-      def initialize(*initialization_args, &block)
-        super :initialize
-        handler.with *initialization_args, &block
-      end
-    end
-
-
-    class HaveBeenAskedForIts
-      LANGUAGE_TYPE = :noun
-
-      include CommonMatcher
-
-      def times(number)
-        handler.times number
-        self
-      end
-
-      def with(*arguments, &block)
-        handler.with *arguments, &block
-        self
-      end
-    end
-
-
-    class HaveBeenToldTo
-      LANGUAGE_TYPE = :verb
-
-      include CommonMatcher
-
-      def times(number)
-        handler.times number
-        self
-      end
-
-      def with(*arguments, &block)
-        handler.with *arguments, &block
-        self
-      end
-    end
-
     module Matchers
       def have_been_told_to(expected)
         HaveBeenToldTo.new expected
@@ -348,3 +298,7 @@ class Surrogate
     end
   end
 end
+
+require 'surrogate/rspec/have_been_asked_for_its'
+require 'surrogate/rspec/have_been_initialized_with'
+require 'surrogate/rspec/have_been_told_to'
