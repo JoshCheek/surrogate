@@ -39,11 +39,25 @@ class Surrogate
         end
 
         def args_match?(expected_args, actual_arguments)
-          if RSpec.rspec_mocks_loaded?
-            rspec_arg_expectation = ::RSpec::Mocks::ArgumentExpectation.new *expected_args
-            rspec_arg_expectation.args_match? *actual_arguments
+          expected_arguments = expected_args
+
+          if expected_arguments.last.kind_of? Proc
+            block_asserter = lambda { |invocation|
+              return unless invocation.last.kind_of? Proc
+              block_that_tests = expected_arguments.last
+              block_to_test = invocation.last
+              asserter = Handler::BlockAsserter.new(block_to_test)
+              block_that_tests.call asserter
+            asserter.match?
+            }
+            times_predicate.matches?(invocations.select { |invocation| block_asserter[invocation] })
           else
-            expected_args == actual_arguments
+            if RSpec.rspec_mocks_loaded?
+              rspec_arg_expectation = ::RSpec::Mocks::ArgumentExpectation.new *expected_args
+              rspec_arg_expectation.args_match? *actual_arguments
+            else
+              expected_args == actual_arguments
+            end
           end
         end
       end
@@ -70,19 +84,7 @@ class Surrogate
           times_predicate.matches?(invocations)
 
         elsif message_type == :with
-          if expected_arguments.last.kind_of? Proc
-            block_asserter = lambda { |invocation|
-              return unless invocation.last.kind_of? Proc
-              block_that_tests = expected_arguments.last
-              block_to_test = invocation.last
-              asserter = Handler::BlockAsserter.new(block_to_test)
-              block_that_tests.call asserter
-              asserter.match?
-            }
-            times_predicate.matches?(invocations.select { |invocation| block_asserter[invocation] })
-          else
-            times_predicate.matches? with_filter.filter invocations
-          end
+          times_predicate.matches? with_filter.filter invocations
         end
       end
 
