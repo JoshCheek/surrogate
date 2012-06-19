@@ -35,7 +35,7 @@ class Surrogate
           filter_name == :default_filter
         end
 
-      private
+        private
 
         def default_filter
           Proc.new { true }
@@ -70,7 +70,6 @@ class Surrogate
       attr_accessor :instance, :subject, :message_type
       attr_accessor :expected_times_invoked, :expected_arguments
 
-      # keep
       def initialize(expected)
         self.subject = expected
         self.message_type = :default
@@ -78,7 +77,6 @@ class Surrogate
         self.with_filter = WithFilter.new
       end
 
-      # keep
       def matches?(mocked_instance)
         self.instance = mocked_instance
         times_predicate.matches? filtered_args
@@ -88,22 +86,19 @@ class Surrogate
         @filtered_args ||= with_filter.filter invocations
       end
 
-      # keep
       def invocations
         instance.invocations(subject)
       end
 
-      # keep
       def failure_message_for_should
         message_for :should, message_type
       end
 
-      # keep
       def failure_message_for_should_not
         message_for :should_not, message_type
       end
 
-      # keep (refactor me)
+      # keep (refactor me: remove message_type)
       def times(times_invoked)
         @times_predicate = TimesPredicate.new(times_invoked, :==)
 
@@ -116,7 +111,7 @@ class Surrogate
         self
       end
 
-      # keep (refactor me)
+      # keep (refactor me: remove message_type)
       def with(*arguments, &expectation_block)
         self.with_filter = WithFilter.new arguments, :args_must_match,  &expectation_block
 
@@ -130,8 +125,17 @@ class Surrogate
         self
       end
 
+      def message_for(message_category, message_type)
+        message = FailureMessages.new.messages(message_category, message_type, self)
+      end
 
-      # === messages ===
+
+
+      # === messages (refactor me: remove message types, reduce dependencies:
+      # move messages into base class and pass them in
+      # pass in the with_filter and the times_predicate
+      # pass in the invoked args.
+      # it should be able to figure everything out from these without needing the bs switches
       class FailureMessages
         MESSAGES = {
           should: {
@@ -212,10 +216,6 @@ class Surrogate
         end
       end
 
-
-      def message_for(message_category, message_type)
-        message = FailureMessages.new.messages(message_category, message_type, self)
-      end
 
     end
   end
