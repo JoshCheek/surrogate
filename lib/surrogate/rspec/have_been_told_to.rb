@@ -5,11 +5,13 @@ class Surrogate
     class HaveBeenToldTo < InvocationMatcher
 
       class FailureMessageInternal
-        attr_accessor :method_name, :invocations
+        attr_accessor :method_name, :invocations, :with_filter, :times_predicate
 
-        def initialize(method_name, invocations)
-          self.method_name = method_name
-          self.invocations = invocations
+        def initialize(method_name, invocations, with_filter, times_predicate)
+          self.method_name     = method_name
+          self.invocations     = invocations
+          self.with_filter     = with_filter
+          self.times_predicate = times_predicate
         end
 
         def result(env)
@@ -128,7 +130,7 @@ class Surrogate
               FailureMessageWithTimes
             end
         FailureMessages.new(with_filter, times_predicate,
-                            message_class.new(method_name, invocations)).render
+                            message_class.new(method_name, invocations, with_filter, times_predicate)).render
       end
 
       def failure_message_for_should_not
@@ -143,7 +145,7 @@ class Surrogate
               FailureMessageShouldNotWithTimes
             end
         FailureMessages.new(with_filter, times_predicate,
-                            message_class.new(method_name, invocations)).render
+                            message_class.new(method_name, invocations, with_filter, times_predicate)).render
       end
     end
   end
