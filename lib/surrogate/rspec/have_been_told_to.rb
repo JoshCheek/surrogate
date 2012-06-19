@@ -49,6 +49,26 @@ class Surrogate
           end
         end
 
+        def times_msg(n)
+          "#{n} time#{'s' unless n == 1}"
+        end
+
+        def expected_times_invoked
+          times_predicate.expected_times_invoked
+        end
+      end
+
+
+      class FailureMessageShouldDefault < FailureMessageInternal
+        def get_message
+          "was never told to #{ method_name }"
+        end
+      end
+
+      class FailureMessageShouldWith < FailureMessageInternal
+        def get_message
+          "should have been told to #{ method_name } with #{ inspect_arguments expected_arguments }, but #{ actual_invocation }"
+        end
 
         def actual_invocation
           times_invoked = invocations.size
@@ -73,27 +93,6 @@ class Surrogate
             "got it #{times_msg.call times_invoked_with_expected_args}"
           end
         end
-
-        def times_msg(n)
-          "#{n} time#{'s' unless n == 1}"
-        end
-
-        def expected_times_invoked
-          times_predicate.expected_times_invoked
-        end
-      end
-
-
-      class FailureMessageShouldDefault < FailureMessageInternal
-        def get_message
-          "was never told to #{ method_name }"
-        end
-      end
-
-      class FailureMessageShouldWith < FailureMessageInternal
-        def get_message
-          "should have been told to #{ method_name } with #{ inspect_arguments expected_arguments }, but #{ actual_invocation }"
-        end
       end
 
       class FailureMessageShouldTimes < FailureMessageInternal
@@ -105,6 +104,30 @@ class Surrogate
       class FailureMessageWithTimes < FailureMessageInternal
         def get_message
           "should have been told to #{ method_name } #{ times_msg expected_times_invoked } with #{ inspect_arguments expected_arguments }, but #{ actual_invocation }"
+        end
+
+        def actual_invocation
+          times_invoked = invocations.size
+          times_invoked_with_expected_args = invocations.select { |actual_arguments|
+            if RSpec.rspec_mocks_loaded?
+              rspec_arg_expectation = ::RSpec::Mocks::ArgumentExpectation.new *expected_arguments
+              rspec_arg_expectation.args_match? *actual_arguments
+            else
+              expected_arguments == actual_arguments
+            end
+          }.size
+
+          times_msg = lambda { |n| "#{n} time#{'s' unless n == 1}" }
+
+          # this is unfortunately only useful for HaveBeenToldTo, need to abstract them out
+          if message_type == :with
+            return "was never told to" if times_invoked.zero?
+            inspected_invocations = invocations.map { |invocation| inspect_arguments invocation }
+            "got #{inspected_invocations.join ', '}"
+          else
+            return "was never told to" if times_invoked.zero?
+            "got it #{times_msg.call times_invoked_with_expected_args}"
+          end
         end
       end
 
@@ -118,6 +141,30 @@ class Surrogate
         def get_message
           "should not have been told to #{ method_name } with #{ inspect_arguments expected_arguments }, but #{ actual_invocation }"
         end
+
+        def actual_invocation
+          times_invoked = invocations.size
+          times_invoked_with_expected_args = invocations.select { |actual_arguments|
+            if RSpec.rspec_mocks_loaded?
+              rspec_arg_expectation = ::RSpec::Mocks::ArgumentExpectation.new *expected_arguments
+              rspec_arg_expectation.args_match? *actual_arguments
+            else
+              expected_arguments == actual_arguments
+            end
+          }.size
+
+          times_msg = lambda { |n| "#{n} time#{'s' unless n == 1}" }
+
+          # this is unfortunately only useful for HaveBeenToldTo, need to abstract them out
+          if message_type == :with
+            return "was never told to" if times_invoked.zero?
+            inspected_invocations = invocations.map { |invocation| inspect_arguments invocation }
+            "got #{inspected_invocations.join ', '}"
+          else
+            return "was never told to" if times_invoked.zero?
+            "got it #{times_msg.call times_invoked_with_expected_args}"
+          end
+        end
       end
 
       class FailureMessageShouldNotTimes < FailureMessageInternal
@@ -129,6 +176,30 @@ class Surrogate
       class FailureMessageShouldNotWithTimes < FailureMessageInternal
         def get_message
           "should not have been told to #{ method_name } #{ times_msg expected_times_invoked } with #{ inspect_arguments expected_arguments }, but #{ actual_invocation }"
+        end
+
+        def actual_invocation
+          times_invoked = invocations.size
+          times_invoked_with_expected_args = invocations.select { |actual_arguments|
+            if RSpec.rspec_mocks_loaded?
+              rspec_arg_expectation = ::RSpec::Mocks::ArgumentExpectation.new *expected_arguments
+              rspec_arg_expectation.args_match? *actual_arguments
+            else
+              expected_arguments == actual_arguments
+            end
+          }.size
+
+          times_msg = lambda { |n| "#{n} time#{'s' unless n == 1}" }
+
+          # this is unfortunately only useful for HaveBeenToldTo, need to abstract them out
+          if message_type == :with
+            return "was never told to" if times_invoked.zero?
+            inspected_invocations = invocations.map { |invocation| inspect_arguments invocation }
+            "got #{inspected_invocations.join ', '}"
+          else
+            return "was never told to" if times_invoked.zero?
+            "got it #{times_msg.call times_invoked_with_expected_args}"
+          end
         end
       end
 

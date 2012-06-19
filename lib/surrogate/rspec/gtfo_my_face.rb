@@ -1,7 +1,7 @@
 class Surrogate
   module RSpec
 
-    # This entire class needs to go away (be replaced by FailureMessages)
+    # This entire class needs to be deleted
     module MessagesFor
       MESSAGES = {
         verb: {
