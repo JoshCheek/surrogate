@@ -45,7 +45,7 @@ class Surrogate
       }
 
       def message_for(language_type, message_category, message_type, binding)
-        message = MESSAGES[language_type][message_category].fetch(message_type)
+        message = MessagesFor::MESSAGES[language_type][message_category].fetch(message_type)
         ERB.new(message).result(binding)
       end
 
