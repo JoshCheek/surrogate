@@ -153,16 +153,17 @@ class Surrogate
     module MatchWithArguments
 
       def match?
+        block_asserter = lambda { |invocation|
+          return unless invocation.last.kind_of? Proc
+          block_that_tests = expected_arguments.last
+          block_to_test = invocation.last
+          asserter = Handler::BlockAsserter.new(block_to_test)
+          block_that_tests.call asserter
+          asserter.match?
+        }
+
         if expected_arguments.last.kind_of? Proc
-          invocations.select { |invocation|
-            lambda {
-              return unless invocation.last.kind_of? Proc
-              block_that_tests = expected_arguments.last
-              block_to_test = invocation.last
-              asserter = Handler::BlockAsserter.new(block_to_test)
-              block_that_tests.call asserter
-              asserter.match?
-            }.call }.any?
+          invocations.select { |invocation| block_asserter[invocation] }.any?
         else
           invocations.any? { |invocation| args_match? invocation }
         end
