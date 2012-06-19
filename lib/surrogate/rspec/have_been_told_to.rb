@@ -14,8 +14,7 @@ class Surrogate
           self.times_predicate = times_predicate
         end
 
-        def result(env)
-          @env = env
+        def result
           get_message
         end
 
@@ -149,8 +148,7 @@ class Surrogate
             else
               FailureMessageWithTimes
             end
-        FailureMessages.new(with_filter, times_predicate,
-                            message_class.new(method_name, invocations, with_filter, times_predicate)).render
+        message_class.new(method_name, invocations, with_filter, times_predicate).get_message
       end
 
       def failure_message_for_should_not
@@ -164,8 +162,7 @@ class Surrogate
             else
               FailureMessageShouldNotWithTimes
             end
-        FailureMessages.new(with_filter, times_predicate,
-                            message_class.new(method_name, invocations, with_filter, times_predicate)).render
+        message_class.new(method_name, invocations, with_filter, times_predicate).get_message
       end
     end
   end

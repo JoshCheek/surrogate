@@ -63,30 +63,5 @@ class Surrogate
 
       extend self
     end
-
-
-
-
-    # lets try to move everything from here into FailureMessage
-    class FailureMessages
-      attr_accessor :times_predicate, :with_filter, :message
-
-      def initialize(with_filter, times_predicate, message)
-        self.with_filter = with_filter
-        self.times_predicate = times_predicate
-        self.message = message
-      end
-
-      def render
-        message.result(self)
-      end
-
-      def inspect_arguments(arguments)
-        inspected_arguments = arguments.map { |argument| inspect_argument argument }
-        inspected_arguments << 'no args' if inspected_arguments.empty?
-        "`" << inspected_arguments.join(", ") << "'"
-      end
-
-    end
   end
 end
