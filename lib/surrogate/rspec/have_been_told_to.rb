@@ -28,7 +28,7 @@ class Surrogate
         end
 
         def expected_arguments
-          @env.expected_arguments
+          with_filter.args
         end
 
         def message_type
