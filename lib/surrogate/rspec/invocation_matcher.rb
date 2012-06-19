@@ -87,6 +87,7 @@ class Surrogate
         invocations.size
       end
 
+      # can we extract out an args inspecter?
       def inspect_arguments(arguments)
         inspected_arguments = arguments.map { |argument| inspect_argument argument }
         inspected_arguments << 'no args' if inspected_arguments.empty?

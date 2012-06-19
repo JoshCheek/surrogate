@@ -37,7 +37,7 @@ class Surrogate
           if times_invoked.zero?
             message << "was never told to"
           else
-            message << "got it #{times_msg times_invoked_with_expected_args}"
+            message << "got it #{times_msg times_invoked}"
           end
         end
       end
@@ -76,7 +76,7 @@ class Surrogate
           if times_invoked.zero?
              message << "was never told to"
           else
-            message << "got it #{times_msg times_invoked_with_expected_args}"
+            message << "got it #{times_msg times_invoked}"
           end
         end
       end
