@@ -4,7 +4,7 @@ class Surrogate
       attr_accessor :times_predicate, :with_filter
 
       attr_accessor :instance, :subject
-      attr_accessor :expected_times_invoked, :expected_arguments
+      attr_accessor :expected_times_invoked
 
       def initialize(expected)
         self.subject = expected
@@ -42,7 +42,6 @@ class Surrogate
       def with(*arguments, &expectation_block)
         self.with_filter = WithFilter.new arguments, :args_must_match,  &expectation_block
         arguments << expectation_block if expectation_block
-        self.expected_arguments = arguments
         self
       end
 
