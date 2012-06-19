@@ -126,7 +126,7 @@ class Surrogate
       end
 
       def message_for(message_category, message_type)
-        FailureMessages.new.messages(message_category, message_type, with_filter, times_predicate, subject, invocations)
+        FailureMessages.new.messages(message_category, with_filter, times_predicate, subject, invocations)
       end
 
 
@@ -152,17 +152,28 @@ class Surrogate
           },
         }
 
-        attr_accessor :message_type, :with_filter, :times_predicate, :method_name, :should_or_shouldnt, :invocations
+        attr_accessor :message_type, :times_predicate, :method_name, :should_or_shouldnt, :invocations, :with_filter
 
-        def messages(should_or_shouldnt, message_type, with_filter, times_predicate, method_name, invocations)
+        def messages(should_or_shouldnt, with_filter, times_predicate, method_name, invocations)
           self.invocations = invocations
           self.method_name = method_name
           self.should_or_shouldnt = should_or_shouldnt
           self.with_filter = with_filter
           self.times_predicate = times_predicate
-          self.message_type = message_type
           message = MESSAGES[should_or_shouldnt].fetch(message_type)
           ERB.new(message).result(binding)
+        end
+
+        def message_type
+          if times_predicate.default? && with_filter.default?
+            :default
+          elsif times_predicate.default?
+            :with
+          elsif with_filter.default?
+            :times
+          else
+            :with_times
+          end
         end
 
         def inspect_arguments(arguments)
