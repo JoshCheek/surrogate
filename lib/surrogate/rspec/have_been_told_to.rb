@@ -3,15 +3,6 @@ require 'surrogate/rspec/invocation_matcher'
 class Surrogate
   module RSpec
     class HaveBeenToldTo < InvocationMatcher
-      class FailureMessageBlock
-        def initialize(&message)
-          @message = message
-        end
-
-        def result(env)
-          env.instance_eval &@message
-        end
-      end
 
       class FailureMessageInternal
         def result(env)
