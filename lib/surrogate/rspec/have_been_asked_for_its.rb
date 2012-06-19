@@ -73,7 +73,7 @@ class Surrogate
       def matches?(mocked_instance)
         self.instance = mocked_instance
         if message_type == :with_times
-          times_predicate.matches?(invocations.select { |invocation| args_match? invocation })
+          times_predicate.matches? with_filter.filter invocations
 
         elsif message_type == :default
           times_predicate.matches?(invocations)
@@ -160,6 +160,7 @@ class Surrogate
       def with(*arguments, &expectation_block)
         if message_type == :times
           self.message_type = :with_times
+          self.with_filter = WithFilter.new arguments, :args_must_match,  &expectation_block
         else
           self.message_type = :with
           self.with_filter = WithFilter.new arguments, :args_must_match,  &expectation_block
