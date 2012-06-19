@@ -126,7 +126,7 @@ class Surrogate
       end
 
       def message_for(message_category, message_type)
-        FailureMessages.new.messages(message_category, message_type, self, with_filter, times_predicate, subject)
+        FailureMessages.new.messages(message_category, message_type, with_filter, times_predicate, subject, invocations)
       end
 
 
@@ -152,11 +152,11 @@ class Surrogate
           },
         }
 
-        attr_accessor :message_type, :with_filter, :times_predicate, :method_name, :message_category
+        attr_accessor :message_type, :with_filter, :times_predicate, :method_name, :message_category, :invocations
 
-        def messages(message_category, message_type, env, with_filter, times_predicate, method_name)
+        def messages(message_category, message_type, with_filter, times_predicate, method_name, invocations)
+          self.invocations = invocations
           self.method_name = method_name
-          @env = env
           self.message_category = message_category
           self.with_filter = with_filter
           self.times_predicate = times_predicate
@@ -211,10 +211,6 @@ class Surrogate
             return "was never told to" if times_invoked.zero?
             "got it #{times_msg.call times_invoked_with_expected_args}"
           end
-        end
-
-        def invocations
-          @env.invocations
         end
 
         def times_msg(n)
