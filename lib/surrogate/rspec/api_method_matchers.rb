@@ -6,6 +6,8 @@ class Surrogate
   module RSpec
     class Handler
       attr_accessor :instance, :subject, :language_type, :message_type
+      attr_accessor :expected_times_invoked, :expected_arguments
+
 
       def initialize(subject, language_type)
         self.subject, self.language_type = subject, language_type
@@ -132,8 +134,6 @@ class Surrogate
         attr_accessor :block_to_test
       end
 
-      attr_accessor :expected_arguments
-
       def match?
         if expected_arguments.last.kind_of? Proc
           invocations.select { |invocation| block_matches? invocation }.any?
@@ -160,8 +160,6 @@ class Surrogate
 
 
     module MatchNumTimes
-      attr_accessor :expected_times_invoked
-
       def match?
         expected_times_invoked == times_invoked
       end
@@ -169,8 +167,6 @@ class Surrogate
 
 
     module MatchNumTimesWith
-      attr_accessor :expected_times_invoked, :expected_arguments
-
       def times_invoked_with_expected_args
         invocations.select { |invocation| args_match? invocation }.size
       end
