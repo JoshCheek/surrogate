@@ -36,7 +36,7 @@ end
 
 require 'rspec/core'
 require 'surrogate'
-require 'surrogate/rspec/substitutability_matchers'
+require 'surrogate/rspec/substitute_for'
 
 require 'surrogate/rspec/have_been_asked_for_its'
 require 'surrogate/rspec/have_been_initialized_with'
