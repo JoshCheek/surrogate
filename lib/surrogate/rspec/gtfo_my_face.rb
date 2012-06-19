@@ -66,6 +66,8 @@ class Surrogate
 
 
 
+
+    # lets try to move everything from here into FailureMessage
     class FailureMessages
       attr_accessor :times_predicate, :method_name, :should_or_shouldnt, :invocations, :with_filter
       attr_accessor :messages
