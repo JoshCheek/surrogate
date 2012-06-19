@@ -138,16 +138,16 @@ class Surrogate
       attr_accessor :times_predicate, :method_name, :should_or_shouldnt, :invocations, :with_filter
       attr_accessor :messages
 
-      def initialize(method_name, invocations, with_filter, times_predicate, messages)
+      def initialize(method_name, invocations, with_filter, times_predicate, messages, should_or_shouldnt)
         self.method_name = method_name
         self.invocations = invocations
         self.with_filter = with_filter
         self.times_predicate = times_predicate
         self.messages = messages
+        self.should_or_shouldnt = should_or_shouldnt
       end
 
-      def message_for(should_or_shouldnt)
-        self.should_or_shouldnt = should_or_shouldnt
+      def message
         message = messages[should_or_shouldnt].fetch(message_type)
         ERB.new(message).result(binding)
       end
