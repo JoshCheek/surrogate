@@ -4,7 +4,7 @@ class Surrogate
   module RSpec
     class HaveBeenToldTo < InvocationMatcher
 
-      class FailureMessageInternal
+      class AbstractFailureMessage
         attr_accessor :method_name, :invocations, :with_filter, :times_predicate
 
         def initialize(method_name, invocations, with_filter, times_predicate)
@@ -54,13 +54,13 @@ class Surrogate
       end
 
 
-      class FailureMessageShouldDefault < FailureMessageInternal
+      class FailureMessageShouldDefault < AbstractFailureMessage
         def get_message
           "was never told to #{ method_name }"
         end
       end
 
-      class FailureMessageShouldWith < FailureMessageInternal
+      class FailureMessageShouldWith < AbstractFailureMessage
         def get_message
           "should have been told to #{ method_name } with #{ inspect_arguments expected_arguments }, but #{ actual_invocation }"
         end
@@ -72,13 +72,13 @@ class Surrogate
         end
       end
 
-      class FailureMessageShouldTimes < FailureMessageInternal
+      class FailureMessageShouldTimes < AbstractFailureMessage
         def get_message
           "should have been told to #{ method_name } #{ times_msg expected_times_invoked } but was told to #{ method_name } #{ times_msg times_invoked }"
         end
       end
 
-      class FailureMessageWithTimes < FailureMessageInternal
+      class FailureMessageWithTimes < AbstractFailureMessage
         def get_message
           "should have been told to #{ method_name } #{ times_msg expected_times_invoked } with #{ inspect_arguments expected_arguments }, but #{ actual_invocation }"
         end
@@ -89,13 +89,13 @@ class Surrogate
         end
       end
 
-      class FailureMessageShouldNotDefault < FailureMessageInternal
+      class FailureMessageShouldNotDefault < AbstractFailureMessage
         def get_message
           "shouldn't have been told to #{ method_name }, but was told to #{ method_name } #{ times_msg times_invoked }"
         end
       end
 
-      class FailureMessageShouldNotWith < FailureMessageInternal
+      class FailureMessageShouldNotWith < AbstractFailureMessage
         def get_message
           "should not have been told to #{ method_name } with #{ inspect_arguments expected_arguments }, but #{ actual_invocation }"
         end
@@ -107,13 +107,13 @@ class Surrogate
         end
       end
 
-      class FailureMessageShouldNotTimes < FailureMessageInternal
+      class FailureMessageShouldNotTimes < AbstractFailureMessage
         def get_message
           "shouldn't have been told to #{ method_name } #{ times_msg expected_times_invoked }, but was"
         end
       end
 
-      class FailureMessageShouldNotWithTimes < FailureMessageInternal
+      class FailureMessageShouldNotWithTimes < AbstractFailureMessage
         def get_message
           "should not have been told to #{ method_name } #{ times_msg expected_times_invoked } with #{ inspect_arguments expected_arguments }, but #{ actual_invocation }"
         end
