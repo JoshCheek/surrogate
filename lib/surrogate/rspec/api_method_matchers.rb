@@ -1,5 +1,4 @@
 require 'erb'
-require 'surrogate/rspec/gtfo_my_face'
 
 
 class Surrogate
