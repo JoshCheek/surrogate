@@ -46,7 +46,18 @@ class Surrogate
           times_invoked > 0
         elsif message_type == :times
           expected_times_invoked == times_invoked
+        elsif message_type == :with_times
+          times_invoked_with_expected_args == expected_times_invoked
         end
+      end
+
+      def times_invoked_with_expected_args
+        invocations.select { |invocation| args_match? invocation }.size
+      end
+
+      def actual_invocation
+        return message_for :other, :not_invoked if times_invoked.zero?
+        "#{message_for :other, :invoked_description} #{times_msg times_invoked_with_expected_args}"
       end
 
       def times_msg(n)
@@ -64,7 +75,6 @@ class Surrogate
       def times(times_invoked)
         if message_type == :with
           self.message_type = :with_times
-          extend MatchNumTimesWith
         else
           self.message_type = :times
         end
@@ -75,7 +85,6 @@ class Surrogate
       def with(*arguments, &expectation_block)
         if message_type == :times
           self.message_type = :with_times
-          extend MatchNumTimesWith
         else
           self.message_type = :with
           extend MatchWithArguments
@@ -158,22 +167,6 @@ class Surrogate
         return message_for :other, :not_invoked if times_invoked.zero?
         inspected_invocations = invocations.map { |invocation| inspect_arguments invocation }
         "got #{inspected_invocations.join ', '}"
-      end
-    end
-
-
-    module MatchNumTimesWith
-      def times_invoked_with_expected_args
-        invocations.select { |invocation| args_match? invocation }.size
-      end
-
-      def match?
-        times_invoked_with_expected_args == expected_times_invoked
-      end
-
-      def actual_invocation
-        return message_for :other, :not_invoked if times_invoked.zero?
-        "#{message_for :other, :invoked_description} #{times_msg times_invoked_with_expected_args}"
       end
     end
 
