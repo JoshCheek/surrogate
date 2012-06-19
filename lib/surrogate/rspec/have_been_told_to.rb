@@ -26,7 +26,20 @@ class Surrogate
         def method_name
           @env.method_name
         end
+
+        def inspect_arguments(args)
+          @env.inspect_arguments args
+        end
+
+        def expected_arguments
+          @env.expected_arguments
+        end
+
+        def actual_invocation
+          @env.actual_invocation
+        end
       end
+
 
       class FailureMessageShouldDefault < FailureMessageInternal
         def get_message
@@ -34,10 +47,16 @@ class Surrogate
         end
       end
 
+      class FailureMessageShouldWith < FailureMessageInternal
+        def get_message
+          "should have been told to #{ method_name } with #{ inspect_arguments expected_arguments }, but #{ actual_invocation }"
+        end
+      end
+
       MESSAGES = {
         should: {
           default:    FailureMessageShouldDefault.new,
-          with:       FailureMessageBlock.new { "should have been told to #{ method_name } with #{ inspect_arguments expected_arguments }, but #{ actual_invocation }" },
+          with:       FailureMessageShouldWith.new,
           times:      FailureMessageBlock.new { "should have been told to #{ method_name } #{ times_msg expected_times_invoked } but was told to #{ method_name } #{ times_msg invocations.size }" },
           with_times: FailureMessageBlock.new { "should have been told to #{ method_name } #{ times_msg expected_times_invoked } with #{ inspect_arguments expected_arguments }, but #{ actual_invocation }" },
           },
