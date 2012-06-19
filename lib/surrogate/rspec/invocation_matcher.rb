@@ -162,6 +162,38 @@ class Surrogate
         arguments << expectation_block if expectation_block
         self
       end
+
+      def failure_message_for_should
+        message_for(
+          if times_predicate.default? && with_filter.default?
+            :FailureMessageShouldDefault
+          elsif times_predicate.default?
+            :FailureMessageShouldWith
+          elsif with_filter.default?
+            :FailureMessageShouldTimes
+          else
+            :FailureMessageWithTimes
+          end
+        )
+      end
+
+      def failure_message_for_should_not
+        message_for(
+          if times_predicate.default? && with_filter.default?
+            :FailureMessageShouldNotDefault
+          elsif times_predicate.default?
+            :FailureMessageShouldNotWith
+          elsif with_filter.default?
+            :FailureMessageShouldNotTimes
+          else
+            :FailureMessageShouldNotWithTimes
+          end
+        )
+      end
+
+      def message_for(failure_class_name)
+        self.class.const_get(failure_class_name).new(method_name, invocations, with_filter, times_predicate).get_message
+      end
     end
   end
 end

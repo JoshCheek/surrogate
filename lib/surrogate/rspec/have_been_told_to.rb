@@ -3,7 +3,6 @@ require 'surrogate/rspec/invocation_matcher'
 class Surrogate
   module RSpec
     class HaveBeenToldTo < InvocationMatcher
-
       class FailureMessageShouldDefault < AbstractFailureMessage
         def get_message
           "was never told to #{ method_name }"
@@ -79,35 +78,6 @@ class Surrogate
             message << "got it #{times_msg times_invoked}"
           end
         end
-      end
-
-
-      def failure_message_for_should
-        message_class =
-            if times_predicate.default? && with_filter.default?
-              FailureMessageShouldDefault
-            elsif times_predicate.default?
-              FailureMessageShouldWith
-            elsif with_filter.default?
-              FailureMessageShouldTimes
-            else
-              FailureMessageWithTimes
-            end
-        message_class.new(method_name, invocations, with_filter, times_predicate).get_message
-      end
-
-      def failure_message_for_should_not
-        message_class =
-            if times_predicate.default? && with_filter.default?
-              FailureMessageShouldNotDefault
-            elsif times_predicate.default?
-              FailureMessageShouldNotWith
-            elsif with_filter.default?
-              FailureMessageShouldNotTimes
-            else
-              FailureMessageShouldNotWithTimes
-            end
-        message_class.new(method_name, invocations, with_filter, times_predicate).get_message
       end
     end
   end
