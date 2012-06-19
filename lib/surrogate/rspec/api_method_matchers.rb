@@ -62,7 +62,7 @@ class Surrogate
       end
 
       def times(times_invoked)
-        if kind_of?(MatchWithArguments)
+        if message_type == :with
           self.message_type = :with_times
           extend MatchNumTimesWith
         else
