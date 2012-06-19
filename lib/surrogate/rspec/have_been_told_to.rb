@@ -148,14 +148,42 @@ class Surrogate
           },
         }
 
-        def messages(message_category, message_type)
+        def messages(message_category, message_type, env)
+          @env = env
           message = MESSAGES[message_category].fetch(message_type)
+          ERB.new(message).result(binding)
+        end
+
+        def inspect_arguments(*a)
+          @env.inspect_arguments(*a)
+        end
+        def inspect_argument(*a)
+          @env.inspect_argument(*a)
+        end
+        def subject
+          @env.subject
+        end
+        def expected_arguments
+          @env.expected_arguments
+        end
+        def expected_times_invoked
+          @env.expected_times_invoked
+        end
+        def actual_invocation
+          @env.actual_invocation
+        end
+        def invocations
+          @env.invocations
+        end
+
+        def times_msg(n)
+          "#{n} time#{'s' unless n == 1}"
         end
       end
 
+
       def message_for(message_category, message_type)
-        message = FailureMessages.new.messages(message_category, message_type)
-        ERB.new(message).result(binding)
+        message = FailureMessages.new.messages(message_category, message_type, self)
       end
 
       def inspect_arguments(arguments)
@@ -183,18 +211,15 @@ class Surrogate
           end
         }.size
 
+        times_msg = lambda { |n| "#{n} time#{'s' unless n == 1}" }
         if message_type == :with
           return "was never told to" if times_invoked.zero?
           inspected_invocations = invocations.map { |invocation| inspect_arguments invocation }
           "got #{inspected_invocations.join ', '}"
         else
           return "was never told to" if times_invoked.zero?
-          "got it #{times_msg times_invoked_with_expected_args}"
+          "got it #{times_msg.call times_invoked_with_expected_args}"
         end
-      end
-
-      def times_msg(n)
-        "#{n} time#{'s' unless n == 1}"
       end
     end
   end
