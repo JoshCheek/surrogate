@@ -92,6 +92,23 @@ class Surrogate
           expected_times_invoked == times_invoked
         elsif message_type == :with_times
           times_invoked_with_expected_args == expected_times_invoked
+        elsif message_type == :with
+          block_asserter = lambda { |invocation|
+            return unless invocation.last.kind_of? Proc
+            block_that_tests = expected_arguments.last
+            block_to_test = invocation.last
+            asserter = Handler::BlockAsserter.new(block_to_test)
+            block_that_tests.call asserter
+            asserter.match?
+          }
+
+          if expected_arguments.last.kind_of? Proc
+            invocations.select { |invocation| block_asserter[invocation] }.any?
+          else
+            invocations.any? { |invocation| args_match? invocation }
+          end
+        else
+          raise "SHOULD NOT GET HERE"
         end
       end
 
@@ -137,7 +154,6 @@ class Surrogate
           self.message_type = :with_times
         else
           self.message_type = :with
-          extend MatchWithArguments
         end
         arguments << expectation_block if expectation_block
         self.expected_arguments = arguments
@@ -154,27 +170,6 @@ class Surrogate
       end
     end
 
-
-
-    module MatchWithArguments
-
-      def match?
-        block_asserter = lambda { |invocation|
-          return unless invocation.last.kind_of? Proc
-          block_that_tests = expected_arguments.last
-          block_to_test = invocation.last
-          asserter = Handler::BlockAsserter.new(block_to_test)
-          block_that_tests.call asserter
-          asserter.match?
-        }
-
-        if expected_arguments.last.kind_of? Proc
-          invocations.select { |invocation| block_asserter[invocation] }.any?
-        else
-          invocations.any? { |invocation| args_match? invocation }
-        end
-      end
-    end
 
     module CommonMatcher
       attr_reader :handler
