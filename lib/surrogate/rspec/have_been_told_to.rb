@@ -9,8 +9,7 @@ class Surrogate
         end
 
         def result(env)
-          @env = env
-          @env.instance_eval &@message
+          env.instance_eval &@message
         end
       end
 
