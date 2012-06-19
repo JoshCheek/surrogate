@@ -6,7 +6,7 @@ class Surrogate
       class Message
         def initialize(erb_message=nil, &message)
           @message = message || erb_message
-          @is_erb = !!erb_message
+          @is_erb = erb_message
         end
 
         def erb?
@@ -17,6 +17,8 @@ class Surrogate
           @env = env
           if erb?
             ERB.new(@message).result(binding)
+          else
+            @env.instance_eval &@message
           end
         end
 
@@ -27,7 +29,7 @@ class Surrogate
 
       MESSAGES = {
         should: {
-          default:    Message.new("was never told to <%= method_name %>"),
+          default:    Message.new { "was never told to #{ method_name }" },
           with:       Message.new("should have been told to <%= method_name %> with <%= inspect_arguments expected_arguments %>, but <%= actual_invocation %>"),
           times:      Message.new("should have been told to <%= method_name %> <%= times_msg expected_times_invoked %> but was told to <%= method_name %> <%= times_msg invocations.size %>"),
           with_times: Message.new("should have been told to <%= method_name %> <%= times_msg expected_times_invoked %> with <%= inspect_arguments expected_arguments %>, but <%= actual_invocation %>"),
