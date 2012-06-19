@@ -42,7 +42,11 @@ class Surrogate
       end
 
       def match?
-        times_invoked > 0
+        if message_type == :default
+          times_invoked > 0
+        elsif message_type == :times
+          expected_times_invoked == times_invoked
+        end
       end
 
       def times_msg(n)
@@ -58,19 +62,18 @@ class Surrogate
       end
 
       def times(times_invoked)
-        extend(if kind_of?(MatchWithArguments)
-                 self.message_type = :with_times
-                 MatchNumTimesWith
-               else
-                 self.message_type = :times
-                 MatchNumTimes
-               end)
+        if kind_of?(MatchWithArguments)
+          self.message_type = :with_times
+          extend MatchNumTimesWith
+        else
+          self.message_type = :times
+        end
         self.expected_times_invoked = times_invoked
         self
       end
 
       def with(*arguments, &expectation_block)
-        extend(if kind_of?(MatchNumTimes)
+        extend(if message_type == :times
                  self.message_type = :with_times
                  MatchNumTimesWith
                else
@@ -155,13 +158,6 @@ class Surrogate
         return message_for :other, :not_invoked if times_invoked.zero?
         inspected_invocations = invocations.map { |invocation| inspect_arguments invocation }
         "got #{inspected_invocations.join ', '}"
-      end
-    end
-
-
-    module MatchNumTimes
-      def match?
-        expected_times_invoked == times_invoked
       end
     end
 
