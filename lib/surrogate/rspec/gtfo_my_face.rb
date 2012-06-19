@@ -135,30 +135,15 @@ class Surrogate
     # pass in the invoked args.
     # it should be able to figure everything out from these without needing the bs switches
     class FailureMessages
-      MESSAGES = {
-        should: {
-          default:    "was never told to <%= subject %>",
-          with:       "should have been told to <%= subject %> with <%= inspect_arguments expected_arguments %>, but <%= actual_invocation %>",
-          times:      "should have been told to <%= subject %> <%= times_msg expected_times_invoked %> but was told to <%= subject %> <%= times_msg invocations.size %>",
-          with_times: "should have been told to <%= subject %> <%= times_msg expected_times_invoked %> with <%= inspect_arguments expected_arguments %>, but <%= actual_invocation %>",
-          },
-        should_not: {
-          default:    "shouldn't have been told to <%= subject %>, but was told to <%= subject %> <%= times_msg invocations.size %>",
-          with:       "should not have been told to <%= subject %> with <%= inspect_arguments expected_arguments %>, but <%= actual_invocation %>",
-          times:      "shouldn't have been told to <%= subject %> <%= times_msg expected_times_invoked %>, but was",
-          with_times: "should not have been told to <%= subject %> <%= times_msg expected_times_invoked %> with <%= inspect_arguments expected_arguments %>, but <%= actual_invocation %>",
-        },
-      }
-
       attr_accessor :message_type, :times_predicate, :method_name, :should_or_shouldnt, :invocations, :with_filter
 
-      def messages(should_or_shouldnt, with_filter, times_predicate, method_name, invocations)
+      def messages(should_or_shouldnt, with_filter, times_predicate, method_name, invocations, messages)
         self.invocations = invocations
         self.method_name = method_name
         self.should_or_shouldnt = should_or_shouldnt
         self.with_filter = with_filter
         self.times_predicate = times_predicate
-        message = MESSAGES[should_or_shouldnt].fetch(message_type)
+        message = messages[should_or_shouldnt].fetch(message_type)
         ERB.new(message).result(binding)
       end
 
