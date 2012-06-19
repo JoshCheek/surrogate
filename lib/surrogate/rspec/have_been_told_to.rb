@@ -10,6 +10,7 @@ class Surrogate
         end
       end
 
+
       class FailureMessageShouldWith < AbstractFailureMessage
         def get_message
           "should have been told to #{ method_name } with #{ inspect_arguments expected_arguments }, but #{ actual_invocation }"
@@ -22,11 +23,13 @@ class Surrogate
         end
       end
 
+
       class FailureMessageShouldTimes < AbstractFailureMessage
         def get_message
           "should have been told to #{ method_name } #{ times_msg expected_times_invoked } but was told to #{ method_name } #{ times_msg times_invoked }"
         end
       end
+
 
       class FailureMessageWithTimes < AbstractFailureMessage
         def get_message
@@ -39,11 +42,13 @@ class Surrogate
         end
       end
 
+
       class FailureMessageShouldNotDefault < AbstractFailureMessage
         def get_message
           "shouldn't have been told to #{ method_name }, but was told to #{ method_name } #{ times_msg times_invoked }"
         end
       end
+
 
       class FailureMessageShouldNotWith < AbstractFailureMessage
         def get_message
@@ -57,20 +62,22 @@ class Surrogate
         end
       end
 
+
       class FailureMessageShouldNotTimes < AbstractFailureMessage
         def get_message
           "shouldn't have been told to #{ method_name } #{ times_msg expected_times_invoked }, but was"
         end
       end
 
+
       class FailureMessageShouldNotWithTimes < AbstractFailureMessage
         def get_message
-          "should not have been told to #{ method_name } #{ times_msg expected_times_invoked } with #{ inspect_arguments expected_arguments }, but #{ actual_invocation }"
-        end
-
-        def actual_invocation
-          return "was never told to" if times_invoked.zero?
-          "got it #{times_msg times_invoked_with_expected_args}"
+          message = "should not have been told to #{ method_name } #{ times_msg expected_times_invoked } with #{ inspect_arguments expected_arguments }, but "
+          if times_invoked.zero?
+             message << "was never told to"
+          else
+            message << "got it #{times_msg times_invoked_with_expected_args}"
+          end
         end
       end
 
