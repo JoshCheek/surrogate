@@ -164,17 +164,8 @@ class Surrogate
             end
           }.size
 
-          times_msg = lambda { |n| "#{n} time#{'s' unless n == 1}" }
-
-          # this is unfortunately only useful for HaveBeenToldTo, need to abstract them out
-          if message_type == :with
-            return "was never told to" if times_invoked.zero?
-            inspected_invocations = invocations.map { |invocation| inspect_arguments invocation }
-            "got #{inspected_invocations.join ', '}"
-          else
-            return "was never told to" if times_invoked.zero?
-            "got it #{times_msg.call times_invoked_with_expected_args}"
-          end
+          return "was never told to" if times_invoked.zero?
+          "got it #{times_msg times_invoked_with_expected_args}"
         end
       end
 
