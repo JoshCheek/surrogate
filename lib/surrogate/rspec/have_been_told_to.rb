@@ -37,18 +37,6 @@ class Surrogate
           with_filter.args
         end
 
-        def message_type
-          if times_predicate.default? && with_filter.default?
-            :default
-          elsif times_predicate.default?
-            :with
-          elsif with_filter.default?
-            :times
-          else
-            :with_times
-          end
-        end
-
         def times_msg(n)
           "#{n} time#{'s' unless n == 1}"
         end
