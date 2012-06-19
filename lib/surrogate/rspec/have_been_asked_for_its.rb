@@ -27,7 +27,7 @@ class Surrogate
         if message_type == :with_times
           times_invoked_with_expected_args == expected_times_invoked
         elsif message_type == :default
-          times_invoked > 0
+          times_predicate.matches?(invocations)
         elsif message_type == :times
           times_predicate.matches?(invocations)
         elsif message_type == :with
