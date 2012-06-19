@@ -1,5 +1,7 @@
 class Surrogate
   module RSpec
+
+    # This entire class needs to go away (be replaced by FailureMessages)
     module MessagesFor
       MESSAGES = {
         verb: {
@@ -134,6 +136,7 @@ class Surrogate
 
         times_msg = lambda { |n| "#{n} time#{'s' unless n == 1}" }
 
+        # this is unfortunately only useful for HaveBeenToldTo, need to abstract them out
         if message_type == :with
           return "was never told to" if times_invoked.zero?
           inspected_invocations = invocations.map { |invocation| inspect_arguments invocation }
