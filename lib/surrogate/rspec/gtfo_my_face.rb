@@ -86,7 +86,7 @@ class Surrogate
 
       def message
         message = messages[should_or_shouldnt].fetch(message_type)
-        ERB.new(message).result(binding)
+        message.result(self)
       end
 
       def message_type
