@@ -1,12 +1,10 @@
 class Surrogate
   module RSpec
     class HaveBeenAskedForIts
-      LANGUAGE_TYPE = :noun
-
       attr_reader :handler
 
       def initialize(expected)
-        self.subject, self.language_type = expected, self.class::LANGUAGE_TYPE
+        self.subject = expected
         self.message_type = :default
       end
 
@@ -38,13 +36,13 @@ class Surrogate
         end
       end
 
-      attr_accessor :instance, :subject, :language_type, :message_type
+      attr_accessor :instance, :subject, :message_type
       attr_accessor :expected_times_invoked, :expected_arguments
 
 
 
       def message_for(message_category, message_type)
-        message = MessagesFor::MESSAGES[language_type][message_category].fetch(message_type)
+        message = MessagesFor::MESSAGES[:noun][message_category].fetch(message_type)
         ERB.new(message).result(binding)
       end
 
