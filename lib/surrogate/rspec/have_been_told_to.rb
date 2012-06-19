@@ -106,6 +106,10 @@ class Surrogate
           with_times: FailureMessageShouldNotWithTimes.new,
         },
       }
+
+      def message_for(message_category)
+        FailureMessages.new(method_name, invocations, with_filter, times_predicate, self.class::MESSAGES, message_category).message
+      end
     end
   end
 end
