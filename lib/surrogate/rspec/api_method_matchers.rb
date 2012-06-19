@@ -70,7 +70,6 @@ class Surrogate
     # IGNORE EVERYTHING ABOVE THIS LINE ##################################################
 
 
-    # sigh, surely there is a better name!
     class Handler < Struct.new(:subject, :language_type)
       attr_accessor :instance
 
@@ -122,7 +121,6 @@ class Surrogate
       end
 
       def times(times_invoked)
-        # is there a good way to remove these conditionals?
         extend (kind_of?(MatchWithArguments) ? MatchNumTimesWith : MatchNumTimes)
         self.expected_times_invoked = times_invoked
         self
