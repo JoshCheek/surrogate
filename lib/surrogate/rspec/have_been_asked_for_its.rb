@@ -24,12 +24,20 @@ class Surrogate
 
       def matches?(mocked_instance)
         self.instance = mocked_instance
+
+        # :(
         if message_type == :with_times
-          times_invoked_with_expected_args == expected_times_invoked
+          times_predicate.matches?(invocations.select { |invocation| args_match? invocation })
+
+        # :)
         elsif message_type == :default
           times_predicate.matches?(invocations)
+
+        # :)
         elsif message_type == :times
           times_predicate.matches?(invocations)
+
+        # :(
         elsif message_type == :with
           block_asserter = lambda { |invocation|
             return unless invocation.last.kind_of? Proc
@@ -45,8 +53,6 @@ class Surrogate
           else
             invocations.any? { |invocation| args_match? invocation }
           end
-        else
-          raise "SHOULD NOT GET HERE"
         end
       end
 
@@ -111,6 +117,7 @@ class Surrogate
 
       def times(times_invoked)
         if message_type == :with
+          @times_predicate = TimesPredicate.new(times_invoked, :==)
           self.message_type = :with_times
         else
           @times_predicate = TimesPredicate.new(times_invoked, :==)
