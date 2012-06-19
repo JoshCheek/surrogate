@@ -23,8 +23,19 @@ class Surrogate
           raise "I should have been overridden"
         end
 
-        def inspect_arguments(args)
-          @env.inspect_arguments args
+
+        def inspect_arguments(arguments)
+          inspected_arguments = arguments.map { |argument| inspect_argument argument }
+          inspected_arguments << 'no args' if inspected_arguments.empty?
+          "`" << inspected_arguments.join(", ") << "'"
+        end
+
+        def inspect_argument(to_inspect)
+          if RSpec.rspec_mocks_loaded? && to_inspect.respond_to?(:description)
+            to_inspect.description
+          else
+            to_inspect.inspect
+          end
         end
 
         def expected_arguments

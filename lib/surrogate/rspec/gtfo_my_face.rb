@@ -87,13 +87,6 @@ class Surrogate
         "`" << inspected_arguments.join(", ") << "'"
       end
 
-      def inspect_argument(to_inspect)
-        if RSpec.rspec_mocks_loaded? && to_inspect.respond_to?(:description)
-          to_inspect.description
-        else
-          to_inspect.inspect
-        end
-      end
     end
   end
 end
