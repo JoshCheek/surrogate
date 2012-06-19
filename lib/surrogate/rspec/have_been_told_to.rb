@@ -126,7 +126,7 @@ class Surrogate
       end
 
       def message_for(message_category, message_type)
-        message = FailureMessages.new.messages(message_category, message_type, self)
+        FailureMessages.new.messages(message_category, message_type, self)
       end
 
 
@@ -178,9 +178,11 @@ class Surrogate
         def subject
           @env.subject
         end
+
         def expected_arguments
           @env.expected_arguments
         end
+
         def expected_times_invoked
           @env.expected_times_invoked
         end
@@ -215,8 +217,6 @@ class Surrogate
           "#{n} time#{'s' unless n == 1}"
         end
       end
-
-
     end
   end
 end
