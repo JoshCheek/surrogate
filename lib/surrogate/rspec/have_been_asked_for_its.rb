@@ -14,6 +14,19 @@ class Surrogate
         end
       end
 
+      class WithFilter
+        attr_accessor :args, :block
+
+        def initialize(args, &block)
+          self.args = args
+          self.block = block
+        end
+
+        def filter(invocations)
+
+        end
+      end
+
       attr_reader :handler, :times_predicate
 
       def initialize(expected)
@@ -25,7 +38,7 @@ class Surrogate
       def matches?(mocked_instance)
         self.instance = mocked_instance
 
-        # :(
+        # :)
         if message_type == :with_times
           times_predicate.matches?(invocations.select { |invocation| args_match? invocation })
 
@@ -51,7 +64,7 @@ class Surrogate
           if expected_arguments.last.kind_of? Proc
             invocations.select { |invocation| block_asserter[invocation] }.any?
           else
-            invocations.any? { |invocation| args_match? invocation }
+            times_predicate.matches?(invocations.select { |invocation| args_match? invocation })
           end
         end
       end
