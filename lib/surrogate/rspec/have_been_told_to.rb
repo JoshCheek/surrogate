@@ -3,24 +3,24 @@ class Surrogate
     class HaveBeenToldTo
       MESSAGES = {
         should: {
-          default:    "was never told to <%= subject %>",
-          with:       "should have been told to <%= subject %> with <%= inspect_arguments expected_arguments %>, but <%= actual_invocation %>",
-          times:      "should have been told to <%= subject %> <%= times_msg expected_times_invoked %> but was told to <%= subject %> <%= times_msg invocations.size %>",
-          with_times: "should have been told to <%= subject %> <%= times_msg expected_times_invoked %> with <%= inspect_arguments expected_arguments %>, but <%= actual_invocation %>",
+          default:    "was never told to <%= method_name %>",
+          with:       "should have been told to <%= method_name %> with <%= inspect_arguments expected_arguments %>, but <%= actual_invocation %>",
+          times:      "should have been told to <%= method_name %> <%= times_msg expected_times_invoked %> but was told to <%= method_name %> <%= times_msg invocations.size %>",
+          with_times: "should have been told to <%= method_name %> <%= times_msg expected_times_invoked %> with <%= inspect_arguments expected_arguments %>, but <%= actual_invocation %>",
           },
         should_not: {
-          default:    "shouldn't have been told to <%= subject %>, but was told to <%= subject %> <%= times_msg invocations.size %>",
-          with:       "should not have been told to <%= subject %> with <%= inspect_arguments expected_arguments %>, but <%= actual_invocation %>",
-          times:      "shouldn't have been told to <%= subject %> <%= times_msg expected_times_invoked %>, but was",
-          with_times: "should not have been told to <%= subject %> <%= times_msg expected_times_invoked %> with <%= inspect_arguments expected_arguments %>, but <%= actual_invocation %>",
+          default:    "shouldn't have been told to <%= method_name %>, but was told to <%= method_name %> <%= times_msg invocations.size %>",
+          with:       "should not have been told to <%= method_name %> with <%= inspect_arguments expected_arguments %>, but <%= actual_invocation %>",
+          times:      "shouldn't have been told to <%= method_name %> <%= times_msg expected_times_invoked %>, but was",
+          with_times: "should not have been told to <%= method_name %> <%= times_msg expected_times_invoked %> with <%= inspect_arguments expected_arguments %>, but <%= actual_invocation %>",
         },
       }
 
       attr_accessor :times_predicate, :with_filter
-      attr_accessor :instance, :subject
+      attr_accessor :instance, :method_name
 
-      def initialize(expected)
-        self.subject = expected
+      def initialize(method_name)
+        self.method_name = method_name
         self.times_predicate = TimesPredicate.new
         self.with_filter = WithFilter.new
       end
@@ -35,7 +35,7 @@ class Surrogate
       end
 
       def invocations
-        instance.invocations(subject)
+        instance.invocations(method_name)
       end
 
       def failure_message_for_should
@@ -58,7 +58,7 @@ class Surrogate
       end
 
       def message_for(message_category)
-        FailureMessages.new.messages(message_category, with_filter, times_predicate, subject, invocations, MESSAGES)
+        FailureMessages.new.messages(message_category, with_filter, times_predicate, method_name, invocations, MESSAGES)
       end
     end
   end

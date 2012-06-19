@@ -173,10 +173,6 @@ class Surrogate
         end
       end
 
-      def subject
-        method_name
-      end
-
       def expected_arguments
         with_filter.args
       end
