@@ -107,8 +107,22 @@ class Surrogate
         },
       }
 
+
+      def message_type
+        if times_predicate.default? && with_filter.default?
+          :default
+        elsif times_predicate.default?
+          :with
+        elsif with_filter.default?
+          :times
+        else
+          :with_times
+        end
+      end
+
       def message_for(message_category)
-        FailureMessages.new(method_name, invocations, with_filter, times_predicate, self.class::MESSAGES, message_category).message
+        message = MESSAGES[message_category].fetch(message_type)
+        FailureMessages.new(method_name, invocations, with_filter, times_predicate, message).render
       end
     end
   end

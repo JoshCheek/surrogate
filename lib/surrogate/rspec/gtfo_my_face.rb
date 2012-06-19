@@ -69,20 +69,17 @@ class Surrogate
 
     # lets try to move everything from here into FailureMessage
     class FailureMessages
-      attr_accessor :times_predicate, :method_name, :should_or_shouldnt, :invocations, :with_filter
-      attr_accessor :messages
+      attr_accessor :times_predicate, :method_name, :invocations, :with_filter, :message
 
-      def initialize(method_name, invocations, with_filter, times_predicate, messages, should_or_shouldnt)
+      def initialize(method_name, invocations, with_filter, times_predicate, message)
         self.method_name = method_name
         self.invocations = invocations
         self.with_filter = with_filter
         self.times_predicate = times_predicate
-        self.messages = messages
-        self.should_or_shouldnt = should_or_shouldnt
+        self.message = message
       end
 
-      def message
-        message = messages[should_or_shouldnt].fetch(message_type)
+      def render
         message.result(self)
       end
 
