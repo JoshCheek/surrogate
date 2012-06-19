@@ -70,8 +70,12 @@ class Surrogate
     # IGNORE EVERYTHING ABOVE THIS LINE ##################################################
 
 
-    class Handler < Struct.new(:subject, :language_type)
-      attr_accessor :instance
+    class Handler
+      attr_accessor :instance, :subject, :language_type
+
+      def initialize(subject, language_type)
+        self.subject, self.language_type = subject, language_type
+      end
 
       def message_for(message_category, message_type)
         message = MessagesFor::MESSAGES[language_type][message_category].fetch(message_type)
