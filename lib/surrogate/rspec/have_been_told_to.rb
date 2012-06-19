@@ -126,7 +126,7 @@ class Surrogate
       end
 
       def message_for(message_category, message_type)
-        FailureMessages.new.messages(message_category, message_type, self)
+        FailureMessages.new.messages(message_category, message_type, self, with_filter, times_predicate, subject)
       end
 
 
@@ -152,10 +152,14 @@ class Surrogate
           },
         }
 
-        attr_accessor :message_type
+        attr_accessor :message_type, :with_filter, :times_predicate, :method_name, :message_category
 
-        def messages(message_category, message_type, env)
+        def messages(message_category, message_type, env, with_filter, times_predicate, method_name)
+          self.method_name = method_name
           @env = env
+          self.message_category = message_category
+          self.with_filter = with_filter
+          self.times_predicate = times_predicate
           self.message_type = message_type
           message = MESSAGES[message_category].fetch(message_type)
           ERB.new(message).result(binding)
@@ -176,15 +180,15 @@ class Surrogate
         end
 
         def subject
-          @env.subject
+          method_name
         end
 
         def expected_arguments
-          @env.expected_arguments
+          with_filter.args
         end
 
         def expected_times_invoked
-          @env.expected_times_invoked
+          times_predicate.expected_times_invoked
         end
 
         def actual_invocation
