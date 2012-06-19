@@ -62,7 +62,7 @@ class Surrogate
           }
 
           if expected_arguments.last.kind_of? Proc
-            invocations.select { |invocation| block_asserter[invocation] }.any?
+            times_predicate.matches?(invocations.select { |invocation| block_asserter[invocation] })
           else
             times_predicate.matches?(invocations.select { |invocation| args_match? invocation })
           end
