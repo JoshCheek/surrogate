@@ -4,7 +4,6 @@ class Surrogate
       attr_accessor :times_predicate, :with_filter
 
       attr_accessor :instance, :subject
-      attr_accessor :expected_times_invoked
 
       def initialize(expected)
         self.subject = expected
@@ -35,7 +34,6 @@ class Surrogate
 
       def times(times_invoked)
         @times_predicate = TimesPredicate.new(times_invoked, :==)
-        self.expected_times_invoked = times_invoked
         self
       end
 
