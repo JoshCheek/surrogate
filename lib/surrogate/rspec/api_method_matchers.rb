@@ -73,13 +73,13 @@ class Surrogate
       end
 
       def with(*arguments, &expectation_block)
-        extend(if message_type == :times
-                 self.message_type = :with_times
-                 MatchNumTimesWith
-               else
-                 self.message_type = :with
-                 MatchWithArguments
-               end)
+        if message_type == :times
+          self.message_type = :with_times
+          extend MatchNumTimesWith
+        else
+          self.message_type = :with
+          extend MatchWithArguments
+        end
         arguments << expectation_block if expectation_block
         self.expected_arguments = arguments
         self
