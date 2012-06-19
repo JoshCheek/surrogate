@@ -5,10 +5,11 @@ require 'surrogate/rspec/gtfo_my_face'
 class Surrogate
   module RSpec
     class Handler
-      attr_accessor :instance, :subject, :language_type
+      attr_accessor :instance, :subject, :language_type, :message_type
 
       def initialize(subject, language_type)
         self.subject, self.language_type = subject, language_type
+        self.message_type = :default
       end
 
       def message_for(message_category, message_type)
@@ -28,10 +29,6 @@ class Surrogate
         else
           to_inspect.inspect
         end
-      end
-
-      def message_type
-        :default
       end
 
       def invocations
@@ -59,13 +56,25 @@ class Surrogate
       end
 
       def times(times_invoked)
-        extend (kind_of?(MatchWithArguments) ? MatchNumTimesWith : MatchNumTimes)
+        extend(if kind_of?(MatchWithArguments)
+                 self.message_type = :with_times
+                 MatchNumTimesWith
+               else
+                 self.message_type = :times
+                 MatchNumTimes
+               end)
         self.expected_times_invoked = times_invoked
         self
       end
 
       def with(*arguments, &expectation_block)
-        extend (kind_of?(MatchNumTimes) ? MatchNumTimesWith : MatchWithArguments)
+        extend(if kind_of?(MatchNumTimes)
+                 self.message_type = :with_times
+                 MatchNumTimesWith
+               else
+                 self.message_type = :with
+                 MatchWithArguments
+               end)
         arguments << expectation_block if expectation_block
         self.expected_arguments = arguments
         self
@@ -125,10 +134,6 @@ class Surrogate
 
       attr_accessor :expected_arguments
 
-      def message_type
-        :with
-      end
-
       def match?
         if expected_arguments.last.kind_of? Proc
           begin
@@ -160,10 +165,6 @@ class Surrogate
 
 
     module MatchNumTimes
-      def message_type
-        :times
-      end
-
       attr_accessor :expected_times_invoked
 
       def match?
@@ -173,10 +174,6 @@ class Surrogate
 
 
     module MatchNumTimesWith
-      def message_type
-        :with_times
-      end
-
       attr_accessor :expected_times_invoked, :expected_arguments
 
       def times_invoked_with_expected_args
