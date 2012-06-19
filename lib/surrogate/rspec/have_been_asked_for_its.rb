@@ -97,11 +97,11 @@ class Surrogate
 
       # keep (refactor me)
       def times(times_invoked)
+        @times_predicate = TimesPredicate.new(times_invoked, :==)
+
         if message_type == :with
-          @times_predicate = TimesPredicate.new(times_invoked, :==)
           self.message_type = :with_times
         else
-          @times_predicate = TimesPredicate.new(times_invoked, :==)
           self.message_type = :times
         end
         self.expected_times_invoked = times_invoked
@@ -110,12 +110,12 @@ class Surrogate
 
       # keep (refactor me)
       def with(*arguments, &expectation_block)
+        self.with_filter = WithFilter.new arguments, :args_must_match,  &expectation_block
+
         if message_type == :times
           self.message_type = :with_times
-          self.with_filter = WithFilter.new arguments, :args_must_match,  &expectation_block
         else
           self.message_type = :with
-          self.with_filter = WithFilter.new arguments, :args_must_match,  &expectation_block
         end
         arguments << expectation_block if expectation_block
         self.expected_arguments = arguments
