@@ -1,7 +1,7 @@
 class Surrogate
   module RSpec
     class InvocationMatcher
-      attr_accessor :times_predicate, :with_filter, :mocked_instance, :method_name
+      attr_accessor :times_predicate, :with_filter, :surrogate, :method_name
 
       def initialize(method_name)
         self.method_name     = method_name
@@ -9,8 +9,8 @@ class Surrogate
         self.with_filter     = WithFilter.new
       end
 
-      def matches?(mocked_instance)
-        self.mocked_instance = mocked_instance
+      def matches?(surrogate)
+        self.surrogate = surrogate
         times_predicate.matches? filtered_args
       end
 
@@ -19,7 +19,7 @@ class Surrogate
       end
 
       def invocations
-        mocked_instance.invocations(method_name)
+        surrogate.invocations(method_name)
       end
 
       def failure_message_for_should
