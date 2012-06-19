@@ -100,8 +100,14 @@ class Surrogate
       end
 
       def actual_invocation
-        return message_for :other, :not_invoked if times_invoked.zero?
-        "#{message_for :other, :invoked_description} #{times_msg times_invoked_with_expected_args}"
+        if message_type == :with
+          return message_for :other, :not_invoked if times_invoked.zero?
+          inspected_invocations = invocations.map { |invocation| inspect_arguments invocation }
+          "got #{inspected_invocations.join ', '}"
+        else
+          return message_for :other, :not_invoked if times_invoked.zero?
+          "#{message_for :other, :invoked_description} #{times_msg times_invoked_with_expected_args}"
+        end
       end
 
       def times_msg(n)
@@ -167,12 +173,6 @@ class Surrogate
         else
           invocations.any? { |invocation| args_match? invocation }
         end
-      end
-
-      def actual_invocation
-        return message_for :other, :not_invoked if times_invoked.zero?
-        inspected_invocations = invocations.map { |invocation| inspect_arguments invocation }
-        "got #{inspected_invocations.join ', '}"
       end
     end
 
