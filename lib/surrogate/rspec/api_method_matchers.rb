@@ -5,6 +5,50 @@ require 'surrogate/rspec/gtfo_my_face'
 class Surrogate
   module RSpec
     class Handler
+      class BlockAsserter
+        def initialize(block_to_test)
+          self.block_to_test = block_to_test
+        end
+
+        def returns(value=nil, &block)
+          @returns = block || lambda { value }
+        end
+
+        def before(&block)
+          @before = block
+        end
+
+        def after(&block)
+          @after = block
+        end
+
+        def arity(n)
+          @arity = n
+        end
+
+        def match?
+          @before && @before.call
+          if @returns
+            return_value = (@returns.call == block_to_test.call)
+          else
+            block_to_test.call
+            return_value = true
+          end
+          return_value &&= (block_to_test.arity == @arity) if @arity
+          @after && @after.call
+          return_value
+        end
+
+        private
+
+        attr_accessor :block_to_test
+      end
+
+
+
+
+
+
       attr_accessor :instance, :subject, :language_type, :message_type
       attr_accessor :expected_times_invoked, :expected_arguments
 
@@ -107,44 +151,6 @@ class Surrogate
 
 
     module MatchWithArguments
-      class BlockAsserter
-        def initialize(block_to_test)
-          self.block_to_test = block_to_test
-        end
-
-        def returns(value=nil, &block)
-          @returns = block || lambda { value }
-        end
-
-        def before(&block)
-          @before = block
-        end
-
-        def after(&block)
-          @after = block
-        end
-
-        def arity(n)
-          @arity = n
-        end
-
-        def match?
-          @before && @before.call
-          if @returns
-            return_value = (@returns.call == block_to_test.call)
-          else
-            block_to_test.call
-            return_value = true
-          end
-          return_value &&= (block_to_test.arity == @arity) if @arity
-          @after && @after.call
-          return_value
-        end
-
-        private
-
-        attr_accessor :block_to_test
-      end
 
       def match?
         if expected_arguments.last.kind_of? Proc
@@ -158,7 +164,7 @@ class Surrogate
         return unless invocation.last.kind_of? Proc
         block_that_tests = expected_arguments.last
         block_to_test = invocation.last
-        asserter = BlockAsserter.new(block_to_test)
+        asserter = Handler::BlockAsserter.new(block_to_test)
         block_that_tests.call asserter
         asserter.match?
       end
