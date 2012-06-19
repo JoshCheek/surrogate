@@ -170,29 +170,6 @@ class Surrogate
       end
     end
 
-
-    module CommonMatcher
-      attr_reader :handler
-
-      def initialize(expected)
-        @handler = Handler.new expected, self.class::LANGUAGE_TYPE
-      end
-
-      def matches?(mocked_instance)
-        handler.instance = mocked_instance
-        handler.match?
-      end
-
-      def failure_message_for_should_not
-        handler.failure_message_for_should_not
-      end
-
-      def failure_message_for_should
-        handler.failure_message_for_should
-      end
-    end
-
-
     module Matchers
       def have_been_told_to(expected)
         HaveBeenToldTo.new expected
