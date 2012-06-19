@@ -77,6 +77,12 @@ class Surrogate
         end
       end
 
+      class FailureMessageShouldNotDefault < FailureMessageInternal
+        def get_message
+          "shouldn't have been told to #{ method_name }, but was told to #{ method_name } #{ times_msg invocations.size }"
+        end
+      end
+
       MESSAGES = {
         should: {
           default:    FailureMessageShouldDefault.new,
@@ -85,7 +91,7 @@ class Surrogate
           with_times: FailureMessageWithTimes.new,
           },
         should_not: {
-          default:    FailureMessageBlock.new { "shouldn't have been told to #{ method_name }, but was told to #{ method_name } #{ times_msg invocations.size }" },
+          default:    FailureMessageShouldNotDefault.new,
           with:       FailureMessageBlock.new { "should not have been told to #{ method_name } with #{ inspect_arguments expected_arguments }, but #{ actual_invocation }" },
           times:      FailureMessageBlock.new { "shouldn't have been told to #{ method_name } #{ times_msg expected_times_invoked }, but was" },
           with_times: FailureMessageBlock.new { "should not have been told to #{ method_name } #{ times_msg expected_times_invoked } with #{ inspect_arguments expected_arguments }, but #{ actual_invocation }" },
