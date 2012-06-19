@@ -125,20 +125,17 @@ class Surrogate
 
       # === messages (can we get this out of here) ===
 
-      # messages
       def message_for(message_category, message_type)
         message = MessagesFor::MESSAGES[:noun][message_category].fetch(message_type)
         ERB.new(message).result(binding)
       end
 
-      # messages
       def inspect_arguments(arguments)
         inspected_arguments = arguments.map { |argument| inspect_argument argument }
         inspected_arguments << 'no args' if inspected_arguments.empty?
         "`" << inspected_arguments.join(", ") << "'"
       end
 
-      # messages
       def inspect_argument(to_inspect)
         if RSpec.rspec_mocks_loaded? && to_inspect.respond_to?(:description)
           to_inspect.description
@@ -147,12 +144,10 @@ class Surrogate
         end
       end
 
-      # messages
       def times_invoked
         invocations.size
       end
 
-      # messages
       def actual_invocation
         times_invoked = invocations.size
         times_invoked_with_expected_args = invocations.select { |invocation| args_match? invocation }.size
@@ -166,12 +161,10 @@ class Surrogate
         end
       end
 
-      # messages
       def times_msg(n)
         "#{n} time#{'s' unless n == 1}"
       end
 
-      # messages (can we delete this?)
       def args_match?(actual_arguments)
         if RSpec.rspec_mocks_loaded?
           rspec_arg_expectation = ::RSpec::Mocks::ArgumentExpectation.new *expected_arguments
