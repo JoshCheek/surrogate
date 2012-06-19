@@ -5,10 +5,11 @@ class Surrogate
     class HaveBeenToldTo < InvocationMatcher
 
       class FailureMessageInternal
-        attr_accessor :method_name
+        attr_accessor :method_name, :invocations
 
-        def initialize(method_name)
+        def initialize(method_name, invocations)
           self.method_name = method_name
+          self.invocations = invocations
         end
 
         def result(env)
@@ -28,16 +29,36 @@ class Surrogate
           @env.expected_arguments
         end
 
+        def message_type
+          @env.message_type
+        end
+
         def actual_invocation
-          @env.actual_invocation
+          times_invoked = invocations.size
+          times_invoked_with_expected_args = invocations.select { |actual_arguments|
+            if RSpec.rspec_mocks_loaded?
+              rspec_arg_expectation = ::RSpec::Mocks::ArgumentExpectation.new *expected_arguments
+              rspec_arg_expectation.args_match? *actual_arguments
+            else
+              expected_arguments == actual_arguments
+            end
+          }.size
+
+          times_msg = lambda { |n| "#{n} time#{'s' unless n == 1}" }
+
+          # this is unfortunately only useful for HaveBeenToldTo, need to abstract them out
+          if message_type == :with
+            return "was never told to" if times_invoked.zero?
+            inspected_invocations = invocations.map { |invocation| inspect_arguments invocation }
+            "got #{inspected_invocations.join ', '}"
+          else
+            return "was never told to" if times_invoked.zero?
+            "got it #{times_msg.call times_invoked_with_expected_args}"
+          end
         end
 
         def times_msg(num)
           @env.times_msg num
-        end
-
-        def invocations
-          @env.invocations
         end
 
         def expected_times_invoked
@@ -106,8 +127,8 @@ class Surrogate
             else
               FailureMessageWithTimes
             end
-        FailureMessages.new(invocations, with_filter, times_predicate,
-                            message_class.new(method_name)).render
+        FailureMessages.new(with_filter, times_predicate,
+                            message_class.new(method_name, invocations)).render
       end
 
       def failure_message_for_should_not
@@ -121,8 +142,8 @@ class Surrogate
             else
               FailureMessageShouldNotWithTimes
             end
-        FailureMessages.new(invocations, with_filter, times_predicate,
-                            message_class.new(method_name)).render
+        FailureMessages.new(with_filter, times_predicate,
+                            message_class.new(method_name, invocations)).render
       end
     end
   end
