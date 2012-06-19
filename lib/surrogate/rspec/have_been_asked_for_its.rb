@@ -17,10 +17,11 @@ class Surrogate
       class WithFilter
         attr_accessor :args, :block, :pass
 
-        def initialize(args=[], pass=default_filter, &block)
+        def initialize(args=[], filter_name=:default_filter, &block)
           self.args = args
           self.block = block
-          self.pass = pass
+          self.pass = send filter_name
+          @filter_name = filter_name
         end
 
         def filter(invocations)
@@ -32,21 +33,33 @@ class Surrogate
         def default_filter
           Proc.new { true }
         end
+
+        def args_must_match
+          lambda { |invocation| args_match? args, invocation }
+        end
+
+        def args_match?(expected_args, actual_arguments)
+          if RSpec.rspec_mocks_loaded?
+            rspec_arg_expectation = ::RSpec::Mocks::ArgumentExpectation.new *expected_args
+            rspec_arg_expectation.args_match? *actual_arguments
+          else
+            expected_args == actual_arguments
+          end
+        end
       end
 
-      attr_reader :handler, :times_predicate, :with_filter
+      attr_reader :handler
+      attr_accessor :times_predicate, :with_filter
 
       def initialize(expected)
         self.subject = expected
         self.message_type = :default
-        @times_predicate = TimesPredicate.new(0, :<)
-        @with_filter = WithFilter.new
+        self.times_predicate = TimesPredicate.new(0, :<)
+        self.with_filter = WithFilter.new
       end
 
       def matches?(mocked_instance)
         self.instance = mocked_instance
-        invocations = with_filter.filter(self.invocations)
-
         if message_type == :with_times
           times_predicate.matches?(invocations.select { |invocation| args_match? invocation })
 
@@ -68,7 +81,7 @@ class Surrogate
             }
             times_predicate.matches?(invocations.select { |invocation| block_asserter[invocation] })
           else
-            times_predicate.matches?(invocations.select { |invocation| args_match? invocation })
+            times_predicate.matches? with_filter.filter invocations
           end
         end
       end
@@ -149,6 +162,7 @@ class Surrogate
           self.message_type = :with_times
         else
           self.message_type = :with
+          self.with_filter = WithFilter.new arguments, :args_must_match,  &expectation_block
         end
         arguments << expectation_block if expectation_block
         self.expected_arguments = arguments
