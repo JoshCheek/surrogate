@@ -67,12 +67,11 @@ class Surrogate
       attr_reader :handler
       attr_accessor :times_predicate, :with_filter
 
-      attr_accessor :instance, :subject, :message_type
+      attr_accessor :instance, :subject
       attr_accessor :expected_times_invoked, :expected_arguments
 
       def initialize(expected)
         self.subject = expected
-        self.message_type = :default
         self.times_predicate = TimesPredicate.new
         self.with_filter = WithFilter.new
       end
@@ -91,41 +90,27 @@ class Surrogate
       end
 
       def failure_message_for_should
-        message_for :should, message_type
+        message_for :should
       end
 
       def failure_message_for_should_not
-        message_for :should_not, message_type
+        message_for :should_not
       end
 
-      # keep (refactor me: remove message_type)
       def times(times_invoked)
         @times_predicate = TimesPredicate.new(times_invoked, :==)
-
-        if message_type == :with
-          self.message_type = :with_times
-        else
-          self.message_type = :times
-        end
         self.expected_times_invoked = times_invoked
         self
       end
 
-      # keep (refactor me: remove message_type)
       def with(*arguments, &expectation_block)
         self.with_filter = WithFilter.new arguments, :args_must_match,  &expectation_block
-
-        if message_type == :times
-          self.message_type = :with_times
-        else
-          self.message_type = :with
-        end
         arguments << expectation_block if expectation_block
         self.expected_arguments = arguments
         self
       end
 
-      def message_for(message_category, message_type)
+      def message_for(message_category)
         FailureMessages.new.messages(message_category, with_filter, times_predicate, subject, invocations)
       end
 
