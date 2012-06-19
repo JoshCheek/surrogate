@@ -1,7 +1,6 @@
 class Surrogate
   module RSpec
     class HaveBeenToldTo
-      attr_reader :handler
       attr_accessor :times_predicate, :with_filter
 
       attr_accessor :instance, :subject
