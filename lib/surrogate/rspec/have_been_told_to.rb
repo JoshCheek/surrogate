@@ -18,6 +18,9 @@ class Surrogate
           raise "I should have been overridden"
         end
 
+        def times_invoked
+          invocations.size
+        end
 
         def inspect_arguments(arguments)
           inspected_arguments = arguments.map { |argument| inspect_argument argument }
@@ -59,7 +62,6 @@ class Surrogate
         end
 
         def actual_invocation
-          times_invoked = invocations.size
           times_invoked_with_expected_args = invocations.select { |actual_arguments|
             if RSpec.rspec_mocks_loaded?
               rspec_arg_expectation = ::RSpec::Mocks::ArgumentExpectation.new *expected_arguments
@@ -77,7 +79,7 @@ class Surrogate
 
       class FailureMessageShouldTimes < FailureMessageInternal
         def get_message
-          "should have been told to #{ method_name } #{ times_msg expected_times_invoked } but was told to #{ method_name } #{ times_msg invocations.size }"
+          "should have been told to #{ method_name } #{ times_msg expected_times_invoked } but was told to #{ method_name } #{ times_msg times_invoked }"
         end
       end
 
@@ -87,7 +89,6 @@ class Surrogate
         end
 
         def actual_invocation
-          times_invoked = invocations.size
           times_invoked_with_expected_args = invocations.select { |actual_arguments|
             if RSpec.rspec_mocks_loaded?
               rspec_arg_expectation = ::RSpec::Mocks::ArgumentExpectation.new *expected_arguments
@@ -104,7 +105,7 @@ class Surrogate
 
       class FailureMessageShouldNotDefault < FailureMessageInternal
         def get_message
-          "shouldn't have been told to #{ method_name }, but was told to #{ method_name } #{ times_msg invocations.size }"
+          "shouldn't have been told to #{ method_name }, but was told to #{ method_name } #{ times_msg times_invoked }"
         end
       end
 
@@ -114,7 +115,6 @@ class Surrogate
         end
 
         def actual_invocation
-          times_invoked = invocations.size
           times_invoked_with_expected_args = invocations.select { |actual_arguments|
             if RSpec.rspec_mocks_loaded?
               rspec_arg_expectation = ::RSpec::Mocks::ArgumentExpectation.new *expected_arguments
@@ -142,7 +142,6 @@ class Surrogate
         end
 
         def actual_invocation
-          times_invoked = invocations.size
           times_invoked_with_expected_args = invocations.select { |actual_arguments|
             if RSpec.rspec_mocks_loaded?
               rspec_arg_expectation = ::RSpec::Mocks::ArgumentExpectation.new *expected_arguments
