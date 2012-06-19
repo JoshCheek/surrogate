@@ -137,15 +137,15 @@ class Surrogate
     class FailureMessages
       attr_accessor :message_type, :times_predicate, :method_name, :should_or_shouldnt, :invocations, :with_filter
 
-      def initialize(with_filter)
+      def initialize(with_filter, times_predicate)
         self.with_filter = with_filter
+        self.times_predicate = times_predicate
       end
 
-      def messages(should_or_shouldnt, times_predicate, method_name, invocations, messages)
+      def messages(should_or_shouldnt, method_name, invocations, messages)
         self.invocations = invocations
         self.method_name = method_name
         self.should_or_shouldnt = should_or_shouldnt
-        self.times_predicate = times_predicate
         message = messages[should_or_shouldnt].fetch(message_type)
         ERB.new(message).result(binding)
       end
