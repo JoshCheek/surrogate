@@ -131,7 +131,7 @@ class Surrogate
       end
 
 
-      # === messages (can we get this out of here) ===
+      # === messages ===
       class FailureMessages
         MESSAGES = {
           should: {
@@ -148,18 +148,29 @@ class Surrogate
           },
         }
 
+        attr_accessor :message_type
+
         def messages(message_category, message_type, env)
           @env = env
+          self.message_type = message_type
           message = MESSAGES[message_category].fetch(message_type)
           ERB.new(message).result(binding)
         end
 
-        def inspect_arguments(*a)
-          @env.inspect_arguments(*a)
+        def inspect_arguments(arguments)
+          inspected_arguments = arguments.map { |argument| inspect_argument argument }
+          inspected_arguments << 'no args' if inspected_arguments.empty?
+          "`" << inspected_arguments.join(", ") << "'"
         end
-        def inspect_argument(*a)
-          @env.inspect_argument(*a)
+
+        def inspect_argument(to_inspect)
+          if RSpec.rspec_mocks_loaded? && to_inspect.respond_to?(:description)
+            to_inspect.description
+          else
+            to_inspect.inspect
+          end
         end
+
         def subject
           @env.subject
         end
@@ -169,9 +180,29 @@ class Surrogate
         def expected_times_invoked
           @env.expected_times_invoked
         end
+
         def actual_invocation
-          @env.actual_invocation
+          times_invoked = invocations.size
+          times_invoked_with_expected_args = invocations.select { |actual_arguments|
+            if RSpec.rspec_mocks_loaded?
+              rspec_arg_expectation = ::RSpec::Mocks::ArgumentExpectation.new *expected_arguments
+              rspec_arg_expectation.args_match? *actual_arguments
+            else
+              expected_arguments == actual_arguments
+            end
+          }.size
+
+          times_msg = lambda { |n| "#{n} time#{'s' unless n == 1}" }
+          if message_type == :with
+            return "was never told to" if times_invoked.zero?
+            inspected_invocations = invocations.map { |invocation| inspect_arguments invocation }
+            "got #{inspected_invocations.join ', '}"
+          else
+            return "was never told to" if times_invoked.zero?
+            "got it #{times_msg.call times_invoked_with_expected_args}"
+          end
         end
+
         def invocations
           @env.invocations
         end
@@ -186,41 +217,6 @@ class Surrogate
         message = FailureMessages.new.messages(message_category, message_type, self)
       end
 
-      def inspect_arguments(arguments)
-        inspected_arguments = arguments.map { |argument| inspect_argument argument }
-        inspected_arguments << 'no args' if inspected_arguments.empty?
-        "`" << inspected_arguments.join(", ") << "'"
-      end
-
-      def inspect_argument(to_inspect)
-        if RSpec.rspec_mocks_loaded? && to_inspect.respond_to?(:description)
-          to_inspect.description
-        else
-          to_inspect.inspect
-        end
-      end
-
-      def actual_invocation
-        times_invoked = invocations.size
-        times_invoked_with_expected_args = invocations.select { |actual_arguments|
-          if RSpec.rspec_mocks_loaded?
-            rspec_arg_expectation = ::RSpec::Mocks::ArgumentExpectation.new *expected_arguments
-            rspec_arg_expectation.args_match? *actual_arguments
-          else
-            expected_arguments == actual_arguments
-          end
-        }.size
-
-        times_msg = lambda { |n| "#{n} time#{'s' unless n == 1}" }
-        if message_type == :with
-          return "was never told to" if times_invoked.zero?
-          inspected_invocations = invocations.map { |invocation| inspect_arguments invocation }
-          "got #{inspected_invocations.join ', '}"
-        else
-          return "was never told to" if times_invoked.zero?
-          "got it #{times_msg.call times_invoked_with_expected_args}"
-        end
-      end
     end
   end
 end
