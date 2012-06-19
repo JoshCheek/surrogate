@@ -1,11 +1,14 @@
 class Surrogate
   module RSpec
-    module CommonMatcher
-      attr_reader :handler
+    class HaveBeenInitializedWith
+      LANGUAGE_TYPE = :verb
 
-      def initialize(expected)
-        @handler = Handler.new expected, self.class::LANGUAGE_TYPE
+      def initialize(*initialization_args, &block)
+        @handler = Handler.new :initialize, self.class::LANGUAGE_TYPE
+        handler.with *initialization_args, &block
       end
+
+      attr_reader :handler
 
       def matches?(mocked_instance)
         handler.instance = mocked_instance
@@ -18,17 +21,6 @@ class Surrogate
 
       def failure_message_for_should
         handler.failure_message_for_should
-      end
-    end
-
-    class HaveBeenInitializedWith
-      LANGUAGE_TYPE = :verb
-
-      include CommonMatcher
-
-      def initialize(*initialization_args, &block)
-        super :initialize
-        handler.with *initialization_args, &block
       end
     end
   end
