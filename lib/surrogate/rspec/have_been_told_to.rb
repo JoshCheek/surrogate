@@ -4,13 +4,20 @@ class Surrogate
   module RSpec
     class HaveBeenToldTo < InvocationMatcher
       class Message
-        def initialize(message)
-          @message = message
+        def initialize(erb_message=nil, &message)
+          @message = message || erb_message
+          @is_erb = !!erb_message
+        end
+
+        def erb?
+          @is_erb
         end
 
         def result(env)
           @env = env
-          ERB.new(@message).result(binding)
+          if erb?
+            ERB.new(@message).result(binding)
+          end
         end
 
         def method_missing(*args, &block)
