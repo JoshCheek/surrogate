@@ -1,6 +1,18 @@
 class Surrogate
   module RSpec
     class HaveBeenAskedForIts
+      class TimesPredicate
+        attr_accessor :expected_times_invoked
+
+        def initialize(expected_times_invoked)
+          self.expected_times_invoked = expected_times_invoked
+        end
+
+        def matches?(invocations)
+          expected_times_invoked == invocations.size
+        end
+      end
+
       attr_reader :handler
 
       def initialize(expected)
@@ -13,7 +25,7 @@ class Surrogate
         if message_type == :default
           times_invoked > 0
         elsif message_type == :times
-          expected_times_invoked == times_invoked
+          @times_predicate.matches?(invocations)
         elsif message_type == :with_times
           times_invoked_with_expected_args == expected_times_invoked
         elsif message_type == :with
@@ -99,6 +111,7 @@ class Surrogate
         if message_type == :with
           self.message_type = :with_times
         else
+          @times_predicate = TimesPredicate.new(times_invoked)
           self.message_type = :times
         end
         self.expected_times_invoked = times_invoked
