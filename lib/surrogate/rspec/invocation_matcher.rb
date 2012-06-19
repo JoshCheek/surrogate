@@ -42,8 +42,8 @@ class Surrogate
       end
 
       def message_for(message_category)
-        # lets clean this shit up -.^
-        FailureMessages.new.messages(message_category, with_filter, times_predicate, method_name, invocations, self.class::MESSAGES)
+        FailureMessages.new(with_filter)
+                       .messages(message_category,times_predicate, method_name, invocations, self.class::MESSAGES)
       end
     end
   end
