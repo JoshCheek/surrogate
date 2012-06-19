@@ -74,7 +74,11 @@ class Surrogate
       # keep
       def matches?(mocked_instance)
         self.instance = mocked_instance
-        times_predicate.matches? with_filter.filter invocations
+        times_predicate.matches? filtered_args
+      end
+
+      def filtered_args
+        @filtered_args ||= with_filter.filter invocations
       end
 
       # keep
@@ -125,11 +129,11 @@ class Surrogate
         should: {
           default:    "was never told to <%= subject %>",
           with:       "should have been told to <%= subject %> with <%= inspect_arguments expected_arguments %>, but <%= actual_invocation %>",
-          times:      "should have been told to <%= subject %> <%= times_msg expected_times_invoked %> but was told to <%= subject %> <%= times_msg times_invoked %>",
+          times:      "should have been told to <%= subject %> <%= times_msg expected_times_invoked %> but was told to <%= subject %> <%= times_msg invocations.size %>",
           with_times: "should have been told to <%= subject %> <%= times_msg expected_times_invoked %> with <%= inspect_arguments expected_arguments %>, but <%= actual_invocation %>",
           },
         should_not: {
-          default:    "shouldn't have been told to <%= subject %>, but was told to <%= subject %> <%= times_msg times_invoked %>",
+          default:    "shouldn't have been told to <%= subject %>, but was told to <%= subject %> <%= times_msg invocations.size %>",
           with:       "should not have been told to <%= subject %> with <%= inspect_arguments expected_arguments %>, but <%= actual_invocation %>",
           times:      "shouldn't have been told to <%= subject %> <%= times_msg expected_times_invoked %>, but was",
           with_times: "should not have been told to <%= subject %> <%= times_msg expected_times_invoked %> with <%= inspect_arguments expected_arguments %>, but <%= actual_invocation %>",
@@ -155,13 +159,17 @@ class Surrogate
         end
       end
 
-      def times_invoked
-        invocations.size
-      end
-
       def actual_invocation
         times_invoked = invocations.size
-        times_invoked_with_expected_args = invocations.select { |invocation| args_match? invocation }.size
+        times_invoked_with_expected_args = invocations.select { |actual_arguments|
+          if RSpec.rspec_mocks_loaded?
+            rspec_arg_expectation = ::RSpec::Mocks::ArgumentExpectation.new *expected_arguments
+            rspec_arg_expectation.args_match? *actual_arguments
+          else
+            expected_arguments == actual_arguments
+          end
+        }.size
+
         if message_type == :with
           return "was never told to" if times_invoked.zero?
           inspected_invocations = invocations.map { |invocation| inspect_arguments invocation }
@@ -174,15 +182,6 @@ class Surrogate
 
       def times_msg(n)
         "#{n} time#{'s' unless n == 1}"
-      end
-
-      def args_match?(actual_arguments)
-        if RSpec.rspec_mocks_loaded?
-          rspec_arg_expectation = ::RSpec::Mocks::ArgumentExpectation.new *expected_arguments
-          rspec_arg_expectation.args_match? *actual_arguments
-        else
-          expected_arguments == actual_arguments
-        end
       end
     end
   end
