@@ -62,15 +62,6 @@ class Surrogate
         end
 
         def actual_invocation
-          times_invoked_with_expected_args = invocations.select { |actual_arguments|
-            if RSpec.rspec_mocks_loaded?
-              rspec_arg_expectation = ::RSpec::Mocks::ArgumentExpectation.new *expected_arguments
-              rspec_arg_expectation.args_match? *actual_arguments
-            else
-              expected_arguments == actual_arguments
-            end
-          }.size
-
           return "was never told to" if times_invoked.zero?
           inspected_invocations = invocations.map { |invocation| inspect_arguments invocation }
           "got #{inspected_invocations.join ', '}"
@@ -115,15 +106,6 @@ class Surrogate
         end
 
         def actual_invocation
-          times_invoked_with_expected_args = invocations.select { |actual_arguments|
-            if RSpec.rspec_mocks_loaded?
-              rspec_arg_expectation = ::RSpec::Mocks::ArgumentExpectation.new *expected_arguments
-              rspec_arg_expectation.args_match? *actual_arguments
-            else
-              expected_arguments == actual_arguments
-            end
-          }.size
-
           return "was never told to" if times_invoked.zero?
           inspected_invocations = invocations.map { |invocation| inspect_arguments invocation }
           "got #{inspected_invocations.join ', '}"
