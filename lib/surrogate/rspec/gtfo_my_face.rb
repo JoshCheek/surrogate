@@ -66,11 +66,6 @@ class Surrogate
 
 
 
-    # === messages (refactor me: remove message types, reduce dependencies:
-    # move messages into base class and pass them in
-    # pass in the with_filter and the times_predicate
-    # pass in the invoked args.
-    # it should be able to figure everything out from these without needing the bs switches
     class FailureMessages
       attr_accessor :times_predicate, :method_name, :should_or_shouldnt, :invocations, :with_filter
       attr_accessor :messages
