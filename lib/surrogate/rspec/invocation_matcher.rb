@@ -70,6 +70,22 @@ class Surrogate
 
 
     class AbstractFailureMessage
+      class ArgsInspector
+        def inspect(arguments)
+          inspected_arguments = arguments.map { |argument| inspect_argument argument }
+          inspected_arguments << 'no args' if inspected_arguments.empty?
+          "`" << inspected_arguments.join(", ") << "'"
+        end
+
+        def inspect_argument(to_inspect)
+          if RSpec.rspec_mocks_loaded? && to_inspect.respond_to?(:description)
+            to_inspect.description
+          else
+            to_inspect.inspect
+          end
+        end
+      end
+
       attr_accessor :method_name, :invocations, :with_filter, :times_predicate
 
       def initialize(method_name, invocations, with_filter, times_predicate)
@@ -87,19 +103,8 @@ class Surrogate
         invocations.size
       end
 
-      # can we extract out an args inspecter?
       def inspect_arguments(arguments)
-        inspected_arguments = arguments.map { |argument| inspect_argument argument }
-        inspected_arguments << 'no args' if inspected_arguments.empty?
-        "`" << inspected_arguments.join(", ") << "'"
-      end
-
-      def inspect_argument(to_inspect)
-        if RSpec.rspec_mocks_loaded? && to_inspect.respond_to?(:description)
-          to_inspect.description
-        else
-          to_inspect.inspect
-        end
+        ArgsInspector.new.inspect arguments
       end
 
       def expected_arguments
