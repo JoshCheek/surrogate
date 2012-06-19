@@ -38,9 +38,7 @@ class Surrogate
           lambda { |invocation| args_match? args, invocation }
         end
 
-        def args_match?(expected_args, actual_arguments)
-          expected_arguments = expected_args
-
+        def args_match?(expected_arguments, actual_arguments)
           if expected_arguments.last.kind_of? Proc
             block_asserter = lambda { |invocation|
               return unless invocation.last.kind_of? Proc
@@ -53,10 +51,10 @@ class Surrogate
             times_predicate.matches?(invocations.select { |invocation| block_asserter[invocation] })
           else
             if RSpec.rspec_mocks_loaded?
-              rspec_arg_expectation = ::RSpec::Mocks::ArgumentExpectation.new *expected_args
+              rspec_arg_expectation = ::RSpec::Mocks::ArgumentExpectation.new *expected_arguments
               rspec_arg_expectation.args_match? *actual_arguments
             else
-              expected_args == actual_arguments
+              expected_arguments == actual_arguments
             end
           end
         end
