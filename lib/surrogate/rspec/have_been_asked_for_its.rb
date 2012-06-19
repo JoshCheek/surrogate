@@ -2,32 +2,34 @@ class Surrogate
   module RSpec
     class HaveBeenAskedForIts
       class TimesPredicate
-        attr_accessor :expected_times_invoked
+        attr_accessor :expected_times_invoked, :comparer
 
-        def initialize(expected_times_invoked)
+        def initialize(expected_times_invoked, comparer)
           self.expected_times_invoked = expected_times_invoked
+          self.comparer = comparer
         end
 
         def matches?(invocations)
-          expected_times_invoked == invocations.size
+          expected_times_invoked.send comparer, invocations.size
         end
       end
 
-      attr_reader :handler
+      attr_reader :handler, :times_predicate
 
       def initialize(expected)
         self.subject = expected
         self.message_type = :default
+        @times_predicate = TimesPredicate.new(0, :<)
       end
 
       def matches?(mocked_instance)
         self.instance = mocked_instance
-        if message_type == :default
+        if message_type == :with_times
+          times_invoked_with_expected_args == expected_times_invoked
+        elsif message_type == :default
           times_invoked > 0
         elsif message_type == :times
-          @times_predicate.matches?(invocations)
-        elsif message_type == :with_times
-          times_invoked_with_expected_args == expected_times_invoked
+          times_predicate.matches?(invocations)
         elsif message_type == :with
           block_asserter = lambda { |invocation|
             return unless invocation.last.kind_of? Proc
@@ -111,7 +113,7 @@ class Surrogate
         if message_type == :with
           self.message_type = :with_times
         else
-          @times_predicate = TimesPredicate.new(times_invoked)
+          @times_predicate = TimesPredicate.new(times_invoked, :==)
           self.message_type = :times
         end
         self.expected_times_invoked = times_invoked
