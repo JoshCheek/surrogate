@@ -52,13 +52,13 @@ class Surrogate
 
       class FailureMessageShouldNotWith < AbstractFailureMessage
         def get_message
-          "should not have been told to #{ method_name } with #{ inspect_arguments expected_arguments }, but #{ actual_invocation }"
-        end
-
-        def actual_invocation
-          return "was never told to" if times_invoked.zero?
-          inspected_invocations = invocations.map { |invocation| inspect_arguments invocation }
-          "got #{inspected_invocations.join ', '}"
+          message = "should not have been told to #{ method_name } with #{ inspect_arguments expected_arguments }, but "
+          if times_invoked.zero?
+            message << "was never told to"
+          else
+            inspected_invocations = invocations.map { |invocation| inspect_arguments invocation }
+            message << "got #{inspected_invocations.join ', '}"
+          end
         end
       end
 
