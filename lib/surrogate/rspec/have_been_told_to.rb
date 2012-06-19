@@ -92,16 +92,6 @@ class Surrogate
         end
       end
 
-      MESSAGES = {
-        should: {
-          },
-        should_not: {
-          default:    FailureMessageShouldNotDefault.new,
-          with:       FailureMessageShouldNotWith.new,
-          times:      FailureMessageShouldNotTimes.new,
-          with_times: FailureMessageShouldNotWithTimes.new,
-        },
-      }
 
 
       def message_for(message_category)
@@ -118,13 +108,13 @@ class Surrogate
             end
           else message_category == :should
             if times_predicate.default? && with_filter.default?
-              MESSAGES[message_category].fetch(:default)
+              FailureMessageShouldNotDefault.new
             elsif times_predicate.default?
-              MESSAGES[message_category].fetch(:with)
+              FailureMessageShouldNotWith.new
             elsif with_filter.default?
-              MESSAGES[message_category].fetch(:times)
+              FailureMessageShouldNotTimes.new
             else
-              MESSAGES[message_category].fetch(:with_times)
+              FailureMessageShouldNotWithTimes.new
             end
           end
         FailureMessages.new(method_name, invocations, with_filter, times_predicate, message).render
