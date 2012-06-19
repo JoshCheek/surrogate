@@ -15,17 +15,21 @@ class Surrogate
       end
 
       class WithFilter
-        attr_accessor :args, :block, :pass
+        attr_accessor :args, :block, :pass, :filter_name
 
         def initialize(args=[], filter_name=:default_filter, &block)
           self.args = args
           self.block = block
           self.pass = send filter_name
-          @filter_name = filter_name
+          self.filter_name = filter_name
         end
 
         def filter(invocations)
           invocations.select &pass
+        end
+
+        def default?
+          filter_name == :default_filter
         end
 
       private
