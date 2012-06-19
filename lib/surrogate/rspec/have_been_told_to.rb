@@ -13,11 +13,11 @@ class Surrogate
 
       class FailureMessageShouldWith < AbstractFailureMessage
         def get_message
-          message = "should have been told to #{ method_name } with #{ inspect_arguments expected_arguments }, but "
+          message = "should have been told to #{ method_name } with #{ inspect  expected_arguments }, but "
           if times_invoked.zero?
             message << "was never told to"
           else
-            inspected_invocations = invocations.map { |invocation| inspect_arguments invocation }
+            inspected_invocations = invocations.map { |invocation| inspect  invocation }
             message << "got #{inspected_invocations.join ', '}"
           end
         end
@@ -33,7 +33,7 @@ class Surrogate
 
       class FailureMessageWithTimes < AbstractFailureMessage
         def get_message
-          message = "should have been told to #{ method_name } #{ times_msg expected_times_invoked } with #{ inspect_arguments expected_arguments }, but "
+          message = "should have been told to #{ method_name } #{ times_msg expected_times_invoked } with #{ inspect  expected_arguments }, but "
           if times_invoked.zero?
             message << "was never told to"
           else
@@ -52,11 +52,11 @@ class Surrogate
 
       class FailureMessageShouldNotWith < AbstractFailureMessage
         def get_message
-          message = "should not have been told to #{ method_name } with #{ inspect_arguments expected_arguments }, but "
+          message = "should not have been told to #{ method_name } with #{ inspect  expected_arguments }, but "
           if times_invoked.zero?
             message << "was never told to"
           else
-            inspected_invocations = invocations.map { |invocation| inspect_arguments invocation }
+            inspected_invocations = invocations.map { |invocation| inspect  invocation }
             message << "got #{inspected_invocations.join ', '}"
           end
         end
@@ -72,7 +72,7 @@ class Surrogate
 
       class FailureMessageShouldNotWithTimes < AbstractFailureMessage
         def get_message
-          message = "should not have been told to #{ method_name } #{ times_msg expected_times_invoked } with #{ inspect_arguments expected_arguments }, but "
+          message = "should not have been told to #{ method_name } #{ times_msg expected_times_invoked } with #{ inspect  expected_arguments }, but "
           if times_invoked.zero?
              message << "was never told to"
           else
