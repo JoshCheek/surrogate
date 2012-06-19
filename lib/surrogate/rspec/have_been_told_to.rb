@@ -47,6 +47,10 @@ class Surrogate
         def expected_times_invoked
           times_predicate.expected_times_invoked
         end
+
+        def times_invoked_with_expected_args
+          invocations.size
+        end
       end
 
 
@@ -80,15 +84,6 @@ class Surrogate
         end
 
         def actual_invocation
-          times_invoked_with_expected_args = invocations.select { |actual_arguments|
-            if RSpec.rspec_mocks_loaded?
-              rspec_arg_expectation = ::RSpec::Mocks::ArgumentExpectation.new *expected_arguments
-              rspec_arg_expectation.args_match? *actual_arguments
-            else
-              expected_arguments == actual_arguments
-            end
-          }.size
-
           return "was never told to" if times_invoked.zero?
           "got it #{times_msg times_invoked_with_expected_args}"
         end
@@ -124,15 +119,6 @@ class Surrogate
         end
 
         def actual_invocation
-          times_invoked_with_expected_args = invocations.select { |actual_arguments|
-            if RSpec.rspec_mocks_loaded?
-              rspec_arg_expectation = ::RSpec::Mocks::ArgumentExpectation.new *expected_arguments
-              rspec_arg_expectation.args_match? *actual_arguments
-            else
-              expected_arguments == actual_arguments
-            end
-          }.size
-
           return "was never told to" if times_invoked.zero?
           "got it #{times_msg times_invoked_with_expected_args}"
         end
