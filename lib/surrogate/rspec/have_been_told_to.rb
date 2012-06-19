@@ -5,6 +5,12 @@ class Surrogate
     class HaveBeenToldTo < InvocationMatcher
 
       class FailureMessageInternal
+        attr_accessor :method_name
+
+        def initialize(method_name)
+          self.method_name = method_name
+        end
+
         def result(env)
           @env = env
           get_message
@@ -12,10 +18,6 @@ class Surrogate
 
         def get_message
           raise "I should have been overridden"
-        end
-
-        def method_name
-          @env.method_name
         end
 
         def inspect_arguments(args)
@@ -94,31 +96,33 @@ class Surrogate
 
 
       def failure_message_for_should
-        message =
+        message_class =
             if times_predicate.default? && with_filter.default?
-              FailureMessageShouldDefault.new
+              FailureMessageShouldDefault
             elsif times_predicate.default?
-              FailureMessageShouldWith.new
+              FailureMessageShouldWith
             elsif with_filter.default?
-              FailureMessageShouldTimes.new
+              FailureMessageShouldTimes
             else
-              FailureMessageWithTimes.new
+              FailureMessageWithTimes
             end
-        FailureMessages.new(method_name, invocations, with_filter, times_predicate, message).render
+        FailureMessages.new(invocations, with_filter, times_predicate,
+                            message_class.new(method_name)).render
       end
 
       def failure_message_for_should_not
-        message =
+        message_class =
             if times_predicate.default? && with_filter.default?
-              FailureMessageShouldNotDefault.new
+              FailureMessageShouldNotDefault
             elsif times_predicate.default?
-              FailureMessageShouldNotWith.new
+              FailureMessageShouldNotWith
             elsif with_filter.default?
-              FailureMessageShouldNotTimes.new
+              FailureMessageShouldNotTimes
             else
-              FailureMessageShouldNotWithTimes.new
+              FailureMessageShouldNotWithTimes
             end
-        FailureMessages.new(method_name, invocations, with_filter, times_predicate, message).render
+        FailureMessages.new(invocations, with_filter, times_predicate,
+                            message_class.new(method_name)).render
       end
     end
   end
