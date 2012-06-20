@@ -356,13 +356,16 @@ Special Thanks
 TODO
 ----
 
+* Add `was told_to` syntax
+* Add support for predicates
 * Make sure rspec args match with block
 * Add a better explanation for motivations
 * Figure out whether I'm supposed to be using clone or dup for the object -.^ (looks like there may also be an `initialize_copy` method I can take advantage of instead of crazy stupid shit I'm doing now)
 * don't blow up when delegating to the Object#initialize with args
 * queues should not reset when done, they should raise
 * config: rspec_mocks loaded, whether unprepared blocks should raise or just return nil
-* there's probably a bug if you pass a proc as an arg, where it looks like it came in the block slot. if so, swap out arrays of invocations for some kind of argument data structure
+* extract surrogate/rspec into its own gem
+* support subset-substitutabilty not being able to touch real methods (e.g. #respond_to?)
 
 
 Future Features
@@ -370,11 +373,9 @@ Future Features
 
 * have some sort of reinitialization that can hook into setup/teardown steps of test suite
 * Support arity checking as part of substitutability
-* Support for blocks
 * Ability to disassociate the method name from the test (e.g. you shouldn't need to change a test just because you change a name)
-* declare normal methods as being part of the API (e.g. for inheritance)
+* ability to declare normal methods as being part of the API
+* ability to declare a define that uses the overridden method as the body, but can still act like an api method
 * assertions for order of invocations & methods
 * class generator? (supports a top-down style of development for when you write your mocks before you write your implementations)
-* extract surrogate/rspec into its own gem?
 * deal with hard dependency on rspec-mocks
-* support subset-substitutabilty not being able to touch real methods (e.g. #respond_to?)
