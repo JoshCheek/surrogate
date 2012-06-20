@@ -72,24 +72,13 @@ describe 'define' do
           instance.will_wink(1, 2, 3).should equal instance
         end
 
-        context 'it creates a queue of things to find then returns to normal behaviour' do
-          specify 'when there is no default block' do
-            mock = mocked_class.new
-            mock.will_wink :quickly, [:slowly]
-            mock.wink.should == :quickly
-            mock.wink.should == [:slowly]
-            expect { mock.wink }.to raise_error Surrogate::UnpreparedMethodError
-          end
-
-          specify 'when there is a default block' do
-            mocked_class = Surrogate.endow(Class.new)
-            mocked_class.define(:connect) { :default }
-            mock = mocked_class.new
-            mock.will_connect 1, 2
-            mock.connect.should == 1
-            mock.connect.should == 2
-            mock.connect.should == :default
-          end
+        # Is there something useful the error could say?
+        it 'creates a queue of things to find and raises a QueueEmpty error if there are none left' do
+          mock = mocked_class.new
+          mock.will_wink :quickly, [:slowly]
+          mock.wink.should == :quickly
+          mock.wink.should == [:slowly]
+          expect { mock.wink }.to raise_error Surrogate::Value::ValueQueue::QueueEmpty
         end
       end
 
@@ -140,24 +129,13 @@ describe 'define' do
           instance.will_have_age(1,2,3).should equal instance
         end
 
-        context 'it creates a queue of things to find then returns to normal behaviour' do
-          specify 'when there is no default block' do
-            mock = mocked_class.new
-            mock.will_have_age 12, 34
-            mock.age.should == 12
-            mock.age.should == 34
-            expect { mock.age }.to raise_error Surrogate::UnpreparedMethodError
-          end
-
-          specify 'when there is a default block' do
-            mocked_class = Surrogate.endow(Class.new)
-            mocked_class.define(:name) { 'default' }
-            mock = mocked_class.new
-            mock.will_have_name 'a', 'b'
-            mock.name.should == 'a'
-            mock.name.should == 'b'
-            mock.name.should == 'default'
-          end
+        # Is there something useful the error could say?
+        it 'creates a queue of things to find and raises a QueueEmpty error if there are none left' do
+          mock = mocked_class.new
+          mock.will_have_age 12, 34
+          mock.age.should == 12
+          mock.age.should == 34
+          expect { mock.age }.to raise_error Surrogate::Value::ValueQueue::QueueEmpty
         end
       end
     end

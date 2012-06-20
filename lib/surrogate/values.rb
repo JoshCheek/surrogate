@@ -45,9 +45,11 @@ class Surrogate
       QueueEmpty = Class.new SurrogateError
 
       def value(hatchling, method_name)
-        factory(dequeue).value(hatchling, method_name)
-      ensure
-        hatchling.unset_ivar method_name if empty?
+        if empty?
+          raise QueueEmpty
+        else
+          factory(dequeue).value(hatchling, method_name)
+        end
       end
 
       def queue

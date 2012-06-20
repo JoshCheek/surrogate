@@ -45,11 +45,11 @@ describe Surrogate do
     user_class.find(2).should == :user1
 
     # set a queue of default values
-    user_class.will_find :user1, :user2, :user3          # set three overrides
-    user_class.find(11).should == :user1                 # first override
-    user_class.find(22).should == :user2                 # second override
-    user_class.find(33).should == :user3                 # third override
-    user_class.find(44).should be_a_kind_of Mock::User   # back to default block
+    user_class.will_find :user1, :user2, :user3  # set three overrides
+    user_class.find(11).should == :user1         # first override
+    user_class.find(22).should == :user2         # second override
+    user_class.find(33).should == :user3         # third override
+    expect { user_class.find 44 }.to raise_error # raise error when nothing left to find
     # might also be nice to provide a way to raise an error
 
     # tracking invocations
