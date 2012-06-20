@@ -1,5 +1,6 @@
 require 'spec_helper'
 
+# these all need error messages
 describe 'RSpec matchers', 'have_been_told_to(...).with { |block| }' do
 
   let(:dir)      { Surrogate.endow(Class.new) { define(:chdir) { nil }}}
@@ -20,15 +21,11 @@ describe 'RSpec matchers', 'have_been_told_to(...).with { |block| }' do
     dir.should have_been_told_to(:chdir).with(dir_path) { }
   end
 
-  # TODO: Needs to take into account the fact that when there are multiple invocations,
-  # the before/after blocks will be called multiple times
-
   it "fails if the arguments don't match, even if the block does" do
     dir.chdir(dir_path) { }
     dir.should_not have_been_told_to(:chdir).with(dir_path.reverse) { }
     dir.should     have_been_told_to(:chdir).with(dir_path) { }
   end
-
 
   it 'yields a test_block that can make assertions' do
     dir.chdir(dir_path) { }
@@ -100,9 +97,19 @@ describe 'RSpec matchers', 'have_been_told_to(...).with { |block| }' do
     end
   end
 
-  describe 'the .raising assertion' do
-    it "is the same as RSpec's raise_error interface" do
-      pending "I'll deal with this shit when I'm not so tired"
+  describe ".call_with" do
+    it 'allows the user to provide arguments' do
+      klass = Surrogate.endow(Class.new).define(:add) { self }
+      instance = klass.new
+      instance.add { |a, b, &c| a + b + c.call }
+      instance.should have_been_told_to(:add).with { |block|
+        block.call_with(1, 2) { 3 }
+        block.returns 6
+      }
     end
+  end
+
+  describe ".raising is like RSpec's raise_error interface" do
+    it { pending 'IDK what I want this to be like yet' }
   end
 end

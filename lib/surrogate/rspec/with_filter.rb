@@ -4,7 +4,12 @@ class Surrogate
 
       class BlockAsserter
         def initialize(definition_block)
+          @call_with = Invocation.new []
           definition_block.call self
+        end
+
+        def call_with(*args, &block)
+          @call_with = Invocation.new args, &block
         end
 
         def returns(value=nil, &block)
@@ -26,7 +31,7 @@ class Surrogate
         def matches?(block_to_test)
           ensure_before_passes
           if @returns
-            matches = (@returns.call == block_to_test.call)
+            matches = (@returns.call == block_to_test.call(@call_with.args, &@call_with.block))
           else
             block_to_test.call
             matches = true
