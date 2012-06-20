@@ -29,25 +29,41 @@ class Surrogate
         end
 
         def matches?(block_to_test)
-          ensure_before_passes
-          if @returns
-            matches = (@returns.call == block_to_test.call(@call_with.args, &@call_with.block))
-          else
-            block_to_test.call
-            matches = true
-          end
-          matches &&= (block_to_test.arity == @arity) if @arity
-          @after && @after.call
+          matches   = before_matches? block_to_test
+          matches &&= return_value_matches? block_to_test
+          matches &&= arity_matches? block_to_test
+          matches &&= after_matches? block_to_test
           matches
         end
 
         private
 
-        # call before block once before any invocation
-        def ensure_before_passes
-          return if @before_has_been_invoked
-          @before_has_been_invoked = true
-          @before && @before.call
+        # matches if no return specified, or returned value == specified value
+        def return_value_matches?(block_to_test)
+          if @returns
+            @returns.call == block_to_test.call(@call_with.args, &@call_with.block)
+          else
+            block_to_test.call
+            true
+          end
+        end
+
+        # matches if the first time it is called, it raises nothing
+        def before_matches?(*)
+          @before_has_been_invoked || (@before && @before.call)
+        ensure
+          return @before_has_been_invoked = true unless $!
+        end
+
+        # matches if nothing is raised
+        def after_matches?(block_to_test)
+          @after && @after.call
+          true
+        end
+
+        def arity_matches?(block_to_test)
+          return true unless @arity
+          block_to_test.arity == @arity
         end
 
         attr_accessor :block_to_test
