@@ -322,6 +322,46 @@ MockUser.should_not substitute_for User, subset: true
 ```
 
 
+Blocks
+------
+
+When your method is invoked with a block, you can make assertions about the block.
+
+_Note: Right now, block error messages have not been addressed (which means they are probably confusing as shit)_
+
+Before/after hooks (make assertions here)
+
+```ruby
+class MockService
+  Surrogate.endow self
+  define(:create) {}
+end
+
+describe 'something that creates a user through the service' do
+  let(:old_id) { 12 }
+  let(:new_id) { 123 }
+
+  it 'updates the user_id and returns the old_id' do
+    user_id = old_id
+    service = MockService.new
+
+    service.create do |user|
+      to_return = user_id
+      user_id = user[:id]
+      to_return
+    end
+
+    service.should have_been_told_to(:create).with { |block|
+      block.call_with({id: new_id})              # this will be given to the block
+      block.returns old_id                       # provide a return value, or a block that receives the return value (where you can make assertions)
+      block.before { user_id.should == old_id }  # assertions about state of the world before the block is called
+      block.after  { user_id.should == new_id }  # assertions about the state of the world after the block is called
+    }
+  end
+end
+```
+
+
 How do I introduce my mocks?
 ============================
 
@@ -368,6 +408,7 @@ TODO
 Future Features
 ---------------
 
+* figure out how to talk about callbacks like #on_success
 * have some sort of reinitialization that can hook into setup/teardown steps of test suite
 * Support arity checking as part of substitutability
 * Ability to disassociate the method name from the test (e.g. you shouldn't need to change a test just because you change a name)
