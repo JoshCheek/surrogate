@@ -42,7 +42,7 @@ class Surrogate
 
 
     class ValueQueue < BaseValue
-      QueueEmpty = Class.new StandardError
+      QueueEmpty = Class.new SurrogateError
 
       def value(hatchling, method_name)
         factory(dequeue).value(hatchling, method_name)

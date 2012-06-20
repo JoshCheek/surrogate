@@ -1,5 +1,6 @@
 class Surrogate
-  UnknownMethod = Class.new StandardError
+  SurrogateError = Class.new StandardError
+  UnknownMethod  = Class.new SurrogateError
 
 
   # This contains the unique behaviour for each instance
