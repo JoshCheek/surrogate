@@ -66,6 +66,24 @@ describe 'RSpec matchers', 'have_been_told_to(...).with { |block| }' do
         block.after  { file.should     have_been_told_to :write }
       }
     end
+
+    example "multiple invocations wrong number of times" do
+      dir.chdir(dir_path) { file.write file_name, file_body }
+      dir.chdir(dir_path) { file.write file_name, file_body }
+      dir.should_not have_been_told_to(:chdir).times(1).with(dir_path) { |block|
+        block.before { file.should_not have_been_told_to :write }
+        block.after  { file.should     have_been_told_to :write }
+      }
+    end
+
+    example "multiple invocations correct number of times" do
+      dir.chdir(dir_path) { file.write file_name, file_body }
+      dir.chdir(dir_path) { file.write file_name, file_body }
+      dir.should have_been_told_to(:chdir).times(2).with(dir_path) { |block|
+        block.before { file.should_not have_been_told_to :write }
+        block.after  { file.should     have_been_told_to :write }
+      }
+    end
   end
 
   describe 'the .arity assertion' do

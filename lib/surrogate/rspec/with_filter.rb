@@ -24,19 +24,26 @@ class Surrogate
         end
 
         def matches?(block_to_test)
-          @before && @before.call # this should probably be memoized
+          ensure_before_passes
           if @returns
-            return_value = (@returns.call == block_to_test.call)
+            matches = (@returns.call == block_to_test.call)
           else
             block_to_test.call
-            return_value = true
+            matches = true
           end
-          return_value &&= (block_to_test.arity == @arity) if @arity
+          matches &&= (block_to_test.arity == @arity) if @arity
           @after && @after.call
-          return_value
+          matches
         end
 
         private
+
+        # call before block once before any invocation
+        def ensure_before_passes
+          return if @before_has_been_invoked
+          @before_has_been_invoked = true
+          @before && @before.call
+        end
 
         attr_accessor :block_to_test
       end
