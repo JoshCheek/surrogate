@@ -11,7 +11,7 @@ class Surrogate
 
       class FailureMessageShouldWith < AbstractFailureMessage
         def get_message
-          message = "should have been told to #{ method_name } with #{ inspect_arguments expected_arguments }, but "
+          message = "should have been told to #{ method_name } with #{ inspect_arguments expected_invocation }, but "
           if times_invoked.zero?
             message << "was never told to"
           else
@@ -29,7 +29,7 @@ class Surrogate
 
       class FailureMessageWithTimes < AbstractFailureMessage
         def get_message
-          message = "should have been told to #{ method_name } #{ times_msg expected_times_invoked } with #{ inspect_arguments expected_arguments }, but "
+          message = "should have been told to #{ method_name } #{ times_msg expected_times_invoked } with #{ inspect_arguments expected_invocation }, but "
           if times_invoked.zero?
             message << "was never told to"
           else
@@ -46,7 +46,7 @@ class Surrogate
 
       class FailureMessageShouldNotWith < AbstractFailureMessage
         def get_message
-          message = "should not have been told to #{ method_name } with #{ inspect_arguments expected_arguments }, but "
+          message = "should not have been told to #{ method_name } with #{ inspect_arguments expected_invocation }, but "
           if times_invoked.zero?
             message << "was never told to"
           else
@@ -64,7 +64,7 @@ class Surrogate
 
       class FailureMessageShouldNotWithTimes < AbstractFailureMessage
         def get_message
-          message = "should not have been told to #{ method_name } #{ times_msg expected_times_invoked } with #{ inspect_arguments expected_arguments }, but "
+          message = "should not have been told to #{ method_name } #{ times_msg expected_times_invoked } with #{ inspect_arguments expected_invocation }, but "
           if times_invoked.zero?
              message << "was never told to"
           else

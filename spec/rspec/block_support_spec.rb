@@ -31,7 +31,9 @@ describe 'RSpec matchers', 'have_been_told_to(...).with { |block| }' do
 
   it 'yields a test_block that can make assertions' do
     dir.chdir(dir_path) { }
-    dir.should have_been_told_to(:chdir).with(dir_path) { |block| block.should be }
+    block_invoked = false
+    dir.should have_been_told_to(:chdir).with(dir_path) { |block| block_invoked = true; block.should be }
+    block_invoked.should be
   end
 
   describe 'the .returns assertion' do
@@ -54,7 +56,7 @@ describe 'RSpec matchers', 'have_been_told_to(...).with { |block| }' do
   let(:file_body) { 'some file body' }
 
   describe 'the .before and .after hooks' do
-    it "take blocks which it will evaluate before/after invoking the submitted_block" do
+    specify "take blocks which it will evaluate before/after invoking the submitted_block" do
       dir.chdir(dir_path) { file.write file_name, file_body }
       dir.should have_been_told_to(:chdir).with(dir_path) { |block|
         block.before { file.should_not have_been_told_to :write }
@@ -71,6 +73,8 @@ describe 'RSpec matchers', 'have_been_told_to(...).with { |block| }' do
       klass.new.meth { |a,b|   }.should have_been_told_to(:meth).with { |b| b.arity  2 }
       klass.new.meth { |a,b,c| }.should have_been_told_to(:meth).with { |b| b.arity  3 }
       klass.new.meth { |*a|    }.should have_been_told_to(:meth).with { |b| b.arity -1 }
+
+      # TODO: Add a failure case
     end
   end
 

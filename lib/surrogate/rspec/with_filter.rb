@@ -1,6 +1,7 @@
 class Surrogate
   module RSpec
     class WithFilter
+
       class BlockAsserter
         def initialize(block_to_test)
           self.block_to_test = block_to_test
@@ -40,11 +41,14 @@ class Surrogate
         attr_accessor :block_to_test
       end
 
+
+
+
       # rename args to invocation
-      attr_accessor :args, :block, :pass, :filter_name
+      attr_accessor :expected_invocation, :block, :pass, :filter_name
 
       def initialize(args=[], filter_name=:default_filter, &block)
-        self.args = Invocation.new args, &block
+        self.expected_invocation = Invocation.new args, &block
         self.block = block
         self.pass = send filter_name
         self.filter_name = filter_name
@@ -65,10 +69,10 @@ class Surrogate
       end
 
       def args_must_match
-        lambda { |invocation| args_match? args, invocation }
+        lambda { |invocation| args_match? invocation }
       end
 
-      def args_match?(expected_invocation, actual_invocation)
+      def args_match?(actual_invocation)
         if expected_invocation.has_block?
           return unless actual_invocation.has_block?
           block_that_tests = expected_invocation.block
