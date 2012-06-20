@@ -43,10 +43,16 @@ describe 'RSpec matchers', 'have_been_told_to(...).with { |block| }' do
       dir.should     have_been_told_to(:chdir).with(dir_path) { |block| block.returns 1 }
     end
 
-    specify "if given a block, it passes the submitted_block's return value to it" do
+    specify "if given a block, it passes the return value to it for making assertions" do
       dir.chdir(dir_path) { 1 }
-      dir.should_not have_been_told_to(:chdir).with(dir_path) { |block| block.returns { 2 } }
-      dir.should     have_been_told_to(:chdir).with(dir_path) { |block| block.returns { 1 } }
+
+      dir.should_not have_been_told_to(:chdir).with(dir_path) { |block|
+        block.returns { |result| result.should == 2 }
+      }
+
+      dir.should have_been_told_to(:chdir).with(dir_path) { |block|
+        block.returns { |result| result.should == 1 }
+      }
     end
   end
 
@@ -105,6 +111,14 @@ describe 'RSpec matchers', 'have_been_told_to(...).with { |block| }' do
       instance.should have_been_told_to(:add).with { |block|
         block.call_with(1, 2) { 3 }
         block.returns 6
+      }
+
+      instance = klass.new
+      i = 10
+      instance.add { |n, &b| i += n + b.call }
+      instance.should have_been_told_to(:add).with { |block|
+        block.call_with(3) { 4 }
+        block.after { i.should == 17 }
       }
     end
   end

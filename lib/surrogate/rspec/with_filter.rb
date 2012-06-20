@@ -13,7 +13,7 @@ class Surrogate
         end
 
         def returns(value=nil, &block)
-          @returns = block || lambda { value }
+          @returns = block || lambda { |returned| returned.should == value }
         end
 
         def before(&block)
@@ -40,12 +40,11 @@ class Surrogate
 
         # matches if no return specified, or returned value == specified value
         def return_value_matches?(block_to_test)
-          if @returns
-            @returns.call == block_to_test.call(@call_with.args, &@call_with.block)
-          else
-            block_to_test.call
-            true
-          end
+          returned_value = block_to_test.call(*@call_with.args, &@call_with.block)
+          @returns.call returned_value if @returns
+          true
+        rescue ::RSpec::Expectations::ExpectationNotMetError
+          false
         end
 
         # matches if the first time it is called, it raises nothing
