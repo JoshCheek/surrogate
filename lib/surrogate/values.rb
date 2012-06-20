@@ -24,7 +24,7 @@ class Surrogate
         @value = value
       end
 
-      def value(hatchling, method_name)
+      def value(method_name)
         @value
       end
 
@@ -44,11 +44,11 @@ class Surrogate
     class ValueQueue < BaseValue
       QueueEmpty = Class.new SurrogateError
 
-      def value(hatchling, method_name)
+      def value(method_name)
         if empty?
           raise QueueEmpty
         else
-          factory(dequeue).value(hatchling, method_name)
+          factory(dequeue).value(method_name)
         end
       end
 

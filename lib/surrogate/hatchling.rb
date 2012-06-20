@@ -20,7 +20,7 @@ class Surrogate
       invocation = Invocation.new(args, &block)
       invoked_methods[method_name] << invocation
       return get_default method_name, invocation, &block unless has_ivar? method_name
-      Value.factory(get_ivar method_name).value(self, method_name)
+      Value.factory(get_ivar method_name).value(method_name)
     end
 
     def prepare_method(method_name, args, &block)
@@ -31,7 +31,28 @@ class Surrogate
       invoked_methods[method_name]
     end
 
-    # maybe these four should be extracted into their own class
+  private
+
+    def invoked_methods
+      @invoked_methods ||= Hash.new do |hash, method_name|
+        must_know method_name
+        hash[method_name] = []
+      end
+    end
+
+    def get_default(method_name, invocation)
+      api_methods[method_name].default instance, invocation do
+        raise UnpreparedMethodError, "#{method_name} has been invoked without being told how to behave"
+      end
+    end
+
+    def must_know(method_name)
+      return if api_methods.has_key? method_name
+      known_methods = api_methods.keys.map(&:to_s).map(&:inspect).join ', '
+      raise UnknownMethod, "doesn't know \"#{method_name}\", only knows #{known_methods}"
+    end
+
+    # maybe these ivar methods should be extracted into their own class
     def has_ivar?(method_name)
       instance.instance_variable_defined? ivar_for method_name
     end
@@ -57,26 +78,6 @@ class Surrogate
       end
     end
 
-  private
-
-    def invoked_methods
-      @invoked_methods ||= Hash.new do |hash, method_name|
-        must_know method_name
-        hash[method_name] = []
-      end
-    end
-
-    def get_default(method_name, invocation)
-      api_methods[method_name].default instance, invocation do
-        raise UnpreparedMethodError, "#{method_name} has been invoked without being told how to behave"
-      end
-    end
-
-    def must_know(method_name)
-      return if api_methods.has_key? method_name
-      known_methods = api_methods.keys.map(&:to_s).map(&:inspect).join ', '
-      raise UnknownMethod, "doesn't know \"#{method_name}\", only knows #{known_methods}"
-    end
   end
 end
 
