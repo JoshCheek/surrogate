@@ -3,54 +3,45 @@ class Surrogate
   # Superclass for all types of values. Where a value is anything stored
   # in an instance variable on a surrogate, intended to be returned by an api method
   class Value
-
     # convert raw arguments into a value
     def self.factory(*args, &block)
       arg = args.first
-      # if arg.kind_of? Exception
-      #   Raiseable.new arg
-      # else
-      #   MethodQueue.new args
-      # end
       if args.size > 1
         ValueQueue.new args
       elsif arg.kind_of? Exception
         Raisable.new arg
-      elsif arg.kind_of? Value
+      elsif arg.kind_of? BaseValue
         arg
       else
-        Value.new arg
+        BaseValue.new arg
       end
     end
 
-    def initialize(value)
-      @value = value
+    # === the current set of possible values ===
+
+    class BaseValue
+      def initialize(value)
+        @value = value
+      end
+
+      def value(hatchling, method_name)
+        @value
+      end
+
+      def factory(*args, &block)
+        Value.factory(*args, &block)
+      end
     end
 
-    def value(hatchling, method_name)
-      @value
-    end
 
-    def factory(*args, &block)
-      self.class.factory(*args, &block)
-    end
-  end
-end
-
-
-# the current set of possible values
-
-class Surrogate
-  class Value
-
-    class Raisable < Value
+    class Raisable < BaseValue
       def value(*)
         raise @value
       end
     end
 
 
-    class ValueQueue < Value
+    class ValueQueue < BaseValue
       QueueEmpty = Class.new StandardError
 
       def value(hatchling, method_name)
