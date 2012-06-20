@@ -94,12 +94,13 @@ describe 'RSpec matchers', 'have_been_told_to(...).with { |block| }' do
       klass.new.meth { |a,b|   }.should have_been_told_to(:meth).with { |b| b.arity  2 }
       klass.new.meth { |a,b,c| }.should have_been_told_to(:meth).with { |b| b.arity  3 }
       klass.new.meth { |*a|    }.should have_been_told_to(:meth).with { |b| b.arity -1 }
-
-      # TODO: Add a failure case
+      expect {
+        klass.new.meth { |a|   }.should have_been_told_to(:meth).with { |b| b.arity 123 }
+      }.to raise_error RSpec::Expectations::ExpectationNotMetError
     end
   end
 
-  describe 'the .yielding assertion' do
+  describe 'the .raising assertion' do
     it "is the same as RSpec's raise_error interface" do
       pending "I'll deal with this shit when I'm not so tired"
     end
