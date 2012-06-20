@@ -3,8 +3,8 @@ class Surrogate
     class WithFilter
 
       class BlockAsserter
-        def initialize(block_to_test)
-          self.block_to_test = block_to_test
+        def initialize(definition_block)
+          definition_block.call self
         end
 
         def returns(value=nil, &block)
@@ -23,8 +23,8 @@ class Surrogate
           @arity = n
         end
 
-        def match?
-          @before && @before.call
+        def matches?(block_to_test)
+          @before && @before.call # this should probably be memoized
           if @returns
             return_value = (@returns.call == block_to_test.call)
           else
@@ -48,7 +48,7 @@ class Surrogate
       attr_accessor :expected_invocation, :block, :pass, :filter_name
 
       def initialize(args=[], filter_name=:default_filter, &block)
-        self.expected_invocation = Invocation.new args, &block
+        self.expected_invocation = Invocation.new args.dup, &block
         self.block = block
         self.pass = send filter_name
         self.filter_name = filter_name
@@ -69,25 +69,26 @@ class Surrogate
       end
 
       def args_must_match
-        lambda { |invocation| args_match? invocation }
+        lambda { |invocation| args_match?(invocation) && blocks_match?(invocation) }
+      end
+
+      def blocks_match?(actual_invocation)
+        # surely this is wrong
+        return true unless expected_invocation.has_block?
+        return unless actual_invocation.has_block?
+        block_asserter.matches? actual_invocation.block
+      end
+
+      def block_asserter
+        @block_asserter ||= BlockAsserter.new expected_invocation.block
       end
 
       def args_match?(actual_invocation)
-        if expected_invocation.has_block?
-          return unless actual_invocation.has_block?
-          block_that_tests = expected_invocation.block
-          block_to_test = actual_invocation.block
-          asserter = BlockAsserter.new(block_to_test)
-          block_that_tests.call asserter
-          asserter.match?
+        if RSpec.rspec_mocks_loaded?
+          rspec_arg_expectation = ::RSpec::Mocks::ArgumentExpectation.new *expected_invocation.args
+          rspec_arg_expectation.args_match? *actual_invocation.args
         else
-          if RSpec.rspec_mocks_loaded?
-            rspec_arg_expectation = ::RSpec::Mocks::ArgumentExpectation.new *expected_invocation.args
-            rspec_arg_expectation.args_match? *actual_invocation.args
-          else
-            # can we move this into the invocation?
-            expected_arguments.args == actual_arguments.args
-          end
+          expected_arguments == actual_arguments
         end
       end
     end

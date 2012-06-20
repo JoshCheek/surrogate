@@ -23,17 +23,20 @@ describe 'RSpec matchers', 'have_been_told_to(...).with { |block| }' do
   # TODO: Needs to take into account the fact that when there are multiple invocations,
   # the before/after blocks will be called multiple times
 
-  xit "fails if the arguments don't match, even if the block does" do
+  it "fails if the arguments don't match, even if the block does" do
     dir.chdir(dir_path) { }
     dir.should_not have_been_told_to(:chdir).with(dir_path.reverse) { }
+    dir.should     have_been_told_to(:chdir).with(dir_path) { }
   end
 
 
   it 'yields a test_block that can make assertions' do
     dir.chdir(dir_path) { }
-    block_invoked = false
-    dir.should have_been_told_to(:chdir).with(dir_path) { |block| block_invoked = true; block.should be }
-    block_invoked.should be
+    block_yielded = nil
+    dir.should have_been_told_to(:chdir).with(dir_path) { |block|
+      block_yielded = block
+    }
+    block_yielded.should be
   end
 
   describe 'the .returns assertion' do
