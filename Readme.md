@@ -5,6 +5,14 @@ Handrolling mocks is the best, but involves more overhead than necessary, and us
 error messages. Surrogate addresses this by endowing your objects with common things that most mocks need.
 Currently it is only integrated with RSpec.
 
+This codebase should be considered highly volatile until 1.0 release. The outer interface should be
+fairly stable, with each 0.a.b version having backwards compatibility for any changes to b (ie
+only refactorings and new features), and possible interface changes (though probably minimal)
+for changes to a. Depending on the internals of the code (anything not shown in the readme) is
+discouraged at this time. If you do want to do this (e.g. to make an interface for test/unit)
+let me know, and I'll inform you / fork your gem and help update it, for any breaking changes
+that I introduce.
+
 
 Features
 ========
