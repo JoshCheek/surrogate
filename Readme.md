@@ -250,6 +250,27 @@ user.should have_been_initialized_with 12
 ```
 
 
+Predicates
+----------
+
+Query qith `have_been_asked_if`, all the same chainable methods from above apply.
+
+```ruby
+class MockUser
+  Surrogate.endow self
+  define(:admin?) { false }
+end
+
+user = MockUser.new
+user.should_not be_admin
+user.will_have_admin? true
+user.should be_admin
+user.should have_been_asked_if(:admin?).times(2)
+```
+
+
+class MockUser
+
 Substitutability
 ----------------
 
@@ -395,10 +416,9 @@ TODO
 
 * Add proper failure messages for block invocations
 * Add `was told_to` syntax
-* Add support for predicates
 * Add a better explanation for motivations
 * Figure out whether I'm supposed to be using clone or dup for the object -.^ (looks like there may also be an `initialize_copy` method I can take advantage of instead of crazy stupid shit I'm doing now)
-* don't blow up when delegating to the Object#initialize with args
+* don't blow up when delegating to the Object#initialize with args (do I still want this, or do I want to force arity matching (and maybe even variable name matching)?)
 * config: rspec_mocks loaded, whether unprepared blocks should raise or just return nil
 * extract surrogate/rspec into its own gem
 * support subset-substitutabilty not being able to touch real methods (e.g. #respond_to?)

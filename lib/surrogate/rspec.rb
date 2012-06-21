@@ -19,12 +19,16 @@ class Surrogate
     end
 
     module Matchers
-      def have_been_told_to(expected)
-        HaveBeenToldTo.new expected
+      def have_been_asked_if(method_name)
+        HaveBeenAskedIf.new method_name
       end
 
-      def have_been_asked_for_its(expected)
-        HaveBeenAskedForIts.new expected
+      def have_been_told_to(method_name)
+        HaveBeenToldTo.new method_name
+      end
+
+      def have_been_asked_for_its(method_name)
+        HaveBeenAskedForIts.new method_name
       end
 
       def have_been_initialized_with(*initialization_args, &block)
@@ -38,6 +42,7 @@ require 'rspec/core'
 require 'surrogate'
 require 'surrogate/rspec/substitute_for'
 
+require 'surrogate/rspec/have_been_asked_if'
 require 'surrogate/rspec/have_been_asked_for_its'
 require 'surrogate/rspec/have_been_initialized_with'
 require 'surrogate/rspec/have_been_told_to'
