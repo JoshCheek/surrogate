@@ -423,7 +423,6 @@ TODO
 ----
 
 * Add proper failure messages for block invocations
-* Add `was told_to` syntax
 * Add a better explanation for motivations
 * Figure out whether I'm supposed to be using clone or dup for the object -.^ (looks like there may also be an `initialize_copy` method I can take advantage of instead of crazy stupid shit I'm doing now)
 * don't blow up when delegating to the Object#initialize with args (do I still want this, or do I want to force arity matching (and maybe even variable name matching)?)

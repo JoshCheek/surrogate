@@ -5,6 +5,14 @@ class Surrogate
   # please refactor me! ...may not be possible :(
   # Can we move all method definitions into this class?
   class Endower
+    def self.add_hook(&block)
+      hooks << block
+    end
+
+    def self.hooks
+      @hooks ||= []
+    end
+
     def self.endow(klass, &block)
       new(klass, &block).endow
     end
@@ -28,6 +36,7 @@ class Surrogate
       enable_defining_methods                klass
       record_initialization_for_instances_of klass
       remember_invocations_for_instances_of  klass
+      invoke_hooks                           klass
     end
 
     def endow_singleton_class
@@ -36,7 +45,12 @@ class Surrogate
       singleton.module_eval &block if block
       klass.instance_variable_set :@hatchling, Hatchling.new(klass, hatchery)
       remember_invocations_for_instances_of  singleton
+      invoke_hooks                           singleton
       klass
+    end
+
+    def invoke_hooks(klass)
+      self.class.hooks.each { |hook| hook.call klass }
     end
 
     # yeesh :( pretty sure there isn't a better way to do this
