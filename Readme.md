@@ -21,7 +21,7 @@ Recently (v0.5.1), a new syntax was added:
 <table>
   <tr><th>Old</th><th>New</th></tr>
   <tr><td>.should have_been_told_to</td><td>.was told_to</td></tr>
-  <tr><td>.should have_been_asked_for</td><td>.was asked_for</td></tr>
+  <tr><td>.should have_been_asked_for_its</td><td>.was asked_for</td></tr>
   <tr><td>.should have_been_asked_if</td><td>.was asked_if</td></tr>
   <tr><td>.should have_been_initialized_with</td><td>.was initialized_with</td></tr>
 </table>
