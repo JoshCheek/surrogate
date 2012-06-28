@@ -13,6 +13,27 @@ discouraged at this time. If you do want to do this (e.g. to make an interface f
 let me know, and I'll inform you / fork your gem and help update it, for any breaking changes
 that I introduce.
 
+New Syntax
+==========
+
+Recently (v0.5.1), a new syntax was added:
+
+<table>
+  <tr><th>Old</th><th>New</th></tr>
+  <tr><td>.should have_been_told_to</td><td>.was told_to</td></tr>
+  <tr><td>.should have_been_asked_for</td><td>.was asked_for</td></tr>
+  <tr><td>.should have_been_asked_if</td><td>.was asked_if</td></tr>
+  <tr><td>.should have_been_initialized_with</td><td>.was initialized_with</td></tr>
+</table>
+
+If you want to switch over, here is a shell script that should get you pretty far:
+
+    find spec -type file |
+      xargs ruby -p i .old_syntax \
+      -e 'gsub /should(_not)?(\s+)have_been_told_to/,               "was\\1\\2told_to"' \
+      -e 'gsub /should(_not)?(\s+)have_been_asked_(if|for)(_its)?/, "was\\1\\2asked_\\3"' \
+      -e 'gsub /should(_not)(\s+)have_been_initialized_with/,       "was\\1\\2initialized_with"' \
+
 
 Features
 ========
@@ -422,6 +443,8 @@ Special Thanks
 TODO
 ----
 
+* Remove dependency on all of RSpec and only depend on rspec-core, then have AC tests for the other shit
+* Move surrogates to be first class and defined in the classes that use them.
 * Add proper failure messages for block invocations
 * Add a better explanation for motivations
 * Figure out whether I'm supposed to be using clone or dup for the object -.^ (looks like there may also be an `initialize_copy` method I can take advantage of instead of crazy stupid shit I'm doing now)
