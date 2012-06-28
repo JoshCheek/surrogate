@@ -29,7 +29,7 @@ Recently (v0.5.1), a new syntax was added:
 If you want to switch over, here is a shell script that should get you pretty far:
 
     find spec -type file |
-      xargs ruby -p i .old_syntax \
+      xargs ruby -p -i.old_syntax \
       -e 'gsub /should(_not)?(\s+)have_been_told_to/,               "was\\1\\2told_to"' \
       -e 'gsub /should(_not)?(\s+)have_been_asked_(if|for)(_its)?/, "was\\1\\2asked_\\3"' \
       -e 'gsub /should(_not)(\s+)have_been_initialized_with/,       "was\\1\\2initialized_with"' \
