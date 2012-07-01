@@ -1,4 +1,15 @@
+<% setup do %>
+$LOAD_PATH.unshift '../lib', __FILE__
+require 'surrogate'
+<% end %>
 
+<% context 'generic it block' do %>
+describe 'whatever' do
+  it 'does something' do
+    __CODE__
+  end
+end
+<% end %>
 
 About
 =====
@@ -56,14 +67,17 @@ Usage
 **Endow** a class with surrogate abilities
 
 ```ruby
+<% test 'endowing', with: :magic_comments do %>
 class Mock
   Surrogate.endow self
 end
+<% end %>
 ```
 
 Define a **class method** by using `define` in the block when endowing your class.
 
 ```ruby
+<% test 'class api method', with: :magic_comments do %>
 class MockClient
   Surrogate.endow self do
     define(:default_url) { 'http://example.com' }
@@ -71,33 +85,39 @@ class MockClient
 end
 
 MockClient.default_url # => "http://example.com"
+<% end %>
 ```
 
 Define an **instance method** by using `define` outside the block after endowing your class.
 
 ```ruby
+<% test 'instance api method', with: :magic_comments do %>
 class MockClient
   Surrogate.endow self
   define(:request) { ['result1', 'result2'] }
 end
 
 MockClient.new.request # => ["result1", "result2"]
+<% end %>
 ```
 
 If you care about the **arguments**, your block can receive them.
 
 ```ruby
+<% test 'api method with arguments', with: :magic_comments do %>
 class MockClient
   Surrogate.endow self
   define(:request) { |limit| limit.times.map { |i| "result#{i.next}" } }
 end
 
 MockClient.new.request 3 # => ["result1", "result2", "result3"]
+<% end %>
 ```
 
 You don't need a **default if you set the ivar** of the same name (replace `?` with `_p` for predicates, since you can't have question marks in ivar names)
 
 ```ruby
+<% test 'overriding default by setting the ivar', with: :magic_comments do %>
 class MockClient
   Surrogate.endow self
   define(:initialize) { |id| @id, @connected_p = id, true }
@@ -105,11 +125,13 @@ class MockClient
   define :connected?
 end
 MockClient.new(12).id # => 12
+<% end %>
 ```
 
 **Override defaults** with `will_<verb>` and `will_have_<noun>`
 
 ```ruby
+<% test 'overriding default by invoking the method', with: :magic_comments do %>
 class MockMP3
   Surrogate.endow self
   define :play # defaults are optional, will raise error if invoked without being told what to do
@@ -125,11 +147,13 @@ mp3.play # => true
 # nouns
 mp3.will_have_info artist: 'Symphony of Science', title: 'Children of Africa'
 mp3.info # => {:artist=>"Symphony of Science", :title=>"Children of Africa"}
+<% end %>
 ```
 
 **Errors** get raised
 
 ```ruby
+<% test 'errors get raised', with: :magic_comments do %>
 class MockClient
   Surrogate.endow self
   define :request
@@ -143,11 +167,13 @@ begin
 rescue StandardError => e
   e # => #<StandardError: Remote service unavailable>
 end
+<% end %>
 ```
 
 **Queue** up return values
 
 ```ruby
+<% test 'queue up return values', with: :magic_comments do %>
 class MockPlayer
   Surrogate.endow self
   define(:move) { 20 }
@@ -158,11 +184,13 @@ player.will_move 1, 9, 3
 player.move # => 1
 player.move # => 9
 player.move # => 3
+<% end %>
 ```
 
 You can define **initialize**
 
 ```ruby
+<% test 'defining initialize', with: :magic_comments do %>
 class MockUser
   Surrogate.endow self do
     define(:find) { |id| new id }
@@ -173,6 +201,7 @@ end
 
 user = MockUser.find 12
 user.id # => 12
+<% end %>
 ```
 
 
@@ -184,6 +213,9 @@ for querying what happened.
 
 Load the RSpec matchers.
 
+<% setup do %>
+require 'surrogate/rspec'
+<% end %>
 ```ruby
 require 'surrogate/rspec'
 ```
@@ -193,51 +225,77 @@ Nouns
 
 Given this mock and assuming the following examples happen within a spec
 
-```ruby
+<%# need to figure out how to make context and setup blocks conditionally visible %>
+<% context 'mp3 in spec' do %>
 class MockMP3
   Surrogate.endow self
   define(:info) { 'some info' }
 end
+
+describe 'the example' do
+  let(:mp3) { MockMP3.new }
+  it 'executes' do
+    __CODE__
+  end
+end
+<% end %>
+```ruby
+<% test "mock mp3 code shouldn't blow up", with: :magic_comments do %>
+class MockMP3
+  Surrogate.endow self
+  define(:info) { 'some info' }
+end
+<% end %>
 ```
 
 Check if **was invoked** with `have_been_asked_for_its`
 
 ```ruby
+<% test 'noun invocation', with: :rspec, context: 'mp3 in spec' do %>
 mp3.should_not have_been_asked_for_its :info
 mp3.info
 mp3.should have_been_asked_for_its :info
+<% end %>
 ```
 
 Invocation **cardinality** by chaining `times(n)`
 
 ```ruby
+<% test 'noun cardinality', with: :rspec, context: 'mp3 in spec' do %>
 mp3.info
 mp3.info
 mp3.should have_been_asked_for_its(:info).times(2)
+<% end %>
 ```
 
 Invocation **arguments** by chaining `with(args)`
 
 ```ruby
+<% test 'noun invocation with args', with: :rspec, context: 'mp3 in spec' do %>
 mp3.info :title
 mp3.should have_been_asked_for_its(:info).with(:title)
+<% end %>
 ```
 
 Supports RSpec's matchers (`no_args`, `hash_including`, etc)
 
 ```ruby
+<% test 'rspec matchers integration', with: :rspec, context: 'mp3 in spec' do %>
 mp3.info
 mp3.should have_been_asked_for_its(:info).with(no_args)
+<% end %>
 ```
 
 Cardinality of a specific set of args `with(args)` and `times(n)`
 
 ```ruby
+<% test 'times and with', with: :rspec, context: 'mp3 in spec' do %>
 mp3.info :title
 mp3.info :title
 mp3.info :artist
 mp3.should have_been_asked_for_its(:info).with(:title).times(2)
 mp3.should have_been_asked_for_its(:info).with(:artist).times(1)
+<% end %>
 ```
 
 
@@ -246,19 +304,36 @@ Verbs
 
 Given this mock and assuming the following examples happen within a spec
 
-```ruby
+<% context 'mp3 that plays in spec' do %>
 class MockMP3
   Surrogate.endow self
   define(:play) { true }
 end
+
+describe 'the example' do
+  let(:mp3) { MockMP3.new }
+  it 'executes' do
+    __CODE__
+  end
+end
+<% end %>
+```ruby
+<% test 'mp3 that plays in in spec', with: :magic_comments do %>
+class MockMP3
+  Surrogate.endow self
+  define(:play) { true }
+end
+<% end %>
 ```
 
 Check if **was invoked** with `have_been_told_to`
 
 ```ruby
+<% test 'have_been_told_to', with: :rspec, context: 'mp3 that plays in spec' do %>
 mp3.should_not have_been_told_to :play
 mp3.play
 mp3.should have_been_told_to :play
+<% end %>
 ```
 
 Also supports the same `with(args)` and `times(n)` that nouns have.
@@ -270,6 +345,7 @@ Initialization
 Query with `have_been_initialized_with`, which is exactly the same as saying `have_been_told_to(:initialize).with(...)`
 
 ```ruby
+<% test 'initialization test', with: :rspec, context: 'generic it block' do %>
 class MockUser
   Surrogate.endow self
   define(:initialize) { |id| @id = id }
@@ -278,6 +354,7 @@ end
 user = MockUser.new 12
 user.id.should == 12
 user.should have_been_initialized_with 12
+<% end %>
 ```
 
 
@@ -287,6 +364,7 @@ Predicates
 Query qith `have_been_asked_if`, all the same chainable methods from above apply.
 
 ```ruby
+<% test 'initialization test', with: :rspec, context: 'generic it block' do %>
 class MockUser
   Surrogate.endow self
   define(:admin?) { false }
@@ -297,6 +375,7 @@ user.should_not be_admin
 user.will_have_admin? true
 user.should be_admin
 user.should have_been_asked_if(:admin?).times(2)
+<% end %>
 ```
 
 
@@ -317,6 +396,7 @@ and generally considers them to be helpers). In a future version, you will be ab
 as part of the API (will fail if they don't match, and maybe record their values).
 
 ```ruby
+<% test 'substitutability example', with: :rspec, context: 'generic it block' do %>
 class User
   def initialize(id)end
   def id()end
@@ -346,6 +426,7 @@ class UserWithNameAndAddress < UserWithName
   def address()end
 end
 MockUser.should_not substitute_for UserWithNameAndAddress
+<% end %>
 ```
 
 Sometimes you don't want to have to implement the entire interface.
@@ -353,6 +434,7 @@ In these cases, you can assert that the methods on the mock are a **subset**
 of the methods on the real class.
 
 ```ruby
+<% test 'subset substitutability example', with: :rspec, context: 'generic it block' do %>
 class User
   def initialize(id)end
   def id()end
@@ -371,6 +453,7 @@ MockUser.should substitute_for User, subset: true
 # but now it fails b/c it has no address
 MockUser.define :address
 MockUser.should_not substitute_for User, subset: true
+<% end %>
 ```
 
 
@@ -384,6 +467,7 @@ _Note: Right now, block error messages have not been addressed (which means they
 Before/after hooks (make assertions here)
 
 ```ruby
+<% test 'block example', with: :rspec, context: 'generic it block' do %>
 class MockService
   Surrogate.endow self
   define(:create) {}
@@ -411,6 +495,7 @@ describe 'something that creates a user through the service' do
     }
   end
 end
+<% end %>
 ```
 
 
