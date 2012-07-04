@@ -225,6 +225,14 @@ Nouns
 
 Given this mock and assuming the following examples happen within a spec
 
+```ruby
+<% test "mock mp3 code shouldn't blow up", with: :magic_comments do %>
+class MockMP3
+  Surrogate.endow self
+  define(:info) { 'some info' }
+end
+<% end %>
+```
 <%# need to figure out how to make context and setup blocks conditionally visible %>
 <% context 'mp3 in spec' do %>
 class MockMP3
@@ -239,14 +247,6 @@ describe 'the example' do
   end
 end
 <% end %>
-```ruby
-<% test "mock mp3 code shouldn't blow up", with: :magic_comments do %>
-class MockMP3
-  Surrogate.endow self
-  define(:info) { 'some info' }
-end
-<% end %>
-```
 
 Check if **was invoked** with `have_been_asked_for_its`
 
@@ -304,6 +304,14 @@ Verbs
 
 Given this mock and assuming the following examples happen within a spec
 
+```ruby
+<% test 'mp3 that plays in in spec', with: :magic_comments do %>
+class MockMP3
+  Surrogate.endow self
+  define(:play) { true }
+end
+<% end %>
+```
 <% context 'mp3 that plays in spec' do %>
 class MockMP3
   Surrogate.endow self
@@ -317,14 +325,6 @@ describe 'the example' do
   end
 end
 <% end %>
-```ruby
-<% test 'mp3 that plays in in spec', with: :magic_comments do %>
-class MockMP3
-  Surrogate.endow self
-  define(:play) { true }
-end
-<% end %>
-```
 
 Check if **was invoked** with `have_been_told_to`
 
