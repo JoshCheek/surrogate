@@ -10,4 +10,8 @@ RSpec::Core::RakeTask.new :rspec do |t|
   ]
 end
 
-task default: :rspec
+require 'mountain_berry_fields/rake_task'
+MountainBerryFields::RakeTask.new :test_readme, 'Readme.mountain_berry_fields.md'
+
+
+task default: [:rspec, :test_readme]
