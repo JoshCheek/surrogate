@@ -540,6 +540,8 @@ TODO
 * extract surrogate/rspec into its own gem
 * support subset-substitutabilty not being able to touch real methods (e.g. #respond_to?)
 * Add a last_instance option so you don't have to track it explicitly
+* make substitutability matcher go either way
+* make substitutability matcher not care whether either are surrogates
 
 
 Future Features
