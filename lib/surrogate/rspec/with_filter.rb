@@ -70,6 +70,29 @@ class Surrogate
 
 
 
+      class RSpecMatchAsserter
+        attr_accessor :actual_invocation, :expected_invocation
+
+        def initialize(actual_invocation, expected_invocation)
+          self.actual_invocation, self.expected_invocation = actual_invocation, expected_invocation
+        end
+
+        def match?
+          rspec_arg_expectation = matcher_class.new *expected_invocation.args
+          rspec_arg_expectation.args_match? *actual_invocation.args
+        end
+
+        def matcher_class
+          return ::RSpec::Mocks::ArgumentListMatcher if approximate_2_11?
+          ::RSpec::Mocks::ArgumentExpectation
+        end
+
+        def approximate_2_11?
+          Gem::Requirement.create('~> 2.11').satisfied_by? Gem::Version.new(::RSpec::Mocks::Version::STRING)
+        end
+      end
+
+
 
       # rename args to invocation
       attr_accessor :expected_invocation, :block, :pass, :filter_name
@@ -112,8 +135,7 @@ class Surrogate
 
       def args_match?(actual_invocation)
         if RSpec.rspec_mocks_loaded?
-          rspec_arg_expectation = ::RSpec::Mocks::ArgumentExpectation.new *expected_invocation.args
-          rspec_arg_expectation.args_match? *actual_invocation.args
+          RSpecMatchAsserter.new(actual_invocation, expected_invocation).match?
         else
           expected_arguments == actual_arguments
         end
