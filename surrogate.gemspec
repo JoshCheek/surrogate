@@ -20,8 +20,8 @@ Gem::Specification.new do |s|
 
   s.add_runtime_dependency 'bindable_block', '= 0.0.5.1'
 
-  s.add_development_dependency "rspec", '~> 2.2'
   s.add_development_dependency "rake"
+  s.add_development_dependency "rspec",                                "~> 2.2"
   s.add_development_dependency "mountain_berry_fields",                "~> 1.0.3"
   s.add_development_dependency "mountain_berry_fields-rspec",          "~> 1.0.2"
   s.add_development_dependency "mountain_berry_fields-magic_comments", "~> 1.0.1"
