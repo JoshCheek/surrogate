@@ -23,35 +23,35 @@ class Surrogate
 
     module Matchers
       def have_been_told_to(method_name)
-        HaveBeenToldTo.new method_name
+        VerbMatcher.new method_name
       end
 
       def told_to(method_name)
-        HaveBeenToldTo.new method_name
+        VerbMatcher.new method_name
       end
 
       def have_been_asked_if(method_name)
-        HaveBeenAskedIf.new method_name
+        PredicateMatcher.new method_name
       end
 
       def asked_if(method_name)
-        HaveBeenAskedIf.new method_name
+        PredicateMatcher.new method_name
       end
 
       def have_been_asked_for_its(method_name)
-        HaveBeenAskedForIts.new method_name
+        NounMatcher.new method_name
       end
 
       def asked_for(method_name)
-        HaveBeenAskedForIts.new method_name
+        NounMatcher.new method_name
       end
 
       def have_been_initialized_with(*initialization_args, &block)
-        HaveBeenInitializedWith.new *initialization_args, &block
+        InitializationMatcher.new *initialization_args, &block
       end
 
       def initialized_with(*initialization_args, &block)
-        HaveBeenInitializedWith.new *initialization_args, &block
+        InitializationMatcher.new *initialization_args, &block
       end
     end
   end
@@ -65,10 +65,10 @@ class Surrogate
 end
 
 require 'surrogate/rspec/substitute_for'
-require 'surrogate/rspec/have_been_asked_if'
-require 'surrogate/rspec/have_been_asked_for_its'
-require 'surrogate/rspec/have_been_initialized_with'
-require 'surrogate/rspec/have_been_told_to'
+require 'surrogate/rspec/predicate_matcher'
+require 'surrogate/rspec/noun_matcher'
+require 'surrogate/rspec/initialization_matcher'
+require 'surrogate/rspec/verb_matcher'
 
 
 RSpec.configure do |config|

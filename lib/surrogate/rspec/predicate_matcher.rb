@@ -2,7 +2,7 @@ require 'surrogate/rspec/invocation_matcher'
 
 class Surrogate
   module RSpec
-    class HaveBeenAskedIf < InvocationMatcher
+    class PredicateMatcher < InvocationMatcher
       class FailureMessageShouldDefault < AbstractFailureMessage
         def get_message
           "was never asked if #{ method_name }"

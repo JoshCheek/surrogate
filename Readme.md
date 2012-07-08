@@ -448,7 +448,6 @@ TODO
 ----
 
 * Remove dependency on all of RSpec and only depend on rspec-core, then have AC tests for the other shit
-* Move surrogates to be first class and defined in the classes that use them.
 * Add proper failure messages for block invocations
 * Add a better explanation for motivations
 * Figure out whether I'm supposed to be using clone or dup for the object -.^ (looks like there may also be an `initialize_copy` method I can take advantage of instead of crazy stupid shit I'm doing now)

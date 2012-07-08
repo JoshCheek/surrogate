@@ -2,7 +2,7 @@ require 'surrogate/rspec/invocation_matcher'
 
 class Surrogate
   module RSpec
-    class HaveBeenToldTo < InvocationMatcher
+    class VerbMatcher < InvocationMatcher
       class FailureMessageShouldDefault < AbstractFailureMessage
         def get_message
           "was never told to #{ method_name }"

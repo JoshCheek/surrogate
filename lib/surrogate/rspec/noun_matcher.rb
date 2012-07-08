@@ -2,7 +2,7 @@ require 'surrogate/rspec/invocation_matcher'
 
 class Surrogate
   module RSpec
-    class HaveBeenAskedForIts < InvocationMatcher
+    class NounMatcher < InvocationMatcher
 
       class FailureMessageShouldDefault < AbstractFailureMessage
         def get_message
