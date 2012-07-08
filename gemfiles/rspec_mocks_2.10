@@ -1,5 +1,8 @@
+# set this with
+# export BUNDLE_GEMFILE=gemfiles/rspec_mocks_2.10
+
 source "http://rubygems.org"
 
-gemspec
+gemspec path: File.expand_path('../..', __FILE__)
 
 gem "rspec", "= 2.10", group: :development
