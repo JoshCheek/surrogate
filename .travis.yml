@@ -3,6 +3,6 @@ rvm:
   - 1.9.3
 script: "bundle exec rake"
 gemfile:
-  - Gemfile
   - gemfiles/rspec_mocks_2.2
   - gemfiles/rspec_mocks_2.10
+  - gemfiles/rspec_mocks_2.11

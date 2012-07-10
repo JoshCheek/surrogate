@@ -469,7 +469,7 @@ _Note: Right now, block error messages have not been addressed (which means they
 Before/after hooks (make assertions here)
 
 ```ruby
-<% test 'block example', with: :rspec, context: 'generic it block' do %>
+<% test 'block example', with: :rspec do %>
 class MockService
   Surrogate.endow self
   define(:create) {}

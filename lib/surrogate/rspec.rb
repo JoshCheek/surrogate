@@ -1,6 +1,7 @@
 # Maybe I should be my own gem?
 
 require 'rspec/core'
+require 'rspec/expectations'
 require 'surrogate'
 
 class Surrogate
