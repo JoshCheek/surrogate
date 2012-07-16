@@ -543,6 +543,7 @@ TODO
 * Add a last_instance option so you don't have to track it explicitly
 * make substitutability matcher go either way
 * make substitutability matcher not care whether either are surrogates
+* Add support for operators
 
 
 Future Features
