@@ -119,9 +119,18 @@ class Surrogate
     # Can we move this into the redefinition of initialize and have it explicitly record itself?
     def new(*args)
       instance = allocate
+      self.last_instance = instance
       instance.instance_variable_set :@hatchling, Hatchling.new(instance, @hatchery)
       instance.send :initialize, *args
       instance
+    end
+
+    def last_instance
+      Thread.current["surrogate_last_instance_#{self.object_id}"]
+    end
+
+    def last_instance=(instance)
+      Thread.current["surrogate_last_instance_#{self.object_id}"] = instance
     end
   end
 end
