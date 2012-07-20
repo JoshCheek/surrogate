@@ -1,5 +1,8 @@
 rvm use ruby-1.9.3-p125
 
+# set up gemfile
+export BUNDLE_GEMFILE=gemfiles/rspec_mocks_2.11
+
 root_dir="$(pwd)"
 
 alias ac="rspec '$root_dir/spec/acceptance_spec.rb'"
