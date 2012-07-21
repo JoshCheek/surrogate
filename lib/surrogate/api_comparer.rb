@@ -112,12 +112,10 @@ class Surrogate
         Set.new surrogate.singleton_class.api_method_names
       end
 
-      # should have new and clone (don't screw up substitutability because of how we implement these)
       def class_inherited_methods
         Set.new surrogate.singleton_class.instance_methods - surrogate.singleton_class.instance_methods(false)
       end
 
-      # should not have new
       def class_other_methods
         Set.new(surrogate.singleton_class.instance_methods false) - class_api_methods - class_inherited_methods
       end
