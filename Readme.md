@@ -190,6 +190,21 @@ Load the RSpec matchers.
 require 'surrogate/rspec'
 ```
 
+Last Instance
+-------------
+
+Access the last instance of a class
+
+```ruby
+class MockMp3
+  Surrogate.endow self
+end
+
+mp3_class = MockMp3.clone # because you don't want to mutate the singleton
+mp3 = mp3_class.new
+mp3_class.last_instance.equal? mp3 # => true
+```
+
 Nouns
 -----
 
