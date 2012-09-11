@@ -301,6 +301,18 @@ describe 'define' do
       superclass = Surrogate.endow Class.new
       superclass.clone.new.should be_a_kind_of superclass
     end
+
+    describe '.name' do
+      it 'is nil for anonymous classes' do
+        Surrogate.endow(Class.new).clone.name.should be_nil
+      end
+
+      it "is the class's name suffixed with '.clone' for named classes" do
+        klass = Surrogate.endow(Class.new)
+        self.class.const_set 'Xyz', klass
+        klass.clone.name.should == self.class.name + '::Xyz.clone'
+      end
+    end
   end
 
   describe '#api_method_names' do

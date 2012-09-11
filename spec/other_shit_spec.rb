@@ -52,3 +52,134 @@ describe '.last_instance' do
     end
   end
 end
+
+
+describe 'inspect methods' do
+  context 'on the class' do
+    context 'when anonymous identifies itself as an anonymous surrogate and lists three each of class and instance methods, alphabetically' do
+      example 'no class methods' do
+        Surrogate.endow(Class.new).inspect.should == 'AnonymousSurrogate(no api)'
+      end
+
+      example 'one class method' do
+        klass = Surrogate.endow(Class.new) { define :cmeth }
+        klass.inspect.should == 'AnonymousSurrogate(Class: cmeth)'
+      end
+
+      example 'more than three class methods' do
+        Surrogate.endow(Class.new) do
+          define :cmethd
+          define :cmethc
+          define :cmetha
+          define :cmethb
+        end.inspect.should == 'AnonymousSurrogate(Class: cmetha cmethb cmethc ...)'
+      end
+
+      example 'one instance method' do
+        Surrogate.endow(Class.new).define(:imeth).inspect.should == 'AnonymousSurrogate(Instance: imeth)'
+      end
+
+      example 'more than three instance methods' do
+        klass = Surrogate.endow Class.new
+        klass.define :imethd
+        klass.define :imethc
+        klass.define :imetha
+        klass.define :imethb
+        klass.inspect.should == 'AnonymousSurrogate(Instance: imetha imethb imethc ...)'
+      end
+
+      example 'one of each' do
+        Surrogate.endow(Class.new) { define :cmeth }.define(:imeth).inspect.should == 'AnonymousSurrogate(Class: cmeth, Instance: imeth)'
+      end
+
+      example 'more than three of each' do
+        klass = Surrogate.endow Class.new do
+          define :cmethd
+          define :cmethc
+          define :cmetha
+          define :cmethb
+        end
+        klass.define :imethd
+        klass.define :imethc
+        klass.define :imetha
+        klass.define :imethb
+        klass.inspect.should == 'AnonymousSurrogate(Class: cmetha cmethb cmethc ..., Instance: imetha imethb imethc ...)'
+      end
+    end
+
+    context 'when the surrogate has a name (e.g. assigned to a constant)' do
+      it 'inspects to the name of the constant' do
+        klass = Surrogate.endow(Class.new)
+        self.class.const_set 'Abc', klass
+        klass.inspect.should == self.class.name << '::Abc'
+      end
+    end
+  end
+
+  context 'on a clone of the surrogate' do
+    context 'when the surrogate has a name (e.g. assigned to a constant)' do
+      it 'inspects to the name of the constant, cloned' do
+        klass = Surrogate.endow(Class.new)
+        self.class.const_set 'Abc', klass
+        klass.clone.inspect.should == self.class.name << '::Abc.clone'
+      end
+    end
+  end
+
+  # eventually these should maybe show unique state (expectations/invocations) but for now, this is better than what was there before
+  context 'on the instance' do
+    context 'when anonymous' do
+      it 'identifies itself as an anonymous surrogate and lists three of its methods, alphabetically' do
+        klass = Surrogate.endow Class.new
+        klass.new.inspect.should == '#<AnonymousSurrogate: no api>'
+        klass.define :imethb
+        klass.new.inspect.should == '#<AnonymousSurrogate: imethb>'
+        klass.define :imetha
+        klass.define :imethd
+        klass.new.inspect.should == '#<AnonymousSurrogate: imetha imethb imethd>'
+        klass.define :imethc
+        klass.new.inspect.should == '#<AnonymousSurrogate: imetha imethb imethc ...>'
+      end
+    end
+
+    context 'when a clone of an anonymous surrogate' do
+      it 'looks the same as any other anonymous surrogate' do
+        klass = Surrogate.endow Class.new
+        klass.new.inspect.should == '#<AnonymousSurrogate: no api>'
+      end
+    end
+
+    context 'when its class has a name (e.g. for a constant)' do
+      it 'identifies itself as an instance of the constant and lists three of its methods, alphabetically' do
+        klass = Surrogate.endow Class.new
+        self.class.const_set 'Abc', klass
+        klass.stub name: 'Abc'
+        klass.new.inspect.should == "#<Abc: no api>"
+        klass.define :imethb
+        klass.new.inspect.should == "#<Abc: imethb>"
+        klass.define :imetha
+        klass.define :imethd
+        klass.new.inspect.should == "#<Abc: imetha imethb imethd>"
+        klass.define :imethc
+        klass.new.inspect.should == "#<Abc: imetha imethb imethc ...>"
+      end
+    end
+  end
+
+  context 'on an instance of a surrogate clone' do
+    context 'when its class has a name (e.g. for a constant)' do
+      it 'identifies itself as an instance of the clone of the constant and lists three of its methods, alphabetically' do
+        klass = Surrogate.endow Class.new
+        self.class.const_set 'Abc', klass
+        klass.clone.new.inspect.should == "#<#{self.class}::Abc.clone: no api>"
+        klass.define :imethb
+        klass.clone.new.inspect.should == "#<#{self.class}::Abc.clone: imethb>"
+        klass.define :imetha
+        klass.define :imethd
+        klass.clone.new.inspect.should == "#<#{self.class}::Abc.clone: imetha imethb imethd>"
+        klass.define :imethc
+        klass.clone.new.inspect.should == "#<#{self.class}::Abc.clone: imetha imethb imethc ...>"
+      end
+    end
+  end
+end
