@@ -144,11 +144,11 @@ describe 'define' do
 
 
   context 'the api method' do
-    it 'takes any number of arguments' do
-      mocked_class.define(:meth) { 1 }
-      mocked_class.new.meth.should == 1
+    it 'has the same arity as the method' do
+      mocked_class.define(:meth) { |a| a }
       mocked_class.new.meth(1).should == 1
-      mocked_class.new.meth(1, 2).should == 1
+      expect { mocked_class.new.meth }.to raise_error ArgumentError, /0 for 1/
+      expect { mocked_class.new.meth 1, 2 }.to raise_error ArgumentError, /2 for 1/
     end
 
     it 'raises an UnpreparedMethodError when it has no default block' do
@@ -245,7 +245,7 @@ describe 'define' do
     end
 
     it 'remembers what it was invoked with' do
-      mocked_class.define(:meth) { nil }
+      mocked_class.define(:meth) { |*| nil }
       mock = mocked_class.new
       mock.meth 1
       mock.meth 1, 2
@@ -267,10 +267,10 @@ describe 'define' do
 
 
   describe 'clone' do
-    it 'a repetition or further performance of the klass' do
+    example 'acceptance spec' do
       pristine_klass = Class.new do
         Surrogate.endow self do
-          define(:find) { 123 }
+          define(:find) { |n| 123 }
           define(:bind) { 'abc' }
         end
         define(:peat)   { true }
@@ -286,7 +286,7 @@ describe 'define' do
       klass2 = pristine_klass.clone
       klass2.will_find 456
       klass2.find(2).should == 456
-      klass1.find.should == 123
+      klass1.find(3).should == 123
 
       klass1.should have_been_told_to(:find).with(1)
       klass2.should have_been_told_to(:find).with(2)

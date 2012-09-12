@@ -1,5 +1,3 @@
-require 'bindable_block'
-
 class Surrogate
   class Options
     attr_accessor :options, :default_proc
@@ -20,21 +18,26 @@ class Surrogate
       options
     end
 
+    # it would be much better to pass instance to initialize
     def default(instance, invocation, &no_default)
       if options.has_key? :default
         options[:default]
       elsif default_proc
-        # This works for now, but it's a kind of crappy solution because
-        # BindableBlock adds and removes methods for each time it is invoked.
-        #
-        # A better solution would be to instantiate it before passing it to
-        # the options, then we only have to bind it to an instance and invoke
-        BindableBlock.new(instance.class, &default_proc)
-                     .bind(instance)
-                     .call(*invocation.args, &invocation.block)
+        default_proc_as_method_on(instance).call(*invocation.args, &invocation.block)
       else
         no_default.call
       end
+    end
+
+    private
+
+    def default_proc_as_method_on(instance)
+      unique_name = "surrogate_temp_method_#{Time.now.to_i}_#{rand 10000000}"
+      klass = instance.singleton_class
+      klass.__send__ :define_method, unique_name, &default_proc
+      as_method = klass.instance_method unique_name
+      klass.__send__ :remove_method, unique_name
+      as_method.bind instance
     end
   end
 end

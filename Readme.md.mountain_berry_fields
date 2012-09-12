@@ -248,7 +248,7 @@ Given this mock and assuming the following examples happen within a spec
 <% test "mock mp3 code shouldn't blow up", with: :magic_comments do %>
 class MockMP3
   Surrogate.endow self
-  define(:info) { 'some info' }
+  define(:info) { |song='Birds Will Sing Forever'| 'some info' }
 end
 <% end %>
 ```
@@ -256,7 +256,7 @@ end
 <% context 'mp3 in spec' do %>
 class MockMP3
   Surrogate.endow self
-  define(:info) { 'some info' }
+  define(:info) { |song='Birds Will Sing Forever'| 'some info' }
 end
 
 describe 'the example' do

@@ -3,7 +3,7 @@ require 'spec_helper'
 # these all need error messages
 describe 'RSpec matchers', 'have_been_told_to(...).with { |block| }' do
 
-  let(:dir)      { Surrogate.endow(Class.new) { define(:chdir) { nil }}}
+  let(:dir)      { Surrogate.endow(Class.new) { define(:chdir) { |dir_path| nil }}}
   let(:dir_path) { '/some/dir/path' }
 
   it 'fails if no submitted_blocks were found' do
@@ -57,7 +57,7 @@ describe 'RSpec matchers', 'have_been_told_to(...).with { |block| }' do
   end
 
 
-  let(:file)      { Surrogate.endow(Class.new) { define(:write) { true }}}
+  let(:file)      { Surrogate.endow(Class.new) { define(:write) { |name, body| true }}}
   let(:file_name) { 'some_file_name.ext' }
   let(:file_body) { 'some file body' }
 

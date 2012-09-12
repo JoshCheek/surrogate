@@ -213,7 +213,7 @@ Given this mock and assuming the following examples happen within a spec
 ```ruby
 class MockMP3
   Surrogate.endow self
-  define(:info) { 'some info' }
+  define(:info) { |song='Birds Will Sing Forever'| 'some info' }
 end
 ```
 

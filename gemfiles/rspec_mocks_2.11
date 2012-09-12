@@ -1,5 +1,5 @@
 # set this with
-# export BUNDLE_GEMFILE=gemfiles/rspec_mocks_2.10
+# export BUNDLE_GEMFILE=gemfiles/rspec_mocks_2.11
 
 source "http://rubygems.org"
 

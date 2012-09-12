@@ -1,12 +1,12 @@
 Urgent (things I want to do immediately, formatted as the git commits I will use)
 ---------------------------------------------------------------------------------
 
-* Error messages on blocks are actually useful
-* Defined methods params must match arguments (BREAKING CHANGE)
-* Stop recording initialize by default since it makes no sense now that args must match (BREAKING CHANGE)
 * Substitutability can check argument "types"
 * Substitutability type checking turned on by default (BREAKING CHANGE)
 * Substitutability can check argument names
+* Error messages on blocks are actually useful
+* Defined methods params must match arguments (BREAKING CHANGE)
+* Stop recording initialize by default since it makes no sense now that args must match (BREAKING CHANGE)
 
 TODO (next up after urgent, these will happen whenever I get around to it)
 --------------------------------------------------------------------------

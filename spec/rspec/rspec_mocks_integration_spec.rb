@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe 'integration with rspec-mocks' do
 
-  let(:mp3) { Surrogate.endow(Class.new).define(:play) { }.new }
+  let(:mp3) { Surrogate.endow(Class.new).define(:play) { |artist| }.new }
 
   it 'knows that rspec-mocks is loaded' do
     Surrogate::RSpec.rspec_mocks_loaded?.should equal true
