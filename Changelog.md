@@ -1,14 +1,6 @@
 ### 0.5.6
 
-
-Todo
-====
-
+* The name of a clone is the name of the parent suffixed with '.clone', unless the parent is anonymous (not set to a const), then the name is nil.
 * Inspect messages are shorter and more helpful
 * Inspect messages on class clones mimic the parents
-* Error messages on blocks are actually useful
-* Defined methods params must match arguments (BREAKING CHANGE)
-* Stop recording initialize by default since it makes no sense now that args must match (BREAKING CHANGE)
-* Substitutability can check argument "types"
-* Substitutability type checking turned on by default (BREAKING CHANGE)
-* Substitutability can check argument names
+

@@ -544,33 +544,3 @@ Special Thanks
 * [Corey Haines](http://coreyhaines.com/) for pairing on substitutability with me
 * [Enova](http://www.enovafinancial.com/) for giving me time and motivation to work on this during Enova Labs.
 * [8th Light](http://8thlight.com/) for giving me time to work on this during our weekly Wazas, and the general encouragement and interest
-
-
-TODO
-----
-
-* Remove dependency on all of RSpec and only depend on rspec-core, then have AC tests for the other shit
-* Add proper failure messages for block invocations
-* Add a better explanation for motivations
-* Figure out whether I'm supposed to be using clone or dup for the object -.^ (looks like there may also be an `initialize_copy` method I can take advantage of instead of crazy stupid shit I'm doing now)
-* don't blow up when delegating to the Object#initialize with args (do I still want this, or do I want to force arity matching (and maybe even variable name matching)?)
-* config: rspec_mocks loaded, whether unprepared blocks should raise or just return nil
-* extract surrogate/rspec into its own gem
-* support subset-substitutabilty not being able to touch real methods (e.g. #respond_to?)
-* make substitutability matcher go either way
-* make substitutability matcher not care whether either are surrogates
-* Add support for operators
-
-
-Future Features
----------------
-
-* figure out how to talk about callbacks like #on_success
-* have some sort of reinitialization that can hook into setup/teardown steps of test suite
-* Support arity checking as part of substitutability
-* Ability to disassociate the method name from the test (e.g. you shouldn't need to change a test just because you change a name)
-* ability to declare normal methods as being part of the API
-* ability to declare a define that uses the overridden method as the body, but can still act like an api method
-* assertions for order of invocations & methods
-* class generator? (supports a top-down style of development for when you write your mocks before you write your implementations)
-* deal with hard dependency on rspec-mocks

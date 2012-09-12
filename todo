@@ -1,0 +1,37 @@
+Urgent (things I want to do immediately, formatted as the git commits I will use)
+---------------------------------------------------------------------------------
+
+* Error messages on blocks are actually useful
+* Defined methods params must match arguments (BREAKING CHANGE)
+* Stop recording initialize by default since it makes no sense now that args must match (BREAKING CHANGE)
+* Substitutability can check argument "types"
+* Substitutability type checking turned on by default (BREAKING CHANGE)
+* Substitutability can check argument names
+
+TODO (next up after urgent, these will happen whenever I get around to it)
+--------------------------------------------------------------------------
+
+* Remove dependency on all of RSpec and only depend on rspec-core, then have AC tests for the other shit
+* Add a better explanation for motivations
+* Figure out whether I'm supposed to be using clone or dup for the object -.^ (looks like there may also be an `initialize_copy` method I can take advantage of instead of crazy stupid shit I'm doing now)
+* don't blow up when delegating to the Object#initialize with args (do I still want this, or do I want to force arity matching (and maybe even variable name matching)?)
+* config: rspec_mocks loaded, whether unprepared blocks should raise or just return nil
+* extract surrogate/rspec into its own gem
+* support subset-substitutabilty not being able to touch real methods (e.g. #respond_to?)
+* make substitutability matcher go either way
+* make substitutability matcher not care whether either are surrogates
+* Add support for operators
+
+
+Future Features (Things that probably should eventually happen, but not anytime soon unless I get really inspired to work on this shit)
+---------------------------------------------------------------------------------------------------------------------------------------
+
+* figure out how to talk about callbacks like #on_success
+* have some sort of reinitialization that can hook into setup/teardown steps of test suite
+* Support arity checking as part of substitutability
+* Ability to disassociate the method name from the test (e.g. you shouldn't need to change a test just because you change a name)
+* ability to declare normal methods as being part of the API
+* ability to declare a define that uses the overridden method as the body, but can still act like an api method
+* assertions for order of invocations & methods
+* class generator? (supports a top-down style of development for when you write your mocks before you write your implementations)
+* deal with hard dependency on rspec-mocks
