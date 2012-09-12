@@ -1,8 +1,7 @@
 require 'spec_helper'
 
 describe 'should/should_not have_been_initialized_with' do
-  let(:mocked_class) { Surrogate.endow Class.new }
-  before { mocked_class.module_eval { def initialize(*) end } } # b/c 1.9.3 will have arity issues otherwise
+  let(:mocked_class) { Surrogate.endow(Class.new).define(:initialize) { |*| } }
 
   it 'is the same as have_been_told_to(:initialize).with(...)' do
     mocked_class.new.should have_been_initialized_with no_args
@@ -26,11 +25,15 @@ describe 'should/should_not have_been_initialized_with' do
     failure_message_for { mocked_class.new("1").should_not have_been_initialized_with('1') }.should ==
       failure_message_for { mocked_class.new("1").should_not have_been_told_to(:initialize).with('1') }
   end
+
+  example "informs you when it wasn't defined" do
+    expect { Surrogate.endow(Class.new).new.should have_been_initialized_with no_args }
+      .to raise_error Surrogate::UnknownMethod
+  end
 end
 
 describe 'was/was_not initialized_with' do
-  let(:mocked_class) { Surrogate.endow Class.new }
-  before { mocked_class.module_eval { def initialize(*) end } } # b/c 1.9.3 will have arity issues otherwise
+  let(:mocked_class) { Surrogate.endow(Class.new).define(:initialize) { |*| } }
 
   it 'is the same as have_been_told_to(:initialize).with(...)' do
     mocked_class.new.was initialized_with no_args
@@ -53,5 +56,10 @@ describe 'was/was_not initialized_with' do
   example 'failure message for should not' do
     failure_message_for { mocked_class.new("1").was_not initialized_with('1') }.should ==
       failure_message_for { mocked_class.new("1").was_not told_to(:initialize).with('1') }
+  end
+
+  example "informs you when it wasn't defined" do
+    expect { Surrogate.endow(Class.new).new.was initialized_with no_args }
+      .to raise_error Surrogate::UnknownMethod
   end
 end

@@ -20,13 +20,6 @@ describe 'define' do
   end
 
   describe 'definition default block invocation' do
-    xit "something about raising an error if arity is wrong" do
-      mocked_class.define(:a) { |arg| 1 }
-      mocked_class.new.a.should == 1
-      mocked_class.new.a(2).should == 1
-      mocked_class.new.a(3).should == 1
-    end
-
     it "is passed the arguments" do
       arg = nil
       mocked_class.define(:meth) { |inner_arg| arg = inner_arg }.new.meth(1212)
@@ -45,7 +38,6 @@ describe 'define' do
   end
 
   describe 'declaring the behaviour' do
-
     describe 'for verbs' do
       before { mocked_class.define :wink }
 
@@ -201,32 +193,6 @@ describe 'define' do
         subclass.define :abc
         subclass.new.instance_variable_get(:@a).should == 1
       end
-
-      context 'when not an api method' do
-        it 'respects arity (this is probably 1.9.3 only)' do
-          expect { mocked_class.new 1 }.to raise_error ArgumentError, 'wrong number of arguments(1 for 0)'
-        end
-
-        describe 'invocations are recorded anyway' do
-          specify 'even when initialize is defined after surrogate block' do
-            klass = Class.new do
-              Surrogate.endow self
-              def initialize(a) @a = a end
-            end
-            klass.new(1).should have_been_initialized_with 1
-            klass.new(1).instance_variable_get(:@a).should == 1
-          end
-
-          specify 'even when initialize is defined before surrogate block' do
-            klass = Class.new do
-              def initialize(a) @a = a end
-              Surrogate.endow self
-            end
-            klass.new(1).should have_been_initialized_with 1
-            klass.new(1).instance_variable_get(:@a).should == 1
-          end
-        end
-      end
     end
 
     describe 'it takes a block whos return value will be used as the default' do
@@ -261,7 +227,7 @@ describe 'define' do
       mocked_class.define :meth2
       mock = mocked_class.new
       expect { mock.invocations(:meth1) }.to_not raise_error
-      expect { mock.invocations(:meth3) }.to raise_error Surrogate::UnknownMethod, /doesn't know "meth3", only knows "initialize", "meth1", "meth2"/
+      expect { mock.invocations(:meth3) }.to raise_error Surrogate::UnknownMethod, /doesn't know "meth3", only knows "meth1", "meth2"/
     end
   end
 

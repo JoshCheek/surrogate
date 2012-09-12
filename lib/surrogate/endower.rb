@@ -34,7 +34,6 @@ class Surrogate
       klass.extend ClassMethods
       add_hatchery_to                        klass
       enable_defining_methods                klass
-      record_initialization_for_instances_of klass
       remember_invocations_for_instances_of  klass
       klass.send :include, InstanceMethods
       invoke_hooks                           klass
@@ -52,27 +51,6 @@ class Surrogate
 
     def invoke_hooks(klass)
       self.class.hooks.each { |hook| hook.call klass }
-    end
-
-    # yeesh :( pretty sure there isn't a better way to do this
-    def record_initialization_for_instances_of(klass)
-      def klass.method_added(meth)
-        return if meth != :initialize || @hijacking_initialize
-        @hijacking_initialize = true
-        current_initialize = instance_method :initialize
-
-        # `define' records the args while maintaining the old behaviour
-        # we have to do it stupidly like this because there is no to_proc on an unbound method
-        define :initialize do |*args, &block|
-          current_initialize.bind(self).call(*args, &block)
-        end
-      ensure
-        @hijacking_initialize = false
-      end
-      initialize = klass.instance_method :initialize
-      klass.__send__ :define_method, :initialize do |*args, &block|
-        initialize.bind(self).call(*args, &block)
-      end
     end
 
     def singleton
@@ -118,12 +96,11 @@ class Surrogate
     end
 
     # Custom new, because user can define initialize, and we need to record it
-    # Can we move this into the redefinition of initialize and have it explicitly record itself?
     def new(*args)
       instance = allocate
       self.last_instance = instance
       instance.instance_variable_set :@hatchling, Hatchling.new(instance, @hatchery)
-      instance.send :initialize, *args
+      instance.__send__ :initialize, *args
       instance
     end
 

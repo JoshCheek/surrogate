@@ -94,7 +94,6 @@ class Surrogate
 
 
 
-      # rename args to invocation
       attr_accessor :expected_invocation, :block, :pass, :filter_name
 
       def initialize(args=[], filter_name=:default_filter, &block)
