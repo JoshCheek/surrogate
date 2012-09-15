@@ -27,6 +27,11 @@ class Surrogate
       api_methods.keys - [:initialize]
     end
 
+    def api_method_for(name)
+      options = api_methods[name]
+      options && options.default_proc
+    end
+
     private
 
     def klass_can_define_api_methods

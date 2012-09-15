@@ -1,12 +1,15 @@
 Urgent (things I want to do immediately, formatted as the git commits I will use)
 ---------------------------------------------------------------------------------
 
-* Substitutability can check argument "types"
-* Substitutability type checking turned on by default (BREAKING CHANGE)
+* unexpose some of the shit added directly to the surrogate -- can we give this to another object which exposes its guts, instead of having to keep adding shit to the surrogate itself?
+* types/names of natively implemented methods
+* substitute_for should not depend on rspec-expectations
 * Substitutability can check argument names
 * Error messages on blocks are actually useful
 * Defined methods params must match arguments (BREAKING CHANGE)
 * Update the readme (new syntax, and move the script into the changelog)
+* error message
+    "Doesn't know initialize, only knows " <-- fix that shit
 
 TODO (next up after urgent, these will happen whenever I get around to it)
 --------------------------------------------------------------------------

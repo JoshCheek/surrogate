@@ -116,7 +116,7 @@ describe Surrogate do
 
     # real user must have all of mock user's methods to be substitutable
     substitutable_real_user_class = Class.new do
-      def self.find() end
+      def self.find(id) end
       def initialize(id) end
       def id() end
       def name() end

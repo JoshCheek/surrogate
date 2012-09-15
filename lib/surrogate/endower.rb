@@ -35,6 +35,7 @@ class Surrogate
       add_hatchery_to                        klass
       enable_defining_methods                klass
       remember_invocations_for_instances_of  klass
+      can_access_defined_method_bodies       klass
       klass.send :include, InstanceMethods
       invoke_hooks                           klass
     end
@@ -45,6 +46,7 @@ class Surrogate
       singleton.module_eval &block if block
       klass.instance_variable_set :@hatchling, Hatchling.new(klass, hatchery)
       remember_invocations_for_instances_of  singleton
+      can_access_defined_method_bodies       singleton
       invoke_hooks                           singleton
       klass
     end
@@ -74,6 +76,13 @@ class Surrogate
 
       def klass.api_method_names
         @hatchery.api_method_names
+      end
+    end
+
+    def can_access_defined_method_bodies(klass)
+      def klass.api_method_for(class_or_instance, name)
+        return @hatchery.api_method_for name if class_or_instance == :instance
+        singleton_class.api_method_for :instance, name
       end
     end
   end
