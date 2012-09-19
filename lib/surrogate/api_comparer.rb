@@ -78,7 +78,7 @@ class Surrogate
     private
 
     def class_types_for(name)
-      surrogate_method = surrogate.api_method_for(:class, name)
+      surrogate_method = class_api_method_for name
       surrogate_method &&= to_lambda surrogate_method
       surrogate_method ||= surrogate.method name
       actual_method = actual.method name
@@ -86,7 +86,7 @@ class Surrogate
     end
 
     def instance_types_for(name)
-      surrogate_method = surrogate.api_method_for(:instance, name)
+      surrogate_method = instance_api_method_for name
       surrogate_method &&= to_lambda surrogate_method
       surrogate_method ||= surrogate.instance_method name
       actual_method = actual.instance_method name
@@ -101,6 +101,22 @@ class Surrogate
       obj = Object.new
       obj.singleton_class.send :define_method, :abc123, &proc
       obj.method :abc123
+    end
+
+    def instance_api_method_for(name)
+      class_hatchery.api_method_for name
+    end
+
+    def class_api_method_for(name)
+      singleton_class_hatchery.api_method_for name
+    end
+
+    def class_hatchery
+      @class_hatchery ||= surrogate.instance_variable_get :@hatchery
+    end
+
+    def singleton_class_hatchery
+      @singleton_class_hatchery ||= surrogate.singleton_class.instance_variable_get :@hatchery
     end
   end
 end

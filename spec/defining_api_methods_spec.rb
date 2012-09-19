@@ -1,13 +1,21 @@
 require 'spec_helper'
 
 describe 'define' do
+  def class_method_names(surrogate)
+    Surrogate::ApiComparer::SurrogateMethods.new(surrogate).class_api_methods
+  end
+
+  def instance_method_names(surrogate)
+    Surrogate::ApiComparer::SurrogateMethods.new(surrogate).instance_api_methods
+  end
+
   let(:mocked_class) { Surrogate.endow Class.new }
   let(:instance)     { mocked_class.new }
 
   describe 'in the block' do
     it 'is an api method for the class' do
       pristine_klass = Class.new { Surrogate.endow(self) { define :find } }
-      pristine_klass.singleton_class.api_method_names.should == [:find]
+      class_method_names(pristine_klass).should == Set[:find]
     end
   end
 
@@ -15,7 +23,7 @@ describe 'define' do
   describe 'out of the block' do
     it 'is an api method for the instance' do
       mocked_class.define :book
-      mocked_class.api_method_names.should == [:book]
+      instance_method_names(mocked_class).should == Set[:book]
     end
   end
 
@@ -278,16 +286,6 @@ describe 'define' do
         self.class.const_set 'Xyz', klass
         klass.clone.name.should == self.class.name + '::Xyz.clone'
       end
-    end
-  end
-
-  describe '#api_method_names' do
-    it 'returns the names of the api methods as symbols' do
-      mocked_class = Class.new do
-        Surrogate.endow self
-        define :abc
-      end
-      mocked_class.api_method_names.should == [:abc]
     end
   end
 end

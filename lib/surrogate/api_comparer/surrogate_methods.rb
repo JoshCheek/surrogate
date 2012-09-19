@@ -21,7 +21,7 @@ class Surrogate
       end
 
       def instance_api_methods
-        Set.new surrogate.api_method_names
+        Set.new class_hatchery.api_method_names
       end
 
       def instance_inherited_methods
@@ -37,7 +37,7 @@ class Surrogate
       end
 
       def class_api_methods
-        Set.new surrogate.singleton_class.api_method_names
+        Set.new singleton_class_hatchery.api_method_names
       end
 
       def class_inherited_methods
