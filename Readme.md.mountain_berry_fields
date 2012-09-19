@@ -6,6 +6,7 @@ require 'surrogate'
 <% end %>
 
 <% context 'generic it block' do %>
+require 'surrogate/rspec'
 describe 'whatever' do
   it 'does something' do
     __CODE__
@@ -28,39 +29,17 @@ discouraged at this time. If you do want to do this (e.g. to make an interface f
 let me know, and I'll inform you / fork your gem and help update it, for any breaking changes
 that I introduce.
 
-New Syntax
-==========
-
-Recently (v0.5.1), a new syntax was added:
-
-<table>
-  <tr><th>Old</th><th>New</th></tr>
-  <tr><td>.should have_been_told_to</td><td>.was told_to</td></tr>
-  <tr><td>.should have_been_asked_for_its</td><td>.was asked_for</td></tr>
-  <tr><td>.should have_been_asked_if</td><td>.was asked_if</td></tr>
-  <tr><td>.should have_been_initialized_with</td><td>.was initialized_with</td></tr>
-</table>
-
-If you want to switch over, here is a shell script that should get you pretty far:
-
-    find spec -type file |
-      xargs ruby -p -i.old_syntax \
-      -e 'gsub /should(_not)?(\s+)have_been_told_to/,               "was\\1\\2told_to"' \
-      -e 'gsub /should(_not)?(\s+)have_been_asked_(if|for)(_its)?/, "was\\1\\2asked_\\3"' \
-      -e 'gsub /should(_not)(\s+)have_been_initialized_with/,       "was\\1\\2initialized_with"' \
-
-
 Features
 ========
 
 * Declarative syntax
+* Can compare signatures of mocks to signatures of the class being mocked
 * Support default values
 * Easily override values
 * RSpec matchers for asserting what happend (what was invoked, with what args, how many times)
 * RSpec matchers for asserting the Mock's interface matches the real object
 * Support for exceptions
 * Queue return values
-* Initialization information is always recorded
 
 
 Usage
@@ -103,7 +82,10 @@ MockClient.new.request # => ["result1", "result2"]
 <% end %>
 ```
 
-If you care about the **arguments**, your block can receive them.
+If you expect **arguments**, your block should receive them.
+This prevents the issues with dynamic mocks where arguments and parameters can diverge.
+It may seem like more work when you have to write the arguments explicitly, but you only
+need to do this once, and then you can be sure they match on each invocation.
 
 ```ruby
 <% test 'api method with arguments', with: :magic_comments do %>
@@ -117,6 +99,7 @@ MockClient.new.request 3 # => ["result1", "result2", "result3"]
 ```
 
 You don't need a **default if you set the ivar** of the same name (replace `?` with `_p` for predicates, since you can't have question marks in ivar names)
+Note that methods without bodies will not have their arguments checked, and will not be asserted against when comparing signatures.
 
 ```ruby
 <% test 'overriding default by setting the ivar', with: :magic_comments do %>
@@ -206,6 +189,23 @@ user.id # => 12
 <% end %>
 ```
 
+Use **clone** to avoid altering state on the class.
+```ruby
+<% test 'clone to avoid mutating state', with: :rspec, context: 'generic it block' do %>
+class MockUser
+  Surrogate.endow self do
+    define(:find) { new }
+  end
+end
+
+user_class = MockUser.clone
+user_class.find
+user_class.was told_to :find
+MockUser.was_not told_to :find
+<% end %>
+```
+
+
 
 RSpec Integration
 =================
@@ -267,13 +267,13 @@ describe 'the example' do
 end
 <% end %>
 
-Check if **was invoked** with `have_been_asked_for_its`
+Check if **was invoked** with `was asked_for` (`was` is an alias of `should`, and `asked_for` is a custom matcher)
 
 ```ruby
 <% test 'noun invocation', with: :rspec, context: 'mp3 in spec' do %>
-mp3.should_not have_been_asked_for_its :info
+mp3.was_not asked_for :info
 mp3.info
-mp3.should have_been_asked_for_its :info
+mp3.was asked_for :info
 <% end %>
 ```
 
@@ -283,7 +283,7 @@ Invocation **cardinality** by chaining `times(n)`
 <% test 'noun cardinality', with: :rspec, context: 'mp3 in spec' do %>
 mp3.info
 mp3.info
-mp3.should have_been_asked_for_its(:info).times(2)
+mp3.was asked_for(:info).times(2)
 <% end %>
 ```
 
@@ -292,7 +292,7 @@ Invocation **arguments** by chaining `with(args)`
 ```ruby
 <% test 'noun invocation with args', with: :rspec, context: 'mp3 in spec' do %>
 mp3.info :title
-mp3.should have_been_asked_for_its(:info).with(:title)
+mp3.was asked_for(:info).with(:title)
 <% end %>
 ```
 
@@ -301,7 +301,7 @@ Supports RSpec's matchers (`no_args`, `hash_including`, etc)
 ```ruby
 <% test 'rspec matchers integration', with: :rspec, context: 'mp3 in spec' do %>
 mp3.info
-mp3.should have_been_asked_for_its(:info).with(no_args)
+mp3.was asked_for(:info).with(no_args)
 <% end %>
 ```
 
@@ -312,8 +312,8 @@ Cardinality of a specific set of args `with(args)` and `times(n)`
 mp3.info :title
 mp3.info :title
 mp3.info :artist
-mp3.should have_been_asked_for_its(:info).with(:title).times(2)
-mp3.should have_been_asked_for_its(:info).with(:artist).times(1)
+mp3.was asked_for(:info).with(:title).times(2)
+mp3.was asked_for(:info).with(:artist).times(1)
 <% end %>
 ```
 
@@ -345,13 +345,13 @@ describe 'the example' do
 end
 <% end %>
 
-Check if **was invoked** with `have_been_told_to`
+Check if **was invoked** with `was told_to`
 
 ```ruby
 <% test 'have_been_told_to', with: :rspec, context: 'mp3 that plays in spec' do %>
-mp3.should_not have_been_told_to :play
+mp3.was_not told_to :play
 mp3.play
-mp3.should have_been_told_to :play
+mp3.was told_to :play
 <% end %>
 ```
 
@@ -361,7 +361,7 @@ Also supports the same `with(args)` and `times(n)` that nouns have.
 Initialization
 --------------
 
-Query with `have_been_initialized_with`, which is exactly the same as saying `have_been_told_to(:initialize).with(...)`
+Query with `was initialized_with`, which is exactly the same as saying `was told_to(:initialize).with(...)`
 
 ```ruby
 <% test 'initialization test', with: :rspec, context: 'generic it block' do %>
@@ -372,7 +372,7 @@ class MockUser
 end
 user = MockUser.new 12
 user.id.should == 12
-user.should have_been_initialized_with 12
+user.was initialized_with 12
 <% end %>
 ```
 
@@ -380,7 +380,7 @@ user.should have_been_initialized_with 12
 Predicates
 ----------
 
-Query qith `have_been_asked_if`, all the same chainable methods from above apply.
+Query qith `was asked_if`, all the same chainable methods from above apply.
 
 ```ruby
 <% test 'initialization test', with: :rspec, context: 'generic it block' do %>
@@ -393,15 +393,15 @@ user = MockUser.new
 user.should_not be_admin
 user.will_have_admin? true
 user.should be_admin
-user.should have_been_asked_if(:admin?).times(2)
+user.was asked_if(:admin?).times(2)
 <% end %>
 ```
 
 
-class MockUser
-
 Substitutability
 ----------------
+
+Facets of substitutability: method existence, argument types, (and soon argument names)
 
 After you've implemented the real version of your mock (assuming a [top-down](http://vimeo.com/31267109) style of development),
 how do you prevent your real object from getting out of synch with your mock?
@@ -410,8 +410,8 @@ Assert that your mock has the **same interface** as your real class.
 This will fail if the mock inherits methods which are not on the real class. It will also fail
 if the real class has any methods which have not been defined on the mock or inherited by the mock.
 
-Presently, it will ignore methods defined directly in the mock (as it adds quite a few of its own methods,
-and generally considers them to be helpers). In a future version, you will be able to tell it to treat other methods
+Presently, it will ignore methods defined directly in the mock (as it generally considers them to be helpers).
+In a future version, you will be able to tell it to treat other methods
 as part of the API (will fail if they don't match, and maybe record their values).
 
 ```ruby
@@ -445,6 +445,13 @@ class UserWithNameAndAddress < UserWithName
   def address()end
 end
 MockUser.should_not substitute_for UserWithNameAndAddress
+
+# signatures don't match
+class UserWithWrongSignature
+  def initialize()end # no id
+  def id()end
+end
+MockUser.should_not substitute_for UserWithWrongSignature
 <% end %>
 ```
 
@@ -506,7 +513,7 @@ describe 'something that creates a user through the service' do
       to_return
     end
 
-    service.should have_been_told_to(:create).with { |block|
+    service.was told_to(:create).with { |block|
       block.call_with({id: new_id})              # this will be given to the block
       block.returns old_id                       # provide a return value, or a block that receives the return value (where you can make assertions)
       block.before { user_id.should == old_id }  # assertions about state of the world before the block is called

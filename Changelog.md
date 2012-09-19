@@ -7,3 +7,12 @@
 * The name of a clone is the name of the parent suffixed with '.clone', unless the parent is anonymous (not set to a const), then the name is nil.
 * Inspect messages are shorter and more helpful
 * Inspect messages on class clones mimic the parents
+* Remove comment about the new syntax in the Readme.  If you want to switch over, here is a shell script that should get you pretty far:
+
+    find spec -type file |
+      xargs ruby -p -i.old_syntax \
+      -e 'gsub /should(_not)?(\s+)have_been_told_to/,               "was\\1\\2told_to"' \
+      -e 'gsub /should(_not)?(\s+)have_been_asked_(if|for)(_its)?/, "was\\1\\2asked_\\3"' \
+      -e 'gsub /should(_not)(\s+)have_been_initialized_with/,       "was\\1\\2initialized_with"' \
+
+
