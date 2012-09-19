@@ -36,11 +36,11 @@ class Surrogate
       differences << "is missing instance methods: #{missing_instance_methods}"      if !subset_only && missing_instance_methods.any?
       differences << "is missing class methods: #{missing_class_methods}"            if !subset_only && missing_class_methods.any?
 
-      # if types
+      if types # this conditional is not tested, nor are these error messages
         instance_type_mismatch.each { |name, types| differences << "##{name} had types #{types.inspect}" }
         class_type_mismatch.each    { |name, types| differences << ".#{name} had types #{types.inspect}" }
-      # end
-      "Was not substitutable because surrogate " << differences.join(', ') # change this to \n so it's readable when printed in <pre> tags
+      end
+      "Was not substitutable because surrogate " << differences.join("\n")
     end
 
     failure_message_for_should_not do

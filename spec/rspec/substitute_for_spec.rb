@@ -102,9 +102,9 @@ describe 'substitute_for' do
           surrogate = Surrogate.endow(Class.new) { define :surrogate_class_meth }.define :surrogate_instance_meth
           klass = Class.new { def self.api_class_meth()end; def api_instance_meth() end }
           expect { surrogate.should substitute_for klass }.to \
-            raise_error(RSpec::Expectations::ExpectationNotMetError, "Was not substitutable because surrogate has extra instance methods: [:surrogate_instance_meth], "\
-                                                                                                             "has extra class methods: [:surrogate_class_meth], "\
-                                                                                                             "is missing instance methods: [:api_instance_meth], "\
+            raise_error(RSpec::Expectations::ExpectationNotMetError, "Was not substitutable because surrogate has extra instance methods: [:surrogate_instance_meth]\n"\
+                                                                                                             "has extra class methods: [:surrogate_class_meth]\n"\
+                                                                                                             "is missing instance methods: [:api_instance_meth]\n"\
                                                                                                              "is missing class methods: [:api_class_meth]")
         end
 
@@ -145,7 +145,7 @@ describe 'substitute_for' do
         klass = Class.new { def self.extra_method()end; def extra_method()end }
         expect { Surrogate.endow(Class.new) { define :class_meth }.define(:instance_meth).should substitute_for klass, subset: true }.to \
           raise_error(RSpec::Expectations::ExpectationNotMetError,
-                      "Was not substitutable because surrogate has extra instance methods: [:instance_meth], has extra class methods: [:class_meth]")
+                      "Was not substitutable because surrogate has extra instance methods: [:instance_meth]\nhas extra class methods: [:class_meth]")
       end
     end
   end

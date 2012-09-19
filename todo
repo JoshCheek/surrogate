@@ -1,8 +1,9 @@
 Urgent (things I want to do immediately, formatted as the git commits I will use)
 ---------------------------------------------------------------------------------
 
-* substitute_for should not depend on rspec-expectations
+* tests around the error messages of types
 * Substitutability can check argument names
+* substitute_for should not depend on rspec-expectations
 * Error messages on blocks are actually useful
 * Defined methods params must match arguments (BREAKING CHANGE)
 * Update the readme (new syntax, and move the script into the changelog)
