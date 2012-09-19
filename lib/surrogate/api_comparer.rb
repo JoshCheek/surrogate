@@ -53,10 +53,11 @@ class Surrogate
       surrogate_methods[:class][:api] - actual_methods[:class][:inherited] - actual_methods[:class][:other]
     end
 
+    # types are only shown for methods on both objects
     def class_types
       surrogate_class_methods         = surrogate_methods[:class][:api] + surrogate_methods[:class][:inherited]
       actual_class_methods            = actual_methods[:class][:inherited] + actual_methods[:class][:other]
-      class_methods_that_should_match = (surrogate_class_methods & actual_class_methods) - surrogate_methods[:class][:without_bodies]
+      class_methods_that_should_match = (surrogate_class_methods & actual_class_methods) - surrogate_methods[:class][:without_bodies] - actual_methods[:class][:without_bodies]
       class_methods_that_should_match.each_with_object Hash.new do |name, hash|
         surrogate_type, actual_type = class_types_for name
         next if surrogate_type == actual_type
@@ -64,10 +65,11 @@ class Surrogate
       end
     end
 
+    # types are only shown for methods on both objects
     def instance_types
       surrogate_instance_methods         = surrogate_methods[:instance][:api] + surrogate_methods[:instance][:inherited]
       actual_instance_methods            = actual_methods[:instance][:inherited] + actual_methods[:instance][:other]
-      instance_methods_that_should_match = (surrogate_instance_methods & actual_instance_methods) - surrogate_methods[:instance][:without_bodies]
+      instance_methods_that_should_match = (surrogate_instance_methods & actual_instance_methods) - surrogate_methods[:instance][:without_bodies] - actual_methods[:instance][:without_bodies]
       instance_methods_that_should_match.each_with_object Hash.new do |name, hash|
         surrogate_type, actual_type = instance_types_for name
         next if surrogate_type == actual_type

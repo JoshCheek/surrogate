@@ -4,12 +4,14 @@ class Surrogate
   class PorcReflector < Struct.new(:actual)
     def methods
       { instance: {
-          inherited: instance_inherited_methods,
-          other:     instance_other_methods,
+          inherited:      instance_inherited_methods,
+          other:          instance_other_methods,
+          without_bodies: instance_without_bodies,
         },
         class: {
-          inherited: class_inherited_methods,
-          other:     class_other_methods,
+          inherited:      class_inherited_methods,
+          other:          class_other_methods,
+          without_bodies: class_without_bodies,
         },
       }
     end
@@ -28,6 +30,14 @@ class Surrogate
 
     def class_other_methods
       Set.new(actual.singleton_class.instance_methods) - class_inherited_methods
+    end
+
+    def class_without_bodies
+      Set.new actual.methods.select { |name| actual.method(name).parameters.any? { |param| param.size == 1 } }
+    end
+
+    def instance_without_bodies
+      Set.new actual.instance_methods.select { |name| actual.instance_method(name).parameters.any? { |param| param.size == 1 } }
     end
   end
 end

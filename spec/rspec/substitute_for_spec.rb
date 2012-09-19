@@ -172,6 +172,13 @@ describe 'substitute_for' do
       surrogate.should substitute_for klass, names: false
     end
 
+    it 'disregards when real object has natively implemented methods that cannot be reflected on' do
+      Array.method(:[]).parameters.should == [[:rest]] # make sure GC signatures aren't changing across versions or something
+      Array.instance_method(:insert).parameters.should == [[:rest]]
+      surrogate = Surrogate.endow(Class.new) { define(:[]) { |a,b,c| } }.define(:insert) { |a,b,c| }
+      surrogate.should substitute_for Array, subset: true
+    end
+
     context 'returns true if argument types match exactly. Examples:' do
       example 'true when exact match' do
         klass = Class.new { def instance_meth(a, b=1, *c, d, &e) end }
