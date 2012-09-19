@@ -1,6 +1,6 @@
 require 'set'
-require 'surrogate/api_comparer/surrogate_methods'
-require 'surrogate/api_comparer/actual_methods'
+require 'surrogate/surrogate_reflector'
+require 'surrogate/porc_reflector'
 
 class Surrogate
 
@@ -13,11 +13,11 @@ class Surrogate
     end
 
     def surrogate_methods
-      @surrogate_methods ||= SurrogateMethods.new(surrogate).methods
+      @surrogate_methods ||= SurrogateReflector.new(surrogate).methods
     end
 
     def actual_methods
-      @actual_methods ||= ActualMethods.new(actual).methods
+      @actual_methods ||= PorcReflector.new(actual).methods
     end
 
     def compare

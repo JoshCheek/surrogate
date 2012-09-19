@@ -1,7 +1,6 @@
 Urgent (things I want to do immediately, formatted as the git commits I will use)
 ---------------------------------------------------------------------------------
 
-* unexpose some of the shit added directly to the surrogate -- can we give this to another object which exposes its guts, instead of having to keep adding shit to the surrogate itself?
 * types/names of natively implemented methods
 * substitute_for should not depend on rspec-expectations
 * Substitutability can check argument names

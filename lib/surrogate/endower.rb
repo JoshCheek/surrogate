@@ -57,6 +57,7 @@ class Surrogate
       klass.singleton_class
     end
 
+    # Can we expose this in another object?
     def remember_invocations_for_instances_of(klass)
       klass.__send__ :define_method, :invocations do |method_name|
         @hatchling.invocations method_name
@@ -111,7 +112,7 @@ class Surrogate
 
     def inspect
       return name if name
-      methods = ApiComparer::SurrogateMethods.new(self).methods
+      methods = SurrogateReflector.new(self).methods
       method_inspections = []
 
       # add class methods
@@ -138,7 +139,7 @@ class Surrogate
   # Use module so the method is inherited. This allows proper matching (e.g. other object will inherit inspect from Object)
   module InstanceMethods
     def inspect
-      methods = ApiComparer::SurrogateMethods.new(self.class).methods[:instance][:api].sort.take(4)
+      methods = SurrogateReflector.new(self.class).methods[:instance][:api].sort.take(4)
       methods[-1] = '...' if methods.size == 4
       methods << 'no api' if methods.empty?
       class_name = self.class.name || 'AnonymousSurrogate'

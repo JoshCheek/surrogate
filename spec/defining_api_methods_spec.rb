@@ -2,11 +2,11 @@ require 'spec_helper'
 
 describe 'define' do
   def class_method_names(surrogate)
-    Surrogate::ApiComparer::SurrogateMethods.new(surrogate).class_api_methods
+    Surrogate::SurrogateReflector.new(surrogate).class_api_methods
   end
 
   def instance_method_names(surrogate)
-    Surrogate::ApiComparer::SurrogateMethods.new(surrogate).instance_api_methods
+    Surrogate::SurrogateReflector.new(surrogate).instance_api_methods
   end
 
   let(:mocked_class) { Surrogate.endow Class.new }
