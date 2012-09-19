@@ -1,11 +1,11 @@
 require 'set'
 class Surrogate
 
-  # Reflects on the surrogate to give info about methods that are useful for the comparer
+  # Reflects on the surrogate class to give info about methods that are useful for the comparer
   #
   # It might make sense to not treat instance and class differently, but instead let whoever wants to use this
   # instantiate it with both the class and the singleton class.
-  class SurrogateReflector < Struct.new(:surrogate)
+  class SurrogateClassReflector < Struct.new(:surrogate_class)
     def methods
       { instance: {
           api:            instance_api_methods,
@@ -27,11 +27,11 @@ class Surrogate
     end
 
     def instance_inherited_methods
-      Set.new surrogate.instance_methods - surrogate.instance_methods(false)
+      Set.new surrogate_class.instance_methods - surrogate_class.instance_methods(false)
     end
 
     def instance_other_methods
-      Set.new(surrogate.instance_methods false) - instance_api_methods
+      Set.new(surrogate_class.instance_methods false) - instance_api_methods
     end
 
     def instance_without_bodies
@@ -43,11 +43,11 @@ class Surrogate
     end
 
     def class_inherited_methods
-      Set.new surrogate.singleton_class.instance_methods - surrogate.singleton_class.instance_methods(false)
+      Set.new surrogate_class.singleton_class.instance_methods - surrogate_class.singleton_class.instance_methods(false)
     end
 
     def class_other_methods
-      Set.new(surrogate.singleton_class.instance_methods false) - class_api_methods - class_inherited_methods
+      Set.new(surrogate_class.singleton_class.instance_methods false) - class_api_methods - class_inherited_methods
     end
 
     def class_without_bodies
@@ -55,11 +55,11 @@ class Surrogate
     end
 
     def class_hatchery
-      @class_hatchery ||= surrogate.instance_variable_get :@hatchery
+      @class_hatchery ||= surrogate_class.instance_variable_get :@hatchery
     end
 
     def singleton_class_hatchery
-      @singleton_class_hatchery ||= surrogate.singleton_class.instance_variable_get :@hatchery
+      @singleton_class_hatchery ||= surrogate_class.singleton_class.instance_variable_get :@hatchery
     end
   end
 end

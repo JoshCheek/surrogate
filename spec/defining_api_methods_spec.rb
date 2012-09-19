@@ -2,11 +2,15 @@ require 'spec_helper'
 
 describe 'define' do
   def class_method_names(surrogate)
-    Surrogate::SurrogateReflector.new(surrogate).class_api_methods
+    Surrogate::SurrogateClassReflector.new(surrogate).class_api_methods
   end
 
   def instance_method_names(surrogate)
-    Surrogate::SurrogateReflector.new(surrogate).instance_api_methods
+    Surrogate::SurrogateClassReflector.new(surrogate).instance_api_methods
+  end
+
+  def invocations(surrogate, method_name)
+    Surrogate::SurrogateInstanceReflector.new(surrogate).invocations(method_name)
   end
 
   let(:mocked_class) { Surrogate.endow Class.new }
@@ -223,19 +227,19 @@ describe 'define' do
       mock = mocked_class.new
       mock.meth 1
       mock.meth 1, 2
-      mock.invocations(:meth).should == [Surrogate::Invocation.new([1]), Surrogate::Invocation.new([1, 2])]
+      invocations(mock, :meth).should == [Surrogate::Invocation.new([1]), Surrogate::Invocation.new([1, 2])]
 
       val = 0
       mock.meth(1, 2) { val =  3 }
-      expect { mock.invocations(:meth).last.block.call }.to change { val }.from(0).to(3)
+      expect { invocations(mock, :meth).last.block.call }.to change { val }.from(0).to(3)
     end
 
     it 'raises an error if asked about invocations for api methods it does not know' do
       mocked_class.define :meth1
       mocked_class.define :meth2
       mock = mocked_class.new
-      expect { mock.invocations(:meth1) }.to_not raise_error
-      expect { mock.invocations(:meth3) }.to raise_error Surrogate::UnknownMethod, /doesn't know "meth3", only knows "meth1", "meth2"/
+      expect { invocations mock, :meth1 }.to_not raise_error
+      expect { invocations mock, :meth3 }.to raise_error Surrogate::UnknownMethod, /doesn't know "meth3", only knows "meth1", "meth2"/
     end
   end
 

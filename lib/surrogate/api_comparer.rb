@@ -1,5 +1,5 @@
 require 'set'
-require 'surrogate/surrogate_reflector'
+require 'surrogate/surrogate_class_reflector'
 require 'surrogate/porc_reflector'
 
 class Surrogate
@@ -13,7 +13,7 @@ class Surrogate
     end
 
     def surrogate_methods
-      @surrogate_methods ||= SurrogateReflector.new(surrogate).methods
+      @surrogate_methods ||= SurrogateClassReflector.new(surrogate).methods
     end
 
     def actual_methods

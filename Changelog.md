@@ -1,6 +1,8 @@
 ### 0.6.0
 
-* Remove `api_method_names` and `api_method_for` from surrogates (might break your code if you relied on it, but was never advertized, and no obvious reason to use it)
+* Remove `api_method_names` and `api_method_for` and `invocations` from surrogates
+  (might break your code if you relied on these, but they were never advertized, and no obvious reason to use them)
+  Instead use the reflectors: Surrogate::SurrogateClassReflector and Surrogate::SurrogateInstanceReflector
 * BREAKING CHANGE - Substitutability can check argument "types". This is turned on by default
 * Initialize is no longer implicitly recorded (This might break something, but I don't think this feature was ever advertized, so hopefully people don't depend on it).
 * BREAKING CHANGE - API method signatures are enforced (if meth takes 1 arg, you must pass it 1 arg)

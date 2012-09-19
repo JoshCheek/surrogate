@@ -1,6 +1,7 @@
 require 'surrogate/rspec/abstract_failure_message'
 require 'surrogate/rspec/times_predicate'
 require 'surrogate/rspec/with_filter'
+require 'surrogate/surrogate_instance_reflector'
 
 class Surrogate
   module RSpec
@@ -23,7 +24,7 @@ class Surrogate
       end
 
       def invocations
-        surrogate.invocations(method_name)
+        SurrogateInstanceReflector.new(surrogate).invocations(method_name)
       end
 
       def failure_message_for_should
