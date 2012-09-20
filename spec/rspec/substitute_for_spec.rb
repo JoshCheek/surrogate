@@ -153,7 +153,7 @@ describe 'substitute_for' do
 
 
   context 'type substitutability -- specified with types: true/false option (DEFAULTS TO TRUE)' do
-    it 'defaults to true' do
+    it 'is turned on by default' do
       klass = Class.new { def instance_meth(a) end }
       surrogate = Surrogate.endow(Class.new).define(:instance_meth) { }
       surrogate.should_not substitute_for klass
@@ -163,43 +163,43 @@ describe 'substitute_for' do
     it 'disregards when argument names differ' do
       klass = Class.new { def instance_meth(a) end }
       surrogate = Surrogate.endow(Class.new).define(:instance_meth) { |b| }
-      surrogate.should substitute_for klass, names: false
+      surrogate.should substitute_for klass, names: false, types: true
     end
 
     it 'disregards when surrogate has no body for an api method' do
       klass = Class.new { def instance_meth(a) end }
       surrogate = Surrogate.endow(Class.new).define :instance_meth
-      surrogate.should substitute_for klass, names: false
+      surrogate.should substitute_for klass, types: true
     end
 
     it 'disregards when real object has natively implemented methods that cannot be reflected on' do
-      Array.method(:[]).parameters.should == [[:rest]] # make sure GC signatures aren't changing across versions or something
+      Array.method(:[]).parameters.should == [[:rest]] # make sure Array signatures aren't changing across versions or something
       Array.instance_method(:insert).parameters.should == [[:rest]]
       surrogate = Surrogate.endow(Class.new) { define(:[]) { |a,b,c| } }.define(:insert) { |a,b,c| }
-      surrogate.should substitute_for Array, subset: true
+      surrogate.should substitute_for Array, subset: true, types: true
     end
 
     context 'returns true if argument types match exactly. Examples:' do
       example 'true when exact match' do
         klass = Class.new { def instance_meth(a, b=1, *c, d, &e) end }
         surrogate = Surrogate.endow(Class.new).define(:instance_meth) { |a, b=1, *c, d, &e| }
-        surrogate.should substitute_for klass
+        surrogate.should substitute_for klass, types: true
       end
 
       example 'false when missing block' do
         klass = Class.new { def instance_meth(a, b=1, *c, d) end }
         surrogate = Surrogate.endow(Class.new).define(:instance_meth) { |a, b=1, *c, d, &e| }
-        surrogate.should_not substitute_for klass
+        surrogate.should_not substitute_for klass, types: true
 
         klass = Class.new { def instance_meth(a, b=1, *c, d, &e) end }
         surrogate = Surrogate.endow(Class.new).define(:instance_meth) { |a, b=1, *c, d| }
-        surrogate.should_not substitute_for klass
+        surrogate.should_not substitute_for klass, types: true
       end
 
       example 'false when missing splatted args' do
         klass = Class.new { def instance_meth(a, b=1, d, &e) end }
         surrogate = Surrogate.endow(Class.new).define(:instance_meth) { |a, b=1, *c, d, &e| }
-        surrogate.should_not substitute_for klass
+        surrogate.should_not substitute_for klass, types: true
 
         klass = Class.new { def instance_meth(a, b=1, *c, d, &e) end }
         surrogate = Surrogate.endow(Class.new).define(:instance_meth) { |a, b=1, d, &e| }
@@ -213,25 +213,25 @@ describe 'substitute_for' do
 
         klass = Class.new { def instance_meth(a, b=1, *c, d, &e) end }
         surrogate = Surrogate.endow(Class.new).define(:instance_meth) { |a, *c, d, &e| }
-        surrogate.should_not substitute_for klass
+        surrogate.should_not substitute_for klass, types: true
       end
 
       example 'false when missing required args' do
         klass = Class.new { def instance_meth(b=1, *c, d, &e) end }
         surrogate = Surrogate.endow(Class.new).define(:instance_meth) { |a, b=1, *c, d, &e| }
-        surrogate.should_not substitute_for klass
+        surrogate.should_not substitute_for klass, types: true
 
         klass = Class.new { def instance_meth(a, b=1, *c, d, &e) end }
         surrogate = Surrogate.endow(Class.new).define(:instance_meth) { |b=1, *c, d, &e| }
-        surrogate.should_not substitute_for klass
+        surrogate.should_not substitute_for klass, types: true
 
         klass = Class.new { def instance_meth(a, b=1, *c, &e) end }
         surrogate = Surrogate.endow(Class.new).define(:instance_meth) { |a, b=1, *c, d, &e| }
-        surrogate.should_not substitute_for klass
+        surrogate.should_not substitute_for klass, types: true
 
         klass = Class.new { def instance_meth(a, b=1, *c, d, &e) end }
         surrogate = Surrogate.endow(Class.new).define(:instance_meth) { |a, b=1, *c, &e| }
-        surrogate.should_not substitute_for klass
+        surrogate.should_not substitute_for klass, types: true
       end
     end
   end
