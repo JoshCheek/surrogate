@@ -1,6 +1,8 @@
 Urgent (things I want to do immediately, formatted as the git commits I will use)
 ---------------------------------------------------------------------------------
 
+* be smart enough to handle method missing
+* still check method args, even when value is overridden
 * tests around the error messages of types
 * Substitutability can check argument names
 * substitute_for should not depend on rspec-expectations
@@ -9,6 +11,7 @@ Urgent (things I want to do immediately, formatted as the git commits I will use
 * Update the readme (new syntax, and move the script into the changelog)
 * error message
     "Doesn't know initialize, only knows " <-- fix that shit
+* blocks assertions can specify raising
 
 TODO (next up after urgent, these will happen whenever I get around to it)
 --------------------------------------------------------------------------

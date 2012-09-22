@@ -181,10 +181,20 @@ describe 'define' do
       mocked.meth.should == 123
     end
 
+    it 'raises arity errors, even if the value is overridden' do
+      pending "the options has the default block, we would have to compare the args submitted to the default block and decide if we wanted to raise the error" do
+        mocked_class.define(:meth) { }
+        mocked = mocked_class.new
+        mocked.instance_variable_set :@meth, "abc"
+        expect { mocked.meth "extra", "args" }.to raise_error ArgumentError, /wrong number of arguments \(2 for 0\)/
+      end
+    end
+
     it 'can make #initialize an api method' do
       mocked_class.define(:initialize) { @abc = 123 }
       mocked_class.new.instance_variable_get(:@abc).should == 123
     end
+
 
     describe 'it takes a block whos return value will be used as the default' do
       specify 'the block is instance evaled' do
