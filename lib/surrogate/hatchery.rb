@@ -15,7 +15,7 @@ class Surrogate
       add_api_method_for method_name
       add_verb_helpers_for method_name
       add_noun_helpers_for method_name
-      api_methods[method_name] = Options.new options, block
+      api_methods[method_name] = MethodDefinition.new method_name, options, block
       klass
     end
 

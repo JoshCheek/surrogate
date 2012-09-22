@@ -1,9 +1,10 @@
 class Surrogate
-  class Options
-    attr_accessor :options, :default_proc
+  # rename this to MethodDefinition?
+  class MethodDefinition
+    attr_accessor :name, :options, :default_proc
 
-    def initialize(options, default_proc)
-      self.options, self.default_proc = options, default_proc
+    def initialize(name, options, default_proc)
+      self.name, self.options, self.default_proc = name, options, default_proc
     end
 
     def has?(name)
