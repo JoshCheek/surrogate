@@ -181,30 +181,9 @@ describe 'define' do
       mocked.meth.should == 123
     end
 
-    describe 'initialization' do
-      specify 'api methods can be an initialize method' do
-        mocked_class.define(:initialize) { @abc = 123 }
-        mocked_class.new.instance_variable_get(:@abc).should == 123
-      end
-
-      specify 'initialize exsits even if error is raised' do
-        mocked_class.define(:initialize) { raise "simulate runtime error" }
-        expect { mocked_class.new }.to raise_error(RuntimeError, /simulate/)
-        expect { mocked_class.new }.to raise_error(RuntimeError, /simulate/)
-      end
-
-      specify 'receives args' do
-        mocked_class.define(:initialize) { |num1, num2| @num = num1 + num2 }
-        mocked_class.new(25, 75).instance_variable_get(:@num).should == 100
-      end
-
-      specify 'even works with inheritance' do
-        superclass = Class.new
-        superclass.send(:define_method, :initialize) { @a = 1 }
-        subclass = Surrogate.endow Class.new superclass
-        subclass.define :abc
-        subclass.new.instance_variable_get(:@a).should == 1
-      end
+    it 'can make #initialize an api method' do
+      mocked_class.define(:initialize) { @abc = 123 }
+      mocked_class.new.instance_variable_get(:@abc).should == 123
     end
 
     describe 'it takes a block whos return value will be used as the default' do
