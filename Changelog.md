@@ -1,5 +1,6 @@
 ### 0.6.0
 
+* Setting an override still requires the invoking code to call with the correct signature
 * Remove `api_method_names` and `api_method_for` and `invocations` from surrogates
   (might break your code if you relied on these, but they were never advertized, and no obvious reason to use them)
   Instead use the reflectors: Surrogate::SurrogateClassReflector and Surrogate::SurrogateInstanceReflector

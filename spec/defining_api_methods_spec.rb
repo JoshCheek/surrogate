@@ -182,12 +182,17 @@ describe 'define' do
     end
 
     it 'raises arity errors, even if the value is overridden' do
-      pending "the options has the default block, we would have to compare the args submitted to the default block and decide if we wanted to raise the error" do
-        mocked_class.define(:meth) { }
-        mocked = mocked_class.new
-        mocked.instance_variable_set :@meth, "abc"
-        expect { mocked.meth "extra", "args" }.to raise_error ArgumentError, /wrong number of arguments \(2 for 0\)/
-      end
+      mocked_class.define(:meth) { }
+      mocked = mocked_class.new
+      mocked.instance_variable_set :@meth, "abc"
+      expect { mocked.meth "extra", "args" }.to raise_error ArgumentError, /wrong number of arguments \(2 for 0\)/
+    end
+
+    it 'does not raise arity errors, when there is no default block and the value is overridden' do
+      mocked_class.define :meth
+      mocked = mocked_class.new
+      mocked.instance_variable_set :@meth, "abc"
+      mocked.meth 1, 2, 3
     end
 
     it 'can make #initialize an api method' do

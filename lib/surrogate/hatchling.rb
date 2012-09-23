@@ -20,6 +20,7 @@ class Surrogate
       invocation = Invocation.new(args, &block)
       invoked_methods[method_name] << invocation
       return get_default method_name, invocation, &block unless has_ivar? method_name
+      interfaces_must_match! method_name, args
       Value.factory(get_ivar method_name).value(method_name)
     end
 
@@ -38,6 +39,10 @@ class Surrogate
         must_know method_name
         hash[method_name] = []
       end
+    end
+
+    def interfaces_must_match!(method_name, args)
+      api_methods[method_name].must_match! args
     end
 
     def get_default(method_name, invocation)

@@ -1,5 +1,8 @@
+require 'surrogate/argument_errorizer'
+
 class Surrogate
-  # rename this to MethodDefinition?
+
+  # A surrogate's `define` keyword results in one of these
   class MethodDefinition
     attr_accessor :name, :options, :default_proc
 
@@ -19,7 +22,10 @@ class Surrogate
       options
     end
 
-    # it would be much better to pass instance to initialize
+    def must_match!(args)
+      default_proc && errorizer.match!(*args)
+    end
+
     def default(instance, invocation, &no_default)
       if options.has_key? :default
         options[:default]
@@ -31,6 +37,10 @@ class Surrogate
     end
 
     private
+
+    def errorizer
+      @errorizer ||= ArgumentErrorizer.new name, default_proc
+    end
 
     def default_proc_as_method_on(instance)
       unique_name = "surrogate_temp_method_#{Time.now.to_i}_#{rand 10000000}"
