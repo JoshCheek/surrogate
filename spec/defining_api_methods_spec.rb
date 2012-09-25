@@ -172,6 +172,17 @@ describe 'define' do
       mocked = mocked_class.new
       mocked.instance_variable_set :@meth_p, 123
       mocked.meth?.should == 123
+      mocked.will_have_meth? 456
+      mocked.meth?.should == 456
+    end
+
+    it 'considers ivars ending in _b to be its default when it ends in a bang' do
+      mocked_class.define :meth!
+      mocked = mocked_class.new
+      mocked.instance_variable_set :@meth_b, 123
+      mocked.meth!.should == 123
+      mocked.will_have_meth! 456
+      mocked.meth!.should == 456
     end
 
     it 'reverts to the default block if invoked and having no ivar' do

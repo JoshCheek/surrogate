@@ -1,3 +1,7 @@
+### 0.6.1
+
+* bang methods map to ivars suffixed with `_b`, because you can't have a bang in an ivar name
+
 ### 0.6.0
 
 * Setting an override still requires the invoking code to call with the correct signature

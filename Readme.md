@@ -78,15 +78,16 @@ end
 MockClient.new.request 3 # => ["result1", "result2", "result3"]
 ```
 
-You don't need a **default if you set the ivar** of the same name (replace `?` with `_p` for predicates, since you can't have question marks in ivar names)
+You don't need a **default if you set the ivar** of the same name (replace `?` with `_p` for predicates, and `!` with `_b` for bang methods, since you can't have question marks or bangs in ivar names)
 Note that methods without bodies will not have their arguments checked, and will not be asserted against when comparing signatures.
 
 ```ruby
 class MockClient
   Surrogate.endow self
-  define(:initialize) { |id| @id, @connected_p = id, true }
+  define(:initialize) { |id| @id, @connected_p, @reconnect_b = id, true, true }
   define :id
   define :connected?
+  define :reconnect!
 end
 MockClient.new(12).id # => 12
 ```

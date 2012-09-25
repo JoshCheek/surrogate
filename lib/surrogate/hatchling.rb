@@ -78,6 +78,8 @@ class Surrogate
       case method_name
       when /\?$/
         "@#{method_name.to_s.chop}_p"
+      when /\!$/
+        "@#{method_name.to_s.chop}_b"
       else
         "@#{method_name}"
       end
