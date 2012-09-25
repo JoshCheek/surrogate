@@ -32,10 +32,11 @@ class Surrogate
 
     def endow_klass
       klass.extend ClassMethods
-      add_hatchery_to                        klass
-      enable_defining_methods                klass
+      add_hatchery_to klass
+      enable_defining_methods klass
       klass.send :include, InstanceMethods
-      invoke_hooks                           klass
+      enable_generic_override klass
+      invoke_hooks klass
     end
 
     def endow_singleton_class
@@ -43,8 +44,15 @@ class Surrogate
       enable_defining_methods singleton
       singleton.module_eval &block if block
       klass.instance_variable_set :@hatchling, Hatchling.new(klass, hatchery)
-      invoke_hooks                           singleton
+      invoke_hooks singleton
       klass
+    end
+
+    def enable_generic_override(klass)
+      klass.__send__ :define_method, :will_override do |method_name, *args, &block|
+        @hatchling.prepare_method method_name, args, &block
+        self
+      end
     end
 
     def invoke_hooks(klass)

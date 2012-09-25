@@ -65,24 +65,40 @@ describe 'define' do
         end
 
         it 'returns the object' do
-          instance = mocked_class.new
           instance.will_wink(:quickly).should equal instance
         end
       end
 
       describe 'will_<api_method> with multiple arguments' do
         it 'returns the object' do
-          instance = mocked_class.new
           instance.will_wink(1, 2, 3).should equal instance
         end
 
         # Is there something useful the error could say?
         it 'creates a queue of things to find and raises a QueueEmpty error if there are none left' do
-          mock = mocked_class.new
-          mock.will_wink :quickly, [:slowly]
-          mock.wink.should == :quickly
-          mock.wink.should == [:slowly]
-          expect { mock.wink }.to raise_error Surrogate::Value::ValueQueue::QueueEmpty
+          instance.will_wink :quickly, [:slowly]
+          instance.wink.should == :quickly
+          instance.wink.should == [:slowly]
+          expect { instance.wink }.to raise_error Surrogate::Value::ValueQueue::QueueEmpty
+        end
+      end
+
+      describe 'will_override(method_name, ...)' do
+        it 'returns the object' do
+          instance.will_override(:wink, :quickly).should equal instance
+        end
+
+        it 'is a dynamic way to override a value (useful for operators)' do
+          instance.will_override :wink, :quickly
+          instance.wink.should == :quickly
+          instance.will_override :wink, :quickly, [:slowly]
+          instance.wink.should == :quickly
+          instance.wink.should == [:slowly]
+        end
+
+        it 'raises an error if you try to override a nonexistent method' do
+          expect { instance.will_override :whateva, 123 }
+            .to raise_error Surrogate::UnknownMethod, %(doesn't know "whateva", only knows "wink")
         end
       end
 
@@ -90,18 +106,18 @@ describe 'define' do
         it 'raises the error on method invocation' do
           mocked_class = Surrogate.endow(Class.new)
           mocked_class.define :connect
-          mock = mocked_class.new
+          instance = mocked_class.new
           error = StandardError.new("some message")
 
           # for single invocation
-          mock.will_connect error
-          expect { mock.connect }.to raise_error StandardError, "some message"
+          instance.will_connect error
+          expect { instance.connect }.to raise_error StandardError, "some message"
 
           # for queue
-          mock.will_connect 1, error, 2
-          mock.connect.should == 1
-          expect { mock.connect }.to raise_error StandardError, "some message"
-          mock.connect.should == 2
+          instance.will_connect 1, error, 2
+          instance.connect.should == 1
+          expect { instance.connect }.to raise_error StandardError, "some message"
+          instance.connect.should == 2
         end
       end
     end
@@ -122,24 +138,21 @@ describe 'define' do
         end
 
         it 'returns the object' do
-          instance = mocked_class.new
           instance.will_have_age(123).should equal instance
         end
       end
 
       describe 'wil_have_<api_method> with multiple arguments' do
         it 'returns the object' do
-          instance = mocked_class.new
           instance.will_have_age(1,2,3).should equal instance
         end
 
         # Is there something useful the error could say?
         it 'creates a queue of things to find and raises a QueueEmpty error if there are none left' do
-          mock = mocked_class.new
-          mock.will_have_age 12, 34
-          mock.age.should == 12
-          mock.age.should == 34
-          expect { mock.age }.to raise_error Surrogate::Value::ValueQueue::QueueEmpty
+          instance.will_have_age 12, 34
+          instance.age.should == 12
+          instance.age.should == 34
+          expect { instance.age }.to raise_error Surrogate::Value::ValueQueue::QueueEmpty
         end
       end
     end
@@ -157,46 +170,41 @@ describe 'define' do
 
     it 'raises an UnpreparedMethodError when it has no default block' do
       mocked_class.define :meth
-      expect { mocked_class.new.meth }.to raise_error(Surrogate::UnpreparedMethodError, /meth/)
+      expect { instance.meth }.to raise_error Surrogate::UnpreparedMethodError, /meth/
     end
 
     it 'considers ivars of the same name to be its default when it has no suffix' do
       mocked_class.define :meth
-      mocked = mocked_class.new
-      mocked.instance_variable_set :@meth, 123
-      mocked.meth.should == 123
+      instance.instance_variable_set :@meth, 123
+      instance.meth.should == 123
     end
 
     it 'considers ivars ending in _p to be its default when it ends in a question mark' do
       mocked_class.define :meth?
-      mocked = mocked_class.new
-      mocked.instance_variable_set :@meth_p, 123
-      mocked.meth?.should == 123
-      mocked.will_have_meth? 456
-      mocked.meth?.should == 456
+      instance.instance_variable_set :@meth_p, 123
+      instance.meth?.should == 123
+      instance.will_have_meth? 456
+      instance.meth?.should == 456
     end
 
     it 'considers ivars ending in _b to be its default when it ends in a bang' do
       mocked_class.define :meth!
-      mocked = mocked_class.new
-      mocked.instance_variable_set :@meth_b, 123
-      mocked.meth!.should == 123
-      mocked.will_have_meth! 456
-      mocked.meth!.should == 456
+      instance.instance_variable_set :@meth_b, 123
+      instance.meth!.should == 123
+      instance.will_have_meth! 456
+      instance.meth!.should == 456
     end
 
     it 'reverts to the default block if invoked and having no ivar' do
       mocked_class.define(:meth) { 123 }
-      mocked = mocked_class.new
-      mocked.instance_variable_get(:@meth).should be_nil
-      mocked.meth.should == 123
+      instance.instance_variable_get(:@meth).should be_nil
+      instance.meth.should == 123
     end
 
     it 'raises arity errors, even if the value is overridden' do
       mocked_class.define(:meth) { }
-      mocked = mocked_class.new
-      mocked.instance_variable_set :@meth, "abc"
-      expect { mocked.meth "extra", "args" }.to raise_error ArgumentError, /wrong number of arguments \(2 for 0\)/
+      instance.instance_variable_set :@meth, "abc"
+      expect { instance.meth "extra", "args" }.to raise_error ArgumentError, /wrong number of arguments \(2 for 0\)/
     end
 
     it 'does not raise arity errors, when there is no default block and the value is overridden' do
@@ -215,13 +223,11 @@ describe 'define' do
     describe 'it takes a block whos return value will be used as the default' do
       specify 'the block is instance evaled' do
         mocked_class.define(:meth) { self }
-        instance = mocked_class.new
         instance.meth.should equal instance
       end
 
       specify 'arguments passed to the method will be passed to the block' do
         mocked_class.define(:meth) { |*args| args }
-        instance = mocked_class.new
         instance.meth(1).should == [1]
         instance.meth(1, 2).should == [1, 2]
       end
@@ -242,9 +248,8 @@ describe 'define' do
     it 'raises an error if asked about invocations for api methods it does not know' do
       mocked_class.define :meth1
       mocked_class.define :meth2
-      mock = mocked_class.new
-      expect { invocations mock, :meth1 }.to_not raise_error
-      expect { invocations mock, :meth3 }.to raise_error Surrogate::UnknownMethod, /doesn't know "meth3", only knows "meth1", "meth2"/
+      expect { invocations instance, :meth1 }.to_not raise_error
+      expect { invocations instance, :meth3 }.to raise_error Surrogate::UnknownMethod, /doesn't know "meth3", only knows "meth1", "meth2"/
     end
   end
 

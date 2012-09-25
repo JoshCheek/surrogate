@@ -1,6 +1,7 @@
 ### 0.6.1
 
 * bang methods map to ivars suffixed with `_b`, because you can't have a bang in an ivar name
+* Add general syntax for overriding values (e.g. for use with operators) `will_overrides`
 
 ### 0.6.0
 

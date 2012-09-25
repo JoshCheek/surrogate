@@ -25,6 +25,7 @@ class Surrogate
     end
 
     def prepare_method(method_name, args, &block)
+      must_know method_name
       set_ivar method_name, Value.factory(*args, &block)
     end
 
@@ -75,13 +76,35 @@ class Surrogate
     end
 
     def ivar_for(method_name)
-      case method_name
-      when /\?$/
-        "@#{method_name.to_s.chop}_p"
-      when /\!$/
-        "@#{method_name.to_s.chop}_b"
-      else
-        "@#{method_name}"
+      method_name = method_name.to_s
+      if    method_name.end_with? ?? then "@#{method_name.to_s.chop}_p"
+      elsif method_name.end_with? ?! then "@#{method_name.to_s.chop}_b"
+      elsif method_name == '[]'      then '@_brackets'
+      elsif method_name == '**'      then '@_splat_splat'
+      elsif method_name == '!@'      then '@_ubang'
+      elsif method_name == '+@'      then '@_uplus'
+      elsif method_name == '-@'      then '@_uminus'
+      elsif method_name == ?*        then '@_splat'
+      elsif method_name == ?/        then '@_divide'
+      elsif method_name == ?%        then '@_percent'
+      elsif method_name == ?+        then '@_plus'
+      elsif method_name == ?-        then '@_minus'
+      elsif method_name == '>>'      then '@_shift_right'
+      elsif method_name == '<<'      then '@_shift_left'
+      elsif method_name == ?&        then '@_ampersand'
+      elsif method_name == ?^        then '@_caret'
+      elsif method_name == ?|        then '@_bang'
+      elsif method_name == '<='      then '@_less_eq'
+      elsif method_name == ?<        then '@_less'
+      elsif method_name == ?>        then '@_greater'
+      elsif method_name == '>='      then '@_greater_eq'
+      elsif method_name == '<=>'     then '@_spaceship'
+      elsif method_name == '=='      then '@_2eq'
+      elsif method_name == '==='     then '@_3eq'
+      elsif method_name == '!='      then '@_not_eq'
+      elsif method_name == '=~'      then '@_eq_tilde'
+      elsif method_name == '!~'      then '@_bang_tilde'
+      else                                "@#{method_name}"
       end
     end
 
