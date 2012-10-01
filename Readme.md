@@ -459,6 +459,7 @@ Special Thanks
 
 * [Kyle Hargraves](https://github.com/pd) for changing the name of his internal gem so that I could take Surrogate
 * [David Chelimsky](http://blog.davidchelimsky.net/) for pairing with me to make Surrogate integrate better with RSpec
-* [Corey Haines](http://coreyhaines.com/) for pairing on substitutability with me
 * [Enova](http://www.enovafinancial.com/) for giving me time and motivation to work on this during Enova Labs.
 * [8th Light](http://8thlight.com/) for giving me time to work on this during our weekly Wazas, and the general encouragement and interest
+* The people who have paired with me on this: [Corey Haines](http://coreyhaines.com/) on substitutability, [Kori Roys](https://github.com/koriroys) on `#last_instance`, [Wai Lee](https://github.com/skatenerd) on the new assertion syntax
+* The people who have contributed: [Michael Baker](with m://github.com/michaelbaker) on the readme.
