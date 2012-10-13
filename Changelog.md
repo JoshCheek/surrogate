@@ -1,5 +1,6 @@
 ### 0.6.2
 
+* Substitutability can check argument names
 * Fix error message when there are no api methods. Used to say "Doesn't know initialize, only knows "
 
 ### 0.6.1
