@@ -99,6 +99,8 @@ describe 'define' do
         it 'raises an error if you try to override a nonexistent method' do
           expect { instance.will_override :whateva, 123 }
             .to raise_error Surrogate::UnknownMethod, %(doesn't know "whateva", only knows "wink")
+          expect { Surrogate.endow(Class.new).new.will_override :whateva, 123 }
+            .to raise_error Surrogate::UnknownMethod, %[doesn't know "whateva", doesn't know anything! It's an epistemological conundrum, go define whateva.]
         end
       end
 

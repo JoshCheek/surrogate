@@ -54,8 +54,13 @@ class Surrogate
 
     def must_know(method_name)
       return if api_methods.has_key? method_name
-      known_methods = api_methods.keys.map(&:to_s).map(&:inspect).join ', '
-      raise UnknownMethod, "doesn't know \"#{method_name}\", only knows #{known_methods}"
+      if api_methods.empty?
+        message = "doesn't know \"#{method_name}\", doesn't know anything! It's an epistemological conundrum, go define #{method_name}."
+      else
+        known_methods = api_methods.keys.map(&:to_s).map(&:inspect).join ', '
+        message = "doesn't know \"#{method_name}\", only knows #{known_methods}"
+      end
+      raise UnknownMethod, message
     end
 
     # maybe these ivar methods should be extracted into their own class

@@ -6,8 +6,6 @@ Urgent (things I want to do immediately, formatted as the git commits I will use
 * Substitutability can check argument names
 * substitute_for should not depend on rspec-expectations
 * Error messages on blocks are actually useful
-* error message
-    "Doesn't know initialize, only knows " <-- fix that shit
 
 TODO (next up after urgent, these will happen whenever I get around to it)
 --------------------------------------------------------------------------
