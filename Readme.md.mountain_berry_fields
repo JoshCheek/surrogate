@@ -431,28 +431,23 @@ end
 # they are the same
 MockUser.should substitute_for User
 
-# mock has extra method
+# they differ
 MockUser.define :name
 MockUser.should_not substitute_for User
 
-# the same again via inheritance
-class UserWithName < User
-  def name()end
-end
-MockUser.should substitute_for UserWithName
-
-# real class has extra methods
-class UserWithNameAndAddress < UserWithName
-  def address()end
-end
-MockUser.should_not substitute_for UserWithNameAndAddress
-
-# signatures don't match
+# signatures don't match (you can turn this off by passing `types: false` to substitute_for)
 class UserWithWrongSignature
   def initialize()end # no id
   def id()end
 end
 MockUser.should_not substitute_for UserWithWrongSignature
+
+# parameter names don't match
+class UserWithWrongParamNames
+  def initialize(name)end # real one takes an id
+  def id()end
+end
+MockUser.should_not substitute_for UserWithWrongParamNames, names: true
 <% end %>
 ```
 
