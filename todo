@@ -8,7 +8,6 @@ Urgent (things I want to do immediately, formatted as the git commits I will use
 * Error messages on blocks are actually useful
 * error message
     "Doesn't know initialize, only knows " <-- fix that shit
-* blocks assertions can specify raising
 
 TODO (next up after urgent, these will happen whenever I get around to it)
 --------------------------------------------------------------------------

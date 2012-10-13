@@ -2,6 +2,7 @@
 
 * bang methods map to ivars suffixed with `_b`, because you can't have a bang in an ivar name
 * Add general syntax for overriding values (e.g. for use with operators) `will_overrides`
+* block assertions can specify that exceptions should get raised (still shitty error messages, though) The interface mimicks RSpec's `#raise_error` matcher
 
 ### 0.6.0
 

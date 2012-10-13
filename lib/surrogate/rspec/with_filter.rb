@@ -1,74 +1,8 @@
+require 'surrogate/rspec/block_asserter'
+
 class Surrogate
   module RSpec
     class WithFilter
-
-      class BlockAsserter
-        def initialize(definition_block)
-          @call_with = Invocation.new []
-          definition_block.call self
-        end
-
-        def call_with(*args, &block)
-          @call_with = Invocation.new args, &block
-        end
-
-        def returns(value=nil, &block)
-          @returns = block || lambda { |returned| returned.should == value }
-        end
-
-        def before(&block)
-          @before = block
-        end
-
-        def after(&block)
-          @after = block
-        end
-
-        def arity(n)
-          @arity = n
-        end
-
-        def matches?(block_to_test)
-          matches   = before_matches? block_to_test
-          matches &&= return_value_matches? block_to_test
-          matches &&= arity_matches? block_to_test
-          matches &&= after_matches? block_to_test
-          matches
-        end
-
-        private
-
-        # matches if no return specified, or returned value == specified value
-        def return_value_matches?(block_to_test)
-          returned_value = block_to_test.call(*@call_with.args, &@call_with.block)
-          @returns.call returned_value if @returns
-          true
-        rescue ::RSpec::Expectations::ExpectationNotMetError
-          false
-        end
-
-        # matches if the first time it is called, it raises nothing
-        def before_matches?(*)
-          @before_has_been_invoked || (@before && @before.call)
-        ensure
-          return @before_has_been_invoked = true unless $!
-        end
-
-        # matches if nothing is raised
-        def after_matches?(block_to_test)
-          @after && @after.call
-          true
-        end
-
-        def arity_matches?(block_to_test)
-          return true unless @arity
-          block_to_test.arity == @arity
-        end
-
-        attr_accessor :block_to_test
-      end
-
-
 
       class RSpecMatchAsserter
         attr_accessor :actual_invocation, :expected_invocation
