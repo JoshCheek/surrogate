@@ -183,3 +183,56 @@ describe 'inspect methods' do
     end
   end
 end
+
+describe '.factory' do
+  it 'allows you to initialize the values of the returned mock' do
+    klass = Surrogate.endow(Class.new).define(:a){'a'}.define(:b){'b'}
+    klass.factory(a: 'A').a.should == 'A'
+    klass.factory(a: 'A').b.should == 'b'
+    klass.new.a.should == 'a'
+  end
+
+  it 'can be turned off at the class level with Surrogate.endow self build_mock: false' do
+    klass = Surrogate.endow(Class.new, factory: false).define(:a) { 'a' }
+    expect { klass.factory a: 'A' }.to raise_error NoMethodError
+  end
+
+  it 'can be given a different method name by passing the name to the endower' do
+    klass = Surrogate.endow(Class.new, factory: :construct).define(:a) { 'a' }
+    expect { klass.factory a: 'A' }.to raise_error NoMethodError
+    klass.construct(a: 'A').a.should == 'A'
+  end
+
+  it 'retains its setting on clones' do
+    clone = Surrogate.endow(Class.new, factory: :construct).define(:a){'a'}.clone
+    expect { clone.factory a: 'A' }.to raise_error NoMethodError
+    clone.construct(a: 'A').a.should == 'A'
+    clone.new.a.should == 'a'
+  end
+
+  context 'when the initialize method can be invoked without args' do
+    let(:klass)    { Surrogate.endow(Class.new).define(:initialize) { } }
+    let!(:instance) { klass.factory }
+
+    it 'is invoked' do
+      instance.was initialized_with no_args
+    end
+
+    specify 'the instance is recorded as the last instance' do
+      klass.last_instance.should == instance
+    end
+  end
+
+  context 'when the initialize method cannot be invoked without args' do
+    let(:klass)    { Surrogate.endow(Class.new).define(:initialize) {|arg|} }
+    let!(:instance) { klass.factory }
+
+    it 'is invoked' do
+      instance.was_not told_to :initialize
+    end
+
+    specify 'the instance is recorded as the last instance' do
+      klass.last_instance.should == instance
+    end
+  end
+end

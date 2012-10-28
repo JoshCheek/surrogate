@@ -1,3 +1,10 @@
+### 0.6.3
+
+* Allow mass initialization of instances with `MockClass.factory key: value`
+* The `.factory` method can be turned off with `Surrogate.endow self, factory: false`
+* The `.factory` method can be renamed with `Surrogate.endow self, factory: :custom_factory_method_name`
+* Allow mass initialization of clones with `MockClass.clone key: value`
+
 ### 0.6.2
 
 * Substitutability can check argument names

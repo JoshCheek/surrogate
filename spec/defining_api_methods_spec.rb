@@ -292,6 +292,17 @@ describe 'define' do
       superclass.clone.new.should be_a_kind_of superclass
     end
 
+    it 'can be mass initialized by passing a hash of attributes and values when cloning' do
+      pristine_klass = Surrogate.endow(Class.new) do
+        define(:find) { |n| 123 }
+        define(:bind) { 'abc' }
+      end
+      pristine_klass.clone.find(1).should == 123
+      pristine_klass.clone(find: 456, bind: 'def').find(1).should == 456
+      pristine_klass.clone.bind.should == 'abc'
+      pristine_klass.clone(find: 456, bind: 'def').bind.should == 'def'
+    end
+
     describe '.name' do
       it 'is nil for anonymous classes' do
         Surrogate.endow(Class.new).clone.name.should be_nil

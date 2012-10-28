@@ -4,10 +4,14 @@ class Surrogate
   # The hatchlings are added to the instances, and they look here
   # to find out about how their methods are implemented.
   class Hatchery
-    attr_accessor :klass
 
-    def initialize(klass)
-      self.klass = klass
+    # currently options don't do anything,
+    # they're just there because the hatchery is the definition of the surrogate
+    # so it makes sense for it to store values used by the endower when constructing clones
+    attr_accessor :klass, :options
+
+    def initialize(klass, options)
+      self.klass, self.options = klass, options
       klass_can_define_api_methods
     end
 
