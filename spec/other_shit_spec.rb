@@ -192,7 +192,7 @@ describe '.factory' do
     klass.new.a.should == 'a'
   end
 
-  it 'can be turned off at the class level with Surrogate.endow self build_mock: false' do
+  it 'can be turned off at the class level with Surrogate.endow self factory: false' do
     klass = Surrogate.endow(Class.new, factory: false).define(:a) { 'a' }
     expect { klass.factory a: 'A' }.to raise_error NoMethodError
   end
@@ -227,7 +227,7 @@ describe '.factory' do
     let(:klass)    { Surrogate.endow(Class.new).define(:initialize) {|arg|} }
     let!(:instance) { klass.factory }
 
-    it 'is invoked' do
+    it 'is NOT invoked' do
       instance.was_not told_to :initialize
     end
 
