@@ -62,12 +62,22 @@ class Surrogate
 
     # there is a lot of duplication in these next four methods -.-
     # idk if there is something we can do about it.
+    #
+    # The class methods below ignore the .clone method, b/c it's interface is intentionally different.
+    # This is so stupid, it needs to get smarter, it needs a way for the Surrogate or the user to tell it
+    # what to care about, it shouldn't have to know about what the endower is doing.
+    #
+    # In general, this code is just really fucking bad. I'd like to create some sort of method object
+    # that can encapsulate all of this information (mthod name, param names, types, existence)
+    # but I can't quite see it yet, and I'm scared to refactor to it since this code is tested primarily
+    # through unit tests (this is one of the few places I resorted to unit tests, and I'm so unhappy that
+    # I did).
 
     # types are only shown for methods on both objects
     def class_types
       class_methods_that_should_match.each_with_object Hash.new do |name, hash|
         surrogate_type, actual_type = class_types_for name
-        next if surrogate_type == actual_type
+        next if surrogate_type == actual_type || name == :clone # ugh :(
         hash[name] = { surrogate: surrogate_type, actual: actual_type }
       end
     end
@@ -85,7 +95,7 @@ class Surrogate
     def class_names
       class_methods_that_should_match.each_with_object Hash.new do |method_name, hash|
         surrogate_name, actual_name = class_parameter_names_for method_name
-        next if surrogate_name == actual_name
+        next if surrogate_name == actual_name || method_name == :clone # ugh :(
         hash[method_name] = { surrogate: surrogate_name, actual: actual_name }
       end
     end

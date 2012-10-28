@@ -5,6 +5,14 @@ class Surrogate
   # please refactor me! ...may not be possible :(
   # Can we move all method definitions into this class?
   class Endower
+    def self.uninitialized_instance_for(surrogate_class)
+      instance = surrogate_class.allocate
+      hatchery = surrogate_class.instance_variable_get :@hatchery
+      surrogate_class.last_instance = instance
+      instance.instance_variable_set :@hatchling, Hatchling.new(instance, hatchery)
+      instance
+    end
+
     def self.add_hook(&block)
       hooks << block
     end
@@ -13,14 +21,14 @@ class Surrogate
       @hooks ||= []
     end
 
-    def self.endow(klass, &block)
-      new(klass, &block).endow
+    def self.endow(klass, options, &block)
+      new(klass, options, &block).endow
     end
 
-    attr_accessor :klass, :block
+    attr_accessor :klass, :block, :options
 
-    def initialize(klass, &block)
-      self.klass, self.block = klass, block
+    def initialize(klass, options, &block)
+      self.klass, self.options, self.block = klass, options, block
     end
 
     def endow
@@ -32,8 +40,9 @@ class Surrogate
 
     def endow_klass
       klass.extend ClassMethods
-      add_hatchery_to klass
+      add_hatchery_to klass, options # do we want to pick out which options to pass?
       enable_defining_methods klass
+      enable_factory          klass, options.fetch(:factory, :factory)
       klass.send :include, InstanceMethods
       enable_generic_override klass
       invoke_hooks klass
@@ -63,13 +72,26 @@ class Surrogate
       klass.singleton_class
     end
 
-    def add_hatchery_to(klass)
-      klass.instance_variable_set :@hatchery, Surrogate::Hatchery.new(klass)
+    def add_hatchery_to(klass, options={})
+      klass.instance_variable_set :@hatchery, Surrogate::Hatchery.new(klass, options)
     end
 
     def enable_defining_methods(klass)
       def klass.define(method_name, options={}, &block)
         @hatchery.define method_name, options, &block
+      end
+    end
+
+    def enable_factory(klass, factory_name)
+      return unless factory_name
+      klass.define_singleton_method factory_name do |overrides={}|
+        instance = begin
+                     new
+                   rescue ArgumentError
+                     Endower.uninitialized_instance_for self
+                   end
+        overrides.each { |attribute, value| instance.will_override attribute, value }
+        instance
       end
     end
   end
@@ -80,22 +102,21 @@ class Surrogate
 
     # Should this be dup? (dup seems to copy singleton methods) and may be able to use #initialize_copy to reset ivars
     # Can we just remove this feature an instead provide a reset feature which could be hooked into in before/after blocks (e.g. https://github.com/rspec/rspec-core/blob/622505d616d950ed53d12c6e82dbb953ba6241b4/lib/rspec/core/mocking/with_rspec.rb)
-    def clone
+    def clone(overrides={})
       hatchling, hatchery, parent_name = @hatchling, @hatchery, name
       Class.new self do
         extend Module.new { define_method(:name) { parent_name && parent_name + '.clone' } } # inherit the name -- use module so that ApiComparison comes out correct (real classes inherit their name method)
-        Surrogate.endow self do
+        Surrogate.endow self, hatchery.options do
           hatchling.api_methods.each { |name, options| define name, options.to_hash, &options.default_proc }
         end
         hatchery.api_methods.each { |name, options| define name, options.to_hash, &options.default_proc }
+        overrides.each { |attribute, value| @hatchling.prepare_method attribute, [value] }
       end
     end
 
     # Custom new, because user can define initialize, and we need to record it
     def new(*args)
-      instance = allocate
-      self.last_instance = instance
-      instance.instance_variable_set :@hatchling, Hatchling.new(instance, @hatchery)
+      instance = Endower.uninitialized_instance_for self
       instance.__send__ :initialize, *args
       instance
     end

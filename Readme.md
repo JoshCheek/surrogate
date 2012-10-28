@@ -161,6 +161,8 @@ user.id # => 12
 ```
 
 Use **clone** to avoid altering state on the class.
+You can pass it key/value pairs to mass initialize the clone
+(I think it's probably best to avoid this kind of state on classes, but do support it)
 ```ruby
 class MockUser
   Surrogate.endow self do
@@ -168,12 +170,43 @@ class MockUser
   end
 end
 
+# using a clone
 user_class = MockUser.clone
 user_class.find
 user_class.was told_to :find
 MockUser.was_not told_to :find
+
+# initializing the clone
+MockUser.clone(find: nil).find.should be_nil
 ```
 
+**Mass initialize** with `.factory(key: value)`, this can be turned off by passing
+`factory: false` as an option to Surrogate.endow, or given a different name if
+the value is the new name.
+
+```ruby
+# default factory method
+class MockUserWithFactory
+  Surrogate.endow self
+  define(:name) { 'Samantha' }
+  define(:age)  { 83 }
+end
+
+user = MockUserWithFactory.factory name: 'Jim', age: 26
+user.name # => "Jim"
+user.age  # => 26
+
+# use a different name
+class MockUserWithoutFactory
+  Surrogate.endow self, factory: :construct
+  define(:name) { 'Samantha' }
+  define(:age)  { 83 }
+end
+
+user = MockUserWithoutFactory.construct name: 'Milla'
+user.name # => "Milla"
+user.age  # => 83
+```
 
 
 RSpec Integration

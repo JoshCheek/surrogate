@@ -10,6 +10,7 @@ Urgent (things I want to do immediately, formatted as the git commits I will use
 TODO (next up after urgent, these will happen whenever I get around to it)
 --------------------------------------------------------------------------
 
+* when trying to set a return value, error is NoMethodError will_have_whatever, but would be nice for it to say `UndefinedMethodError bad_stuff is not defined`
 * Eventually it should be smart enough to not ignore natively implemented code with a [[:req]] argument
 * Remove dependency on all of RSpec and only depend on rspec-core, then have AC tests for the other shit
 * Add a better explanation for motivations
