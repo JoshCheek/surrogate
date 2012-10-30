@@ -1,31 +1,47 @@
 require 'spec_helper'
 
 describe 'substitute_for' do
+  context 'understands that the non-surrogate class should substitute for the surrogate class when' do
+    specify 'the surrogate class comes first (but it does emit a warning)' do
+      Kernel.should_receive(:warn).twice.with kind_of String
+      surrogate = Surrogate.endow(Class.new).define(:some_meth)
+      surrogate.should_not substitute_for Class.new
+      surrogate.should substitute_for Class.new { def some_meth() end }
+    end
+
+    it 'the non-surrogate class comes first (and it does not emit a warning)' do
+      Kernel.should_not_receive :warn
+      surrogate = Surrogate.endow(Class.new).define(:some_meth)
+      Class.new.should_not substitute_for surrogate
+      Class.new { def some_meth() end }.should substitute_for surrogate
+    end
+  end
+
   context 'exact substitutability' do
     context "returns true iff api methods and inherited methods match exactly to the other object's methods. Examples:" do
       context "a surrogate with no api methods" do
         let(:surrogate) { Surrogate.endow Class.new }
 
         example "is substitutable for a class with no methods" do
-          surrogate.should substitute_for Class.new
+          Class.new.should substitute_for surrogate
         end
 
         example "is not substitutable for a class with instance methods" do
-          surrogate.should_not substitute_for Class.new { def foo()end }
+          Class.new { def foo()end }.should_not substitute_for surrogate
         end
 
         example "is not substitutable for a class with class methods" do
-          surrogate.should_not substitute_for Class.new { def self.foo()end }
+          Class.new { def self.foo()end }.should_not substitute_for surrogate
         end
 
         example "is not substitutable for a class with inherited instance methods" do
           parent = Class.new { def foo()end }
-          surrogate.should_not substitute_for Class.new(parent)
+          Class.new(parent).should_not substitute_for surrogate
         end
 
         example "is not substitutable for a class with inherited class methods" do
           parent = Class.new { def self.foo()end }
-          surrogate.should_not substitute_for Class.new(parent)
+          Class.new(parent).should_not substitute_for surrogate
         end
       end
 
@@ -34,39 +50,39 @@ describe 'substitute_for' do
         let(:surrogate) { Class.new { Surrogate.endow self; define :foo } }
 
         example "is substitutable for a class with the same method" do
-          surrogate.should substitute_for Class.new { def foo()end }
+          Class.new { def foo()end }.should substitute_for surrogate
         end
 
         example "is substitutable for a class that inherits the method" do
           parent = Class.new { def foo()end }
-          surrogate.should substitute_for Class.new(parent)
+          Class.new(parent).should substitute_for surrogate
         end
 
         example "is not substitutable for a class without the method" do
-          surrogate.should_not substitute_for Class.new
+          Class.new.should_not substitute_for surrogate
         end
 
         example "is not substitutable for a class with a different method" do
-          surrogate.should_not substitute_for Class.new { def bar()end }
+          Class.new { def bar()end }.should_not substitute_for surrogate
         end
 
         example "is not substitutable for a class with additional methods" do
           other = Class.new { def foo()end; def bar()end }
-          surrogate.should_not substitute_for other
+          other.should_not substitute_for surrogate
         end
 
         example "is not substitutable for a class with the method and inerited additional methods" do
           parent = Class.new { def bar()end }
-          surrogate.should_not substitute_for Class.new(parent) { def foo()end }
+          Class.new(parent) { def foo()end }.should_not substitute_for surrogate
         end
 
         example "is not substitutable for a class with the method and additional class methods" do
-          surrogate.should_not substitute_for Class.new { def foo()end; def self.bar()end }
+          Class.new { def foo()end; def self.bar()end }.should_not substitute_for surrogate
         end
 
         example "is not substitutable for a class with the method and inherited additional class methods" do
           parent = Class.new { def self.bar()end }
-          surrogate.should_not substitute_for Class.new(parent) { def foo()end }
+          Class.new(parent) { def foo()end }.should_not substitute_for surrogate
         end
       end
 
@@ -76,32 +92,32 @@ describe 'substitute_for' do
 
         specify 'when klass is missing an instance method' do
           surrogate.define :meth
-          expect { surrogate.should substitute_for Class.new }.to \
+          expect { Class.new.should substitute_for surrogate }.to \
             raise_error(RSpec::Expectations::ExpectationNotMetError, "Was not substitutable because surrogate has extra instance methods: [:meth]")
         end
 
         specify 'when klass is missing a class method' do
           surrogate = Surrogate.endow(Class.new) { define :meth }
-          expect { surrogate.should substitute_for Class.new }.to \
+          expect { Class.new.should substitute_for surrogate }.to \
             raise_error(RSpec::Expectations::ExpectationNotMetError, "Was not substitutable because surrogate has extra class methods: [:meth]")
         end
 
         specify 'when surrogate is missing an instance method' do
           klass = Class.new { def meth() end }
-          expect { surrogate.should substitute_for klass }.to \
+          expect { klass.should substitute_for surrogate }.to \
             raise_error(RSpec::Expectations::ExpectationNotMetError, "Was not substitutable because surrogate is missing instance methods: [:meth]")
         end
 
         specify 'when surrogate is missing a class method' do
           klass = Class.new { def self.meth() end }
-          expect { surrogate.should substitute_for klass }.to \
+          expect { klass.should substitute_for surrogate }.to \
             raise_error(RSpec::Expectations::ExpectationNotMetError, "Was not substitutable because surrogate is missing class methods: [:meth]")
         end
 
         specify 'when combined' do
           surrogate = Surrogate.endow(Class.new) { define :surrogate_class_meth }.define :surrogate_instance_meth
           klass = Class.new { def self.api_class_meth()end; def api_instance_meth() end }
-          expect { surrogate.should substitute_for klass }.to \
+          expect { klass.should substitute_for surrogate }.to \
             raise_error(RSpec::Expectations::ExpectationNotMetError, "Was not substitutable because surrogate has extra instance methods: [:surrogate_instance_meth]\n"\
                                                                                                              "has extra class methods: [:surrogate_class_meth]\n"\
                                                                                                              "is missing instance methods: [:api_instance_meth]\n"\
@@ -109,7 +125,7 @@ describe 'substitute_for' do
         end
 
         specify "when negated (idk why you'd ever want this, though)" do
-          expect { surrogate.should_not substitute_for Class.new }.to \
+          expect { Class.new.should_not substitute_for surrogate }.to \
             raise_error(RSpec::Expectations::ExpectationNotMetError, "Should not have been substitute, but was")
         end
       end
@@ -121,29 +137,32 @@ describe 'substitute_for' do
   context 'subset substitutability -- specified with subset: true option' do
     context "returns true if api methods and inherited methods match are all implemented by other class. Examples:" do
       example 'true when exact match' do
-        Surrogate.endow(Class.new).should substitute_for Class.new, subset: true
+        Class.new.should substitute_for Surrogate.endow(Class.new), subset: true
       end
 
       example 'true when other has additional instance methods and class methods' do
         klass = Class.new { def self.class_meth()end; def instance_meth()end }
-        Surrogate.endow(Class.new).should substitute_for klass, subset: true
+        klass.should substitute_for Surrogate.endow(Class.new), subset: true
       end
 
       example 'false when other is missing instance methods' do
-        klass = Class.new { def self.extra_method()end; def extra_method()end }
-        expect { Surrogate.endow(Class.new).define(:meth).should substitute_for klass, subset:true }.to \
+        klass     = Class.new { def self.extra_method()end; def extra_method()end }
+        surrogate = Surrogate.endow(Class.new).define(:meth)
+        expect { klass.should substitute_for surrogate, subset:true }.to \
           raise_error(RSpec::Expectations::ExpectationNotMetError, "Was not substitutable because surrogate has extra instance methods: [:meth]")
       end
 
       example 'false when other is missing class methods' do
-        klass = Class.new { def self.extra_method()end; def extra_method()end }
-        expect { Surrogate.endow(Class.new) { define :meth }.should substitute_for klass, subset:true }.to \
+        klass     = Class.new { def self.extra_method()end; def extra_method()end }
+        surrogate = Surrogate.endow(Class.new) { define :meth }
+        expect { klass.should substitute_for surrogate, subset:true }.to \
           raise_error(RSpec::Expectations::ExpectationNotMetError, "Was not substitutable because surrogate has extra class methods: [:meth]")
       end
 
       example 'false when other is missing instance and class methods' do
         klass = Class.new { def self.extra_method()end; def extra_method()end }
-        expect { Surrogate.endow(Class.new) { define :class_meth }.define(:instance_meth).should substitute_for klass, subset: true }.to \
+        surrogate = Surrogate.endow(Class.new) { define :class_meth }.define(:instance_meth)
+        expect { klass.should substitute_for surrogate, subset: true }.to \
           raise_error(RSpec::Expectations::ExpectationNotMetError,
                       "Was not substitutable because surrogate has extra instance methods: [:instance_meth]\nhas extra class methods: [:class_meth]")
       end
@@ -156,82 +175,82 @@ describe 'substitute_for' do
     it 'is turned on by default' do
       klass = Class.new { def instance_meth(a) end }
       surrogate = Surrogate.endow(Class.new).define(:instance_meth) { }
-      surrogate.should_not substitute_for klass
-      surrogate.should substitute_for klass, types: false
+      klass.should_not substitute_for surrogate
+      klass.should substitute_for surrogate, types: false
     end
 
     it 'disregards when argument names differ' do
       klass = Class.new { def instance_meth(a) end }
       surrogate = Surrogate.endow(Class.new).define(:instance_meth) { |b| }
-      surrogate.should substitute_for klass, names: false, types: true
+      klass.should substitute_for surrogate, names: false, types: true
     end
 
     it 'disregards when surrogate has no body for an api method' do
       klass = Class.new { def instance_meth(a) end }
       surrogate = Surrogate.endow(Class.new).define :instance_meth
-      surrogate.should substitute_for klass, types: true
+      klass.should substitute_for surrogate, types: true
     end
 
     it 'disregards when real object has natively implemented methods that cannot be reflected on' do
       Array.method(:[]).parameters.should == [[:rest]] # make sure Array signatures aren't changing across versions or something
       Array.instance_method(:insert).parameters.should == [[:rest]]
       surrogate = Surrogate.endow(Class.new) { define(:[]) { |a,b,c| } }.define(:insert) { |a,b,c| }
-      surrogate.should substitute_for Array, subset: true, types: true
+      Array.should substitute_for surrogate, subset: true, types: true
     end
 
     context 'returns true if argument types match exactly. Examples:' do
       example 'true when exact match' do
         klass = Class.new { def instance_meth(a, b=1, *c, d, &e) end }
         surrogate = Surrogate.endow(Class.new).define(:instance_meth) { |a, b=1, *c, d, &e| }
-        surrogate.should substitute_for klass, types: true
+        klass.should substitute_for surrogate, types: true
       end
 
       example 'false when missing block' do
         klass = Class.new { def instance_meth(a, b=1, *c, d) end }
         surrogate = Surrogate.endow(Class.new).define(:instance_meth) { |a, b=1, *c, d, &e| }
-        surrogate.should_not substitute_for klass, types: true
+        klass.should_not substitute_for surrogate, types: true
 
         klass = Class.new { def instance_meth(a, b=1, *c, d, &e) end }
         surrogate = Surrogate.endow(Class.new).define(:instance_meth) { |a, b=1, *c, d| }
-        surrogate.should_not substitute_for klass, types: true
+        klass.should_not substitute_for surrogate, types: true
       end
 
       example 'false when missing splatted args' do
         klass = Class.new { def instance_meth(a, b=1, d, &e) end }
         surrogate = Surrogate.endow(Class.new).define(:instance_meth) { |a, b=1, *c, d, &e| }
-        surrogate.should_not substitute_for klass, types: true
+        klass.should_not substitute_for surrogate, types: true
 
         klass = Class.new { def instance_meth(a, b=1, *c, d, &e) end }
         surrogate = Surrogate.endow(Class.new).define(:instance_meth) { |a, b=1, d, &e| }
-        surrogate.should_not substitute_for klass
+        klass.should_not substitute_for surrogate
       end
 
       example 'false when missing optional args' do
         klass = Class.new { def instance_meth(a, *c, d, &e) end }
         surrogate = Surrogate.endow(Class.new).define(:instance_meth) { |a, b=1, *c, d, &e| }
-        surrogate.should_not substitute_for klass
+        klass.should_not substitute_for surrogate
 
         klass = Class.new { def instance_meth(a, b=1, *c, d, &e) end }
         surrogate = Surrogate.endow(Class.new).define(:instance_meth) { |a, *c, d, &e| }
-        surrogate.should_not substitute_for klass, types: true
+        klass.should_not substitute_for surrogate, types: true
       end
 
       example 'false when missing required args' do
         klass = Class.new { def instance_meth(b=1, *c, d, &e) end }
         surrogate = Surrogate.endow(Class.new).define(:instance_meth) { |a, b=1, *c, d, &e| }
-        surrogate.should_not substitute_for klass, types: true
+        klass.should_not substitute_for surrogate, types: true
 
         klass = Class.new { def instance_meth(a, b=1, *c, d, &e) end }
         surrogate = Surrogate.endow(Class.new).define(:instance_meth) { |b=1, *c, d, &e| }
-        surrogate.should_not substitute_for klass, types: true
+        klass.should_not substitute_for surrogate, types: true
 
         klass = Class.new { def instance_meth(a, b=1, *c, &e) end }
         surrogate = Surrogate.endow(Class.new).define(:instance_meth) { |a, b=1, *c, d, &e| }
-        surrogate.should_not substitute_for klass, types: true
+        klass.should_not substitute_for surrogate, types: true
 
         klass = Class.new { def instance_meth(a, b=1, *c, d, &e) end }
         surrogate = Surrogate.endow(Class.new).define(:instance_meth) { |a, b=1, *c, &e| }
-        surrogate.should_not substitute_for klass, types: true
+        klass.should_not substitute_for surrogate, types: true
       end
     end
   end
@@ -242,45 +261,45 @@ describe 'substitute_for' do
       # instance
       klass = Class.new { def instance_meth(a) end }
       surrogate = Surrogate.endow(Class.new).define(:instance_meth) {|b|}
-      surrogate.should substitute_for klass
-      surrogate.should_not substitute_for klass, names: true
+      klass.should substitute_for surrogate
+      klass.should_not substitute_for surrogate, names: true
 
       # class
       klass = Class.new { def self.class_meth(a) end }
       surrogate = Surrogate.endow(Class.new) { define(:class_meth) {|b|} }
-      surrogate.should substitute_for klass
-      surrogate.should_not substitute_for klass, names: true
+      klass.should substitute_for surrogate
+      klass.should_not substitute_for surrogate, names: true
     end
 
     it 'disregards when argument types differ' do
       # instance
       klass = Class.new { def instance_meth(a=1) end }
       surrogate = Surrogate.endow(Class.new).define(:instance_meth) {|a|}
-      surrogate.should substitute_for klass, types: false, names: true
+      klass.should substitute_for surrogate, types: false, names: true
 
       # class
       klass = Class.new { def self.class_meth(a=1) end }
       surrogate = Surrogate.endow(Class.new) { define(:class_meth) {|a|} }
-      surrogate.should substitute_for klass, types: false, names: true
+      klass.should substitute_for surrogate, types: false, names: true
     end
 
     it 'disregards when surrogate has no body for an api method' do
       # instance
       klass = Class.new { def instance_meth(a) end }
       surrogate = Surrogate.endow(Class.new).define(:instance_meth)
-      surrogate.should substitute_for klass, names: true
+      klass.should substitute_for surrogate, names: true
 
       # class
       klass = Class.new { def self.class_meth(a) end }
       surrogate = Surrogate.endow(Class.new) { define :class_meth }
-      surrogate.should substitute_for klass, names: true
+      klass.should substitute_for surrogate, names: true
     end
 
     it 'disregards when real object has natively implemented methods that cannot be reflected on' do
       Array.method(:[]).parameters.should == [[:rest]] # make sure Array signatures aren't changing across versions or something
       Array.instance_method(:insert).parameters.should == [[:rest]]
       surrogate = Surrogate.endow(Class.new) { define(:[]) { |a,b,c| } }.define(:insert) { |a,b,c| }
-      surrogate.should substitute_for Array, subset: true, names: true
+      Array.should substitute_for surrogate, subset: true, names: true
     end
 
     context 'returns true if argument names match exactly. Examples:' do
@@ -290,31 +309,31 @@ describe 'substitute_for' do
           def instance_meth(b) end
         end
         surrogate = Surrogate.endow(Class.new) { define(:class_meth) {|a|} }.define(:instance_meth) {|b|}
-        surrogate.should substitute_for klass, names: true
+        klass.should substitute_for surrogate, names: true
       end
 
       specify 'false when different number of args' do
         # instance
         klass = Class.new { def instance_meth(a, b=1, *c, d, &e) end }
         surrogate = Surrogate.endow(Class.new).define(:instance_meth) { |a, b=1, *c, d| }
-        surrogate.should_not substitute_for klass, names: true
+        klass.should_not substitute_for surrogate, names: true
 
         # class
         klass = Class.new { def self.class_meth(a, b=1, *c, d, &e) end }
         surrogate = Surrogate.endow(Class.new) { define(:class_meth) { |a, b=1, *c, d| } }
-        surrogate.should_not substitute_for klass, names: true
+        klass.should_not substitute_for surrogate, names: true
       end
 
       specify 'false when different names' do
         # instance
         klass = Class.new { def instance_meth(a, b=1, *c, d, &e) end }
         surrogate = Surrogate.endow(Class.new).define(:instance_meth) { |a, b=1, *c, d, &not_e| }
-        surrogate.should_not substitute_for klass, names: true
+        klass.should_not substitute_for surrogate, names: true
 
         # class
         klass = Class.new { def instance_meth(a, b=1, *c, d, &e) end }
         surrogate = Surrogate.endow(Class.new) { define(:class_meth) { |a, b=1, *c, d, &not_e| } }
-        surrogate.should_not substitute_for klass, names: true
+        klass.should_not substitute_for surrogate, names: true
       end
     end
   end

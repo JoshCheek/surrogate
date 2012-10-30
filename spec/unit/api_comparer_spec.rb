@@ -10,7 +10,7 @@ describe Surrogate::ApiComparer do
   context 'when identifying types' do
     it 'uses :req, :opt, :rest, and :block' do
       surrogate = Surrogate.endow(Class.new).define(:to_s) { |a, b, c, d=1, e=2, *f, g, &h| }
-      comparer = described_class.new(surrogate, Class.new)
+      comparer = described_class.new(Class.new, surrogate)
       comparer.compare[:instance][:types][:to_s][:surrogate].should ==
         [:req, :req, :req, :opt, :opt, :rest, :req, :block]
     end
@@ -40,7 +40,7 @@ describe Surrogate::ApiComparer do
       end
     end
 
-    let(:comparer) { described_class.new surrogate, Class.new }
+    let(:comparer) { described_class.new Class.new, surrogate }
 
     it "knows the surrogate's instance level api methods" do
       comparer.surrogate_methods[:instance][:api].should == Set[:api_instance_meth, :api_instance_meth_with_signature]
@@ -86,7 +86,7 @@ describe Surrogate::ApiComparer do
       Class.new(parent) { def self.class_meth()end; def instance_meth()end }
     end
 
-    let(:comparer) { described_class.new surrogate, actual }
+    let(:comparer) { described_class.new actual, surrogate }
 
     it "knows the object's inherited instance methods" do
       set_assertion comparer.actual_methods[:instance][:inherited],
@@ -131,7 +131,7 @@ describe Surrogate::ApiComparer do
       end
     end
 
-    let(:comparer) { described_class.new surrogate, actual }
+    let(:comparer) { described_class.new actual, surrogate }
 
     it 'tells me about instance methods on actual that are not on surrogate' do
       comparer.compare[:instance][:not_on_surrogate].should == Set[:instance_not_on_surrogate, :inherited_instance_not_on_surrogate, :instance_meth_on_both]
@@ -175,7 +175,7 @@ describe Surrogate::ApiComparer do
           def instance_meth3(e3, f3=1, *c3, &d3)end
         end
 
-        comparer = described_class.new surrogate, klass
+        comparer = described_class.new klass, surrogate
         comparer.compare[:instance][:types].should  == {}
         comparer.compare[:class][:types].should == {}
       end
@@ -192,7 +192,7 @@ describe Surrogate::ApiComparer do
           define(:instance_meth2) { |a, b, c, d| }
         end
 
-        described_class.new(surrogate, klass).compare
+        described_class.new(klass, surrogate).compare
         comparer.compare[:class][:types].should == {}
         comparer.compare[:instance][:types].should == {}
       end
@@ -200,7 +200,7 @@ describe Surrogate::ApiComparer do
       it 'ignores methods with no default block' do
         klass = Class.new { def instance_meth(a)end }
         surrogate = Surrogate.endow(Class.new).define(:instance_meth)
-        described_class.new(surrogate, klass).compare
+        described_class.new(klass, surrogate).compare
         comparer.compare[:class][:types].should == {}
         comparer.compare[:instance][:types].should == {}
       end
@@ -217,7 +217,7 @@ describe Surrogate::ApiComparer do
           end
         end
 
-        comparer = described_class.new surrogate, klass
+        comparer = described_class.new klass, surrogate
         comparer.compare[:class][:types].should == {
           class_meth1: { actual:    [:req, :opt, :rest, :block],
                          surrogate: [      :opt, :rest, :block],
@@ -239,7 +239,7 @@ describe Surrogate::ApiComparer do
           define(:instance_meth2) { |a, *c, &d| }
         end
 
-        comparer = described_class.new surrogate, klass
+        comparer = described_class.new klass, surrogate
         comparer.compare[:instance][:types].should == {
           instance_meth1: { actual:    [:req, :opt, :rest, :block],
                             surrogate: [      :opt, :rest, :block],

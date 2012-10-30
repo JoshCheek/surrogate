@@ -16,7 +16,6 @@ TODO (next up after urgent, these will happen whenever I get around to it)
 * Figure out whether I'm supposed to be using clone or dup for the object -.^ (looks like there may also be an `initialize_copy` method I can take advantage of instead of crazy stupid shit I'm doing now)
 * config: rspec_mocks loaded, whether unprepared blocks should raise or just return nil
 * extract surrogate/rspec into its own gem
-* make substitutability matcher go either way
 * make substitutability matcher not care whether either are surrogates
 
 

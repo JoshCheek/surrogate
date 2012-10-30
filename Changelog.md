@@ -1,5 +1,6 @@
 ### 0.6.2
 
+* Make substitutability matcher go either way (you should now do `RealClass.should substitute_for SurrogateClass` eventually, doing it in the other direction will not be supported)
 * Bug fix: checks arity on invocations, even when default value is overridden
 * Substitutability can check argument names
 * Fix error message when there are no api methods. Used to say "Doesn't know initialize, only knows "

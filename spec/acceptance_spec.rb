@@ -112,7 +112,7 @@ describe Surrogate do
     # =====  Substitutability  =====
 
     # real user is not a suitable substitute if missing methods that mock user has
-    user_class.should_not substitute_for Class.new
+    Class.new.should_not substitute_for user_class
 
     # real user must have all of mock user's methods to be substitutable
     substitutable_real_user_class = Class.new do
@@ -124,22 +124,22 @@ describe Surrogate do
       def phone_numbers() end
       def add_phone_number(area_code, number) end
     end
-    user_class.should substitute_for substitutable_real_user_class
-    user_class.should substitute_for substitutable_real_user_class, subset: true
+    substitutable_real_user_class.should substitute_for user_class
+    substitutable_real_user_class.should substitute_for user_class, subset: true
 
     # when real user class has extra methods, it is only substitutable as a subset
     real_user_class = substitutable_real_user_class.clone
     def real_user_class.some_class_meth() end
-    user_class.should_not substitute_for real_user_class
+    real_user_class.should_not substitute_for user_class
 
     real_user_class = substitutable_real_user_class.dup
     real_user_class.send(:define_method, :some_instance_method) {}
-    user_class.should_not substitute_for real_user_class
-    user_class.should substitute_for real_user_class, subset: true
+    real_user_class.should_not substitute_for user_class
+    real_user_class.should substitute_for user_class, subset: true
 
     # subset substitutability does not work for superset
     real_user_class = substitutable_real_user_class.dup
     real_user_class.send :undef_method, :address
-    user_class.should_not substitute_for real_user_class, subset: true
+    real_user_class.should_not substitute_for user_class, subset: true
   end
 end

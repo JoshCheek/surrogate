@@ -411,7 +411,7 @@ Assert that your mock has the **same interface** as your real class.
 This will fail if the mock inherits methods which are not on the real class. It will also fail
 if the real class has any methods which have not been defined on the mock or inherited by the mock.
 
-Presently, it will ignore methods defined directly in the mock (as it generally considers them to be helpers).
+Presently, it will ignore methods defined directly in the mock (as it considers them to be helpers).
 In a future version, you will be able to tell it to treat other methods
 as part of the API (will fail if they don't match, and maybe record their values).
 
@@ -429,25 +429,25 @@ class MockUser
 end
 
 # they are the same
-MockUser.should substitute_for User
+User.should substitute_for MockUser
 
 # they differ
 MockUser.define :name
-MockUser.should_not substitute_for User
+User.should_not substitute_for MockUser
 
 # signatures don't match (you can turn this off by passing `types: false` to substitute_for)
 class UserWithWrongSignature
   def initialize()end # no id
   def id()end
 end
-MockUser.should_not substitute_for UserWithWrongSignature
+UserWithWrongSignature.should_not substitute_for MockUser
 
 # parameter names don't match
 class UserWithWrongParamNames
   def initialize(name)end # real one takes an id
   def id()end
 end
-MockUser.should_not substitute_for UserWithWrongParamNames, names: true
+UserWithWrongParamNames.should_not substitute_for MockUser, names: true
 <% end %>
 ```
 
@@ -470,11 +470,11 @@ class MockUser
 end
 
 # doesn't matter that real user has a name as long as it has initialize and id
-MockUser.should substitute_for User, subset: true
+User.should substitute_for MockUser, subset: true
 
 # but now it fails b/c it has no address
 MockUser.define :address
-MockUser.should_not substitute_for User, subset: true
+User.should_not substitute_for MockUser, subset: true
 <% end %>
 ```
 
