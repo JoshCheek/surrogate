@@ -1,5 +1,6 @@
 ### 0.6.2
 
+* Bug fix: checks arity on invocations, even when default value is overridden
 * Substitutability can check argument names
 * Fix error message when there are no api methods. Used to say "Doesn't know initialize, only knows "
 

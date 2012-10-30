@@ -6,6 +6,7 @@ class Surrogate
     attr_accessor :name, :empty_lambda
 
     def initialize(name, lambda_or_method)
+      must_be_lambda_or_method lambda_or_method
       self.name, self.empty_lambda = name.to_s, lambda_with_same_params_as(lambda_or_method)
     end
 
@@ -38,6 +39,12 @@ class Surrogate
       else
         raise "forgot to account for #{type.inspect}"
       end
+    end
+
+    def must_be_lambda_or_method(lambda_or_method)
+      return if lambda_or_method.kind_of? ::Method
+      return if lambda_or_method.kind_of?(Proc) && lambda_or_method.lambda?
+      raise ArgumentError, "Expected a lambda or method, got a #{lambda_or_method.class}"
     end
   end
 end

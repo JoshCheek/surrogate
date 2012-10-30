@@ -6,6 +6,7 @@ describe Surrogate::ArgumentErrorizer do
   describe 'match!' do
     it 'raises an argument error if the arguments do not match' do
       expect { described_class.new(meth_name, ->(){}).match! 1 }.to raise_error ArgumentError
+      expect { described_class.new(meth_name, ->(a){}).match! }.to raise_error ArgumentError
     end
 
     it 'does not raise any errors if the arguments do match' do
@@ -46,5 +47,13 @@ describe Surrogate::ArgumentErrorizer do
     assert_message ->(a, *b){},                      [],    "wrong number of arguments (0 for 1) in #{meth_name}(a, *b)"
     assert_message ->(a, *b, &c){},                  [],    "wrong number of arguments (0 for 1) in #{meth_name}(a, *b, &c)"
     assert_message ->(a, b, c=1, d=1, *e, f, &g){},  [],    "wrong number of arguments (0 for 3) in #{meth_name}(a, b, c='?', d='?', *e, f, &g)"
+  end
+
+  it 'raises an ArgumentError if initialized with a non lambda/method' do
+    def self.some_method() end
+    described_class.new 'some_name', method(:some_method)
+    described_class.new 'some_name', lambda {}
+    expect { described_class.new 'some_name', Proc.new {} }.to raise_error ArgumentError, 'Expected a lambda or method, got a Proc'
+    expect { described_class.new 'some_name', 'abc' }.to raise_error ArgumentError, 'Expected a lambda or method, got a String'
   end
 end

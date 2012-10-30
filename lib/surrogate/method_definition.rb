@@ -39,7 +39,7 @@ class Surrogate
     private
 
     def errorizer
-      @errorizer ||= ArgumentErrorizer.new name, default_proc
+      @errorizer ||= ArgumentErrorizer.new name, to_method_definition(default_proc)
     end
 
     def default_proc_as_method_on(instance)
@@ -49,6 +49,12 @@ class Surrogate
       as_method = klass.instance_method unique_name
       klass.__send__ :remove_method, unique_name
       as_method.bind instance
+    end
+
+    def to_method_definition(default_proc)
+      object = Object.new
+      object.define_singleton_method(:temp_method, &default_proc)
+      object.method(:temp_method)
     end
   end
 end

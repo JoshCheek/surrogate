@@ -107,7 +107,7 @@ describe Surrogate do
     # pass the error as the return value, it will be raised when method is invoked
     error = StandardError.new("some message")
     user.will_add_phone_number error
-    expect { user.add_phone_number }.to raise_error StandardError, "some message"
+    expect { user.add_phone_number '312', '123-4567' }.to raise_error StandardError, "some message"
 
     # =====  Substitutability  =====
 
