@@ -23,6 +23,10 @@ class Surrogate
     end
 
     module Matchers
+      def substitute_for(original_class, options={})
+        SubstitutionMatcher.new original_class, options
+      end
+
       def have_been_told_to(method_name)
         VerbMatcher.new method_name
       end
@@ -65,7 +69,7 @@ class Surrogate
   end
 end
 
-require 'surrogate/rspec/substitute_for'
+require 'surrogate/rspec/substitution_matcher'
 require 'surrogate/rspec/predicate_matcher'
 require 'surrogate/rspec/noun_matcher'
 require 'surrogate/rspec/initialization_matcher'

@@ -1,3 +1,7 @@
+### 0.6.4
+
+* Remove explicit reference to RSpec::Matchers so that surrogate/rspec doesn't depend on rspec-expectations
+
 ### 0.6.3
 
 * Allow mass initialization of instances with `MockClass.factory key: value`

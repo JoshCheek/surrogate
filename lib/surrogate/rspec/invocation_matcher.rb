@@ -27,14 +27,6 @@ class Surrogate
         SurrogateInstanceReflector.new(surrogate).invocations(method_name)
       end
 
-      def failure_message_for_should
-        raise "THIS METHOD SHOULD HAVE BEEN OVERRIDDEN"
-      end
-
-      def failure_message_for_should_not
-        raise "THIS METHOD SHOULD HAVE BEEN OVERRIDDEN"
-      end
-
       def times(times_invoked)
         @times_predicate = TimesPredicate.new(times_invoked, :==)
         self
