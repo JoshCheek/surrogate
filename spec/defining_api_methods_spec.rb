@@ -47,6 +47,12 @@ describe 'define' do
     it "returns the value that the method returns" do
       mocked_class.define(:meth) { 1234 }.new.meth.should == 1234
     end
+
+    it "always invokes the block when the method is a setter (ends in '=')" do
+      a = 0
+      mocked_class.define(:meth=) { |value| a = value }.new.meth = 1234
+      a.should == 1234
+    end
   end
 
   describe 'declaring the behaviour' do
@@ -168,6 +174,13 @@ describe 'define' do
       mocked_class.new.meth(1).should == 1
       expect { mocked_class.new.meth }.to raise_error ArgumentError, /0 for 1/
       expect { mocked_class.new.meth 1, 2 }.to raise_error ArgumentError, /2 for 1/
+    end
+
+    it "can be defined with symbols or strings" do
+      mocked_class.define("meth") { |a| a }
+      mocked_class.define(:other_meth) { |a| a * 2 }
+      mocked_class.new.meth(1).should == 1
+      mocked_class.new.other_meth(1).should == 2
     end
 
     it 'raises an UnpreparedMethodError when it has no default block' do
@@ -316,3 +329,54 @@ describe 'define' do
     end
   end
 end
+
+describe 'defining accessors' do
+
+  specify '#define_reader is an api method for attr_reader' do
+    instance = Surrogate.endow(Class.new).define_reader(:eric, :josh).new
+    instance.was_not asked_for :eric
+    instance.eric.should == nil
+    instance.was asked_for :eric
+    instance.josh.should be_nil
+  end
+
+  specify '#define_reader can be defined with a value' do
+    instance = Surrogate.endow(Class.new).define_reader(:eric, :josh) { "is awesome" }.new
+    instance.eric.should == "is awesome"
+    instance.will_have_eric("less awesome")
+    instance.josh.should == "is awesome"
+  end
+
+  specify '#define_writer is an api method for attr_writer' do
+    instance = Surrogate.endow(Class.new).define_writer(:eric, :josh).new
+    instance.was_not told_to :eric=
+    instance.eric = "was here"
+    instance.instance_variable_get("@eric").should == "was here"
+    instance.was told_to :eric=
+    instance.josh = "was here"
+  end
+
+  specify '#define_accessor is an api method for attr_accessor' do
+    instance = Surrogate.endow(Class.new).define_accessor(:eric, :josh).new
+    instance.was_not asked_for :eric
+    instance.eric.should == nil
+    instance.eric = "was here"
+    instance.eric.should == "was here"
+    instance.was asked_for :eric
+    instance.josh = "was also here"
+    instance.josh.should == "was also here"
+  end
+
+  specify '#define_accessor can take a block for the reader' do
+    instance = Surrogate.endow(Class.new).define_accessor(:eric) {"was here"}.new
+    instance.was_not asked_for :eric
+    instance.eric.should == "was here"
+    instance.was asked_for :eric
+    instance.eric = "was somewhere else"
+    instance.eric.should == "was somewhere else"
+  end
+end
+
+
+
+

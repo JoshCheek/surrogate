@@ -19,7 +19,9 @@ class Surrogate
     def invoke_method(method_name, args, &block)
       invocation = Invocation.new(args, &block)
       invoked_methods[method_name] << invocation
-      return get_default method_name, invocation, &block unless has_ivar? method_name
+      if setter?(method_name) || !has_ivar?(method_name)
+        return get_default method_name, invocation, &block
+      end
       interfaces_must_match! method_name, args
       Value.factory(get_ivar method_name).value(method_name)
     end
@@ -34,6 +36,10 @@ class Surrogate
     end
 
   private
+
+    def setter?(method_name)
+      method_name.match(/\w=$/)
+    end
 
     def invoked_methods
       @invoked_methods ||= Hash.new do |hash, method_name|
