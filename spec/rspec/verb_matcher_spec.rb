@@ -23,12 +23,20 @@ shared_examples_for 'a verb matcher' do
   describe 'default use case' do
     before { mocked_class.define :kick, default: [] }
 
-    example 'passes if has been invoked at least once' do
+    example 'passes with a symbol if has been invoked at least once' do
       did_not :kick
       instance.kick
       did :kick
       instance.kick
       did :kick
+    end
+
+    example 'passes with a string if invoked at least once' do
+      did_not "kick"
+      instance.kick
+      did "kick"
+      instance.kick
+      did "kick"
     end
 
     example 'failure message for should' do
