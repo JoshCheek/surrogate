@@ -9,7 +9,7 @@ class Surrogate
       attr_accessor :times_predicate, :with_filter, :surrogate, :method_name
 
       def initialize(method_name)
-        self.method_name     = method_name
+        self.method_name     = method_name.to_sym
         self.times_predicate = TimesPredicate.new
         self.with_filter     = WithFilter.new
       end

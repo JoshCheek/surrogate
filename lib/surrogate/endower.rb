@@ -78,7 +78,28 @@ class Surrogate
 
     def enable_defining_methods(klass)
       def klass.define(method_name, options={}, &block)
-        @hatchery.define method_name, options, &block
+        @hatchery.define method_name.to_sym, options, &block
+      end
+
+      def klass.define_reader(*method_names, &block)
+        block ||= lambda {}
+        method_names.each { |method_name| define method_name, &block }
+        self
+      end
+
+      def klass.define_writer(*method_names)
+        method_names.each do |method_name|
+          define "#{method_name}=" do |value|
+            instance_variable_set("@#{method_name}", value)
+          end
+        end
+        self
+      end
+
+      def klass.define_accessor(*method_names, &block)
+        define_reader(*method_names, &block)
+        define_writer(*method_names)
+        self
       end
     end
 
