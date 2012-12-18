@@ -1,6 +1,7 @@
 ### 0.6.4
 
 * Remove explicit reference to RSpec::Matchers so that surrogate/rspec doesn't depend on rspec-expectations
+* Add `define_setter`, `define_getter`, `define_accessor` which mimic Ruby's `attr_*` methods, but are also recorded / overridable.
 
 ### 0.6.3
 

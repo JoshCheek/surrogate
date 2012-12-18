@@ -9,7 +9,7 @@ Handrolling mocks is the best, but involves more overhead than necessary, and us
 error messages. Surrogate addresses this by endowing your objects with common things that most mocks need.
 Currently it is only integrated with RSpec.
 
-This codebase should be considered highly volatile until 1.0 release. The outer interface should be
+This codebase should be considered volatile until 1.0 release. The outer interface should be
 fairly stable, with each 0.a.b version having backwards compatibility for any changes to b (ie
 only refactorings and new features), and possible interface changes (though probably minimal)
 for changes to a. Depending on the internals of the code (anything not shown in the readme) is
@@ -20,8 +20,7 @@ that I introduce.
 Features
 ========
 
-* Declarative syntax
-* Can compare signatures of mocks to signatures of the class being mocked
+* Mock does not diverge from real class because compares signatures of mocks to signatures of the real class.
 * Support default values
 * Easily override values
 * RSpec matchers for asserting what happend (what was invoked, with what args, how many times)
@@ -62,6 +61,21 @@ class MockClient
 end
 
 MockClient.new.request # => ["result1", "result2"]
+```
+
+Ruby's `attr_accessor`, `attr_reader`, `attr_writer` are mimicked with `define_accessor`, `define_reader`, `define_writer`.
+You can pass a block to `define_accessor` and `define_reader` if you would like to give it a default_value.
+
+```ruby
+class MockClient
+  Surrogate.endow self
+  define_accessor :default_url
+end
+
+client = MockClient.new
+client.default_url # => nil
+client.default_url = 'http://whatever.com'
+client.default_url # => "http://whatever.com"
 ```
 
 If you expect **arguments**, your block should receive them.
@@ -197,13 +211,13 @@ user.name # => "Jim"
 user.age  # => 26
 
 # use a different name
-class MockUserWithoutFactory
+class MockUserWithRenamedFactory
   Surrogate.endow self, factory: :construct
   define(:name) { 'Samantha' }
   define(:age)  { 83 }
 end
 
-user = MockUserWithoutFactory.construct name: 'Milla'
+user = MockUserWithRenamedFactory.construct name: 'Milla'
 user.name # => "Milla"
 user.age  # => 83
 ```
