@@ -23,6 +23,10 @@ class Surrogate
     end
 
     module Matchers
+      def be_substitutable_for(original_class, options={})
+        SubstitutionMatcher.new original_class, options
+      end
+
       def substitute_for(original_class, options={})
         SubstitutionMatcher.new original_class, options
       end

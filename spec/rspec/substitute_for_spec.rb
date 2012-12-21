@@ -1,19 +1,22 @@
 require 'spec_helper'
 
-describe 'substitute_for' do
-  context 'understands that the non-surrogate class should substitute for the surrogate class when' do
-    specify 'the surrogate class comes first (but it does emit a warning)' do
-      Kernel.should_receive(:warn).twice.with kind_of String
+describe 'substutability matchers' do
+  context 'understand that the non-surrogate class should substitute for the surrogate class when' do
+    specify 'the surrogate class comes first' do
       surrogate = Surrogate.endow(Class.new).define(:some_meth)
       surrogate.should_not substitute_for Class.new
+      surrogate.should_not be_substitutable_for Class.new
       surrogate.should substitute_for Class.new { def some_meth() end }
+      surrogate.should be_substitutable_for Class.new { def some_meth() end }
     end
 
-    it 'the non-surrogate class comes first (and it does not emit a warning)' do
+    it 'the non-surrogate class comes first' do
       Kernel.should_not_receive :warn
       surrogate = Surrogate.endow(Class.new).define(:some_meth)
       Class.new.should_not substitute_for surrogate
+      Class.new.should_not be_substitutable_for surrogate
       Class.new { def some_meth() end }.should substitute_for surrogate
+      Class.new { def some_meth() end }.should be_substitutable_for surrogate
     end
   end
 
