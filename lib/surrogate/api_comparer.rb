@@ -10,7 +10,6 @@ class Surrogate
 
     def initialize(actual, surrogate)
       unless surrogate.instance_variable_get(:@hatchery).kind_of?(Hatchery) && surrogate.instance_variable_get(:@hatchling).kind_of?(Hatchling)
-        Kernel.warn "You said #{actual} should substitute for #{surrogate}`, but as of 0.6.2, this should be asserted in the other direction."
         surrogate, actual = actual, surrogate
       end
       self.surrogate, self.actual = surrogate, actual
