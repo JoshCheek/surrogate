@@ -78,11 +78,11 @@ class Surrogate
 
     def enable_defining_methods(klass)
       def klass.define(method_name, options={}, &block)
+        block ||= lambda {}
         @hatchery.define method_name.to_sym, options, &block
       end
 
       def klass.define_reader(*method_names, &block)
-        block ||= lambda {}
         method_names.each { |method_name| define method_name, &block }
         self
       end

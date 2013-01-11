@@ -1,3 +1,7 @@
+### 0.7.0
+
+* BREAKING CHANGE: Bodyless methods behave as if they were defined with an empty block (arity of 0, return nil)
+
 ### 0.6.4
 
 * Remove explicit reference to RSpec::Matchers so that surrogate/rspec doesn't depend on rspec-expectations

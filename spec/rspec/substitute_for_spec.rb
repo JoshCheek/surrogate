@@ -188,10 +188,14 @@ describe 'substutability matchers' do
       klass.should substitute_for surrogate, names: false, types: true
     end
 
-    it 'disregards when surrogate has no body for an api method' do
-      klass = Class.new { def instance_meth(a) end }
+    it 'treats a bastard method as a no arity method' do
       surrogate = Surrogate.endow(Class.new).define :instance_meth
+
+      klass = Class.new { def instance_meth() end }
       klass.should substitute_for surrogate, types: true
+
+      klass = Class.new { def instance_meth(a) end }
+      klass.should_not substitute_for surrogate, types: true
     end
 
     it 'disregards when real object has natively implemented methods that cannot be reflected on' do
@@ -286,15 +290,23 @@ describe 'substutability matchers' do
       klass.should substitute_for surrogate, types: false, names: true
     end
 
-    it 'disregards when surrogate has no body for an api method' do
+    it 'treats bastard methods as no arity methods' do
       # instance
-      klass = Class.new { def instance_meth(a) end }
       surrogate = Surrogate.endow(Class.new).define(:instance_meth)
+
+      klass = Class.new { def instance_meth(a) end }
+      klass.should_not substitute_for surrogate, names: true
+
+      klass = Class.new { def instance_meth() end }
       klass.should substitute_for surrogate, names: true
 
       # class
-      klass = Class.new { def self.class_meth(a) end }
       surrogate = Surrogate.endow(Class.new) { define :class_meth }
+
+      klass = Class.new { def self.class_meth(a) end }
+      klass.should_not substitute_for surrogate, names: true
+
+      klass = Class.new { def self.class_meth() end }
       klass.should substitute_for surrogate, names: true
     end
 
