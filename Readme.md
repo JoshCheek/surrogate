@@ -92,8 +92,7 @@ end
 MockClient.new.request 3 # => ["result1", "result2", "result3"]
 ```
 
-You don't need a **default if you set the ivar** of the same name (replace `?` with `_p` for predicates, and `!` with `_b` for bang methods, since you can't have question marks or bangs in ivar names)
-Note that methods without bodies will not have their arguments checked, and will not be asserted against when comparing signatures.
+You don't need a **default if you set the ivar** of the same name (replace `?` with `_p` for predicates, and `!` with `_b` for bang methods, since you can't have question marks or bangs in ivar names).
 
 ```ruby
 class MockClient
@@ -111,7 +110,7 @@ MockClient.new(12).id # => 12
 ```ruby
 class MockMP3
   Surrogate.endow self
-  define :play # defaults are optional, will raise error if invoked without being told what to do
+  define :play # default behavior is to do nothing, same as empty block yielding nothing
   define :info
 end
 
