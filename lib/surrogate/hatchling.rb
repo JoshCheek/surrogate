@@ -1,8 +1,4 @@
 class Surrogate
-  SurrogateError = Class.new StandardError
-  UnknownMethod  = Class.new SurrogateError
-
-
   # This contains the unique behaviour for each instance
   # It handles method invocation and records the appropriate information
   class Hatchling

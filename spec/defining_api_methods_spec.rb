@@ -85,7 +85,7 @@ describe 'define' do
           instance.will_wink :quickly, [:slowly]
           instance.wink.should == :quickly
           instance.wink.should == [:slowly]
-          expect { instance.wink }.to raise_error Surrogate::Value::ValueQueue::QueueEmpty
+          expect { instance.wink }.to raise_error Surrogate::QueueEmpty
         end
       end
 
@@ -160,7 +160,7 @@ describe 'define' do
           instance.will_have_age 12, 34
           instance.age.should == 12
           instance.age.should == 34
-          expect { instance.age }.to raise_error Surrogate::Value::ValueQueue::QueueEmpty
+          expect { instance.age }.to raise_error Surrogate::QueueEmpty
         end
       end
     end

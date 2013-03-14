@@ -6,6 +6,7 @@ require 'surrogate/values'
 require 'surrogate/endower'
 require 'surrogate/api_comparer'
 require 'surrogate/invocation'
+require 'surrogate/errors'
 
 class Surrogate
   def self.endow(klass, options={},  &block)

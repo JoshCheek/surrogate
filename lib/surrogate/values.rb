@@ -42,8 +42,6 @@ class Surrogate
 
 
     class ValueQueue < BaseValue
-      QueueEmpty = Class.new SurrogateError
-
       def value(method_name)
         if empty?
           raise QueueEmpty
