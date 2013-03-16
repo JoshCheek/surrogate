@@ -149,6 +149,10 @@ class Surrogate
       all_methods.select(&:instance_method?).select(&:on_surrogate?).select(&:on_actual?).reject(&:types_match?)
     end
 
+    def class_type_mismatches
+      all_methods.select(&:class_method?).select(&:on_surrogate?).select(&:on_actual?).reject(&:types_match?)
+    end
+
     private
 
     def generate_class_methods
