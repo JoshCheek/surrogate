@@ -1,17 +1,15 @@
-Urgent (things I want to do immediately, formatted as the git commits I will use)
----------------------------------------------------------------------------------
+Shit I just thought of that I want to get out of my head, might be in the stuff below, idk:
+-------------
 
-shit I just thought of that I want to get out of my head, might be in the stuff below, idk:
-* make helper methods individual surrogate will know its specific helpers, plus call super to get the global helpers
-* ability to declare methods as helpers
 * method missing will inform you that maybe the method was defined by surrogate/rspec, and you need to require that first
 * need to add to changelog how all this shit will work
 * Pull out specific api comparer object
 * add the api_method thing, or w/e, talk to Eric and Patrick to see how they want to do it
 
-----
+Urgent (things I want to do immediately, formatted as the git commits I will use)
+---------------------------------------------------------------------------------
 
-* refactor the stupid interface code, api comparer is fucking gross
+
 * be smart enough to handle method missing
 * tests around the error messages of types and names
 * substitute_for should not depend on rspec-expectations
