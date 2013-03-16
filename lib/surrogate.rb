@@ -6,6 +6,7 @@ require 'surrogate/values'
 require 'surrogate/endower'
 require 'surrogate/invocation'
 require 'surrogate/errors'
+require 'surrogate/api_comparer'
 require 'surrogate/surrogate_class_reflector'
 require 'surrogate/surrogate_instance_reflector'
 

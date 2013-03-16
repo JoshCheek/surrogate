@@ -2,7 +2,7 @@ require 'surrogate/errors'
 require 'surrogate/helpers'
 
 class Surrogate
-  class ApiComparer2
+  class ApiComparer
     # can we introduce one more object to hide from the Method the fact that it is dealing with a surrogate or an actual?
     # for example, it is shitty that this class can't just be used on two arbitrary objects,
     # and it is shitty that it has to have logic to look into the surrogate and get its actual method definition
@@ -130,7 +130,7 @@ class Surrogate
     end
   end
 
-  class ApiComparer2
+  class ApiComparer
     attr_accessor :surrogate, :actual
 
     def initialize(options)

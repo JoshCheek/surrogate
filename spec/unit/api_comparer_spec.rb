@@ -1,9 +1,7 @@
 require 'spec_helper'
-require 'surrogate/api_comparer2'
-
 
 class Surrogate
-  describe ApiComparer2 do
+  describe ApiComparer do
     ::Kernel.module_eval do
       def public_method_on_every_object()    1 end
       def private_method_on_every_object()   2 end

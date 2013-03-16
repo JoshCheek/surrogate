@@ -1,5 +1,3 @@
-require 'surrogate/api_comparer2'
-
 class Surrogate
   module RSpec
     class SubstitutionMatcher
@@ -16,7 +14,7 @@ class Surrogate
         unless surrogate.instance_variable_get(:@hatchery).kind_of?(Hatchery) && surrogate.instance_variable_get(:@hatchling).kind_of?(Hatchling)
           @original_class, surrogate = surrogate, @original_class
         end
-        comparison = ApiComparer2.new(surrogate: surrogate, actual: @original_class)
+        comparison = ApiComparer.new(surrogate: surrogate, actual: @original_class)
         @failure_message = failure_messages_for comparison
         !@failure_message
       end
