@@ -20,6 +20,10 @@ class Surrogate
         def param_types
           params.map(&:first)
         end
+
+        def reflectable?
+          params.all? { |type, name| type && name }
+        end
       end
 
       attr_accessor :class_or_instance, :name, :surrogate, :actual
@@ -69,6 +73,10 @@ class Surrogate
 
       def instance_method?
         class_or_instance == :instance
+      end
+
+      def reflectable?
+        on_surrogate? && on_actual? && surrogate_parameters.reflectable? && actual_parameters.reflectable?
       end
 
       def types_match?
@@ -151,19 +159,19 @@ class Surrogate
     end
 
     def instance_type_mismatches
-      all_methods.select(&:instance_method?).select(&:on_surrogate?).select(&:on_actual?).reject(&:types_match?)
+      all_methods.select(&:instance_method?).select(&:reflectable?).reject(&:types_match?)
     end
 
     def class_type_mismatches
-      all_methods.select(&:class_method?).select(&:on_surrogate?).select(&:on_actual?).reject(&:types_match?)
+      all_methods.select(&:class_method?).select(&:reflectable?).reject(&:types_match?)
     end
 
     def instance_name_mismatches
-      all_methods.select(&:instance_method?).select(&:on_surrogate?).select(&:on_actual?).reject(&:names_match?)
+      all_methods.select(&:instance_method?).select(&:reflectable?).reject(&:names_match?)
     end
 
     def class_name_mismatches
-      all_methods.select(&:class_method?).select(&:on_surrogate?).select(&:on_actual?).reject(&:names_match?)
+      all_methods.select(&:class_method?).select(&:reflectable?).reject(&:names_match?)
     end
 
     private

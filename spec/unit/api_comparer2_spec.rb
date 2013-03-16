@@ -163,6 +163,31 @@ class Surrogate
         not_on_actual.names_match?.should be_false
       end
 
+      describe 'reflectable?' do
+        specify 'true when defined on both' do
+          comparison.all_methods.find { |m| m.class_method? && m.name == :nil?    }.should be_reflectable
+          comparison.all_methods.find { |m| m.class_method? && m.name == :inspect }.should be_reflectable
+        end
+
+        specify 'false when defined on only one' do
+          actual.singleton_class.send    :undef_method, :nil?
+          surrogate.singleton_class.send :undef_method, :inspect
+          comparison.all_methods.find { |m| m.class_method? && m.name == :nil?    }.should_not be_reflectable
+          comparison.all_methods.find { |m| m.class_method? && m.name == :inspect }.should_not be_reflectable
+        end
+
+        specify 'false when either is implemented in such a way that we cannot get both the name and type for all params' do
+          Class.new.method( :=~            ).parameters.should == [[:req]]
+          Class.new.method( :kind_of?      ).parameters.should == [[:req]]
+          Class.new.method( :instance_exec ).parameters.should == [[:rest]]
+          def actual.kind_of?() end
+          def surrogate.instance_exec() end
+          comparison.all_methods.find { |m| m.name == :=~            }.should_not be_reflectable # not reflectable on either
+          comparison.all_methods.find { |m| m.name == :kind_of?      }.should_not be_reflectable # not reflectable on surrogate
+          comparison.all_methods.find { |m| m.name == :instance_exec }.should_not be_reflectable # not reflectable on actual
+        end
+      end
+
       # do this if Ruby 2.0
       # it 'uses :req, :opt, :rest, :block, :key, and :keyrest'
     end
@@ -193,52 +218,48 @@ class Surrogate
         comparison.missing_class_methods.should =~ [cm_inherited_on_actual, cm_on_actual]
       end
 
-      specify 'instance_type_mismatches returns methods that are on both, but have different type signatures' do
+      specify 'instance_type_mismatches returns methods that are reflectable, but have different type signatures' do
         surrogate = Surrogate.endow(Class.new { def yesmatch(a, b=1, *c, d, &e) end
                                                 def nomatch(a, b=1, *c, d, &e) end
-                                                def not_on_actual(a) end })
+                                                def =~(a) end })
         actual    =                 Class.new { def yesmatch(a, b=1, *c, d, &e) end
-                                                def nomatch(a, b,   *c, d, &e) end
-                                                def not_on_surrogate(a) end }
+                                                def nomatch(a, b,   *c, d, &e) end }
         described_class.new(surrogate: surrogate, actual: actual)
                        .instance_type_mismatches
                        .map(&:name)
                        .should == [:nomatch]
       end
 
-      specify 'class_type_mismatches returns methods that are on both, but have different type signatures' do
+      specify 'class_type_mismatches returns methods that are reflectable, but have different type signatures' do
         surrogate = Surrogate.endow(Class.new) { def yesmatch(a, b=1, *c, d, &e) end
                                                  def nomatch(a, b=1, *c, d, &e) end
-                                                 def not_on_actual(a) end }
+                                                 def =~(a) end }
         actual    =                 Class.new  { def self.yesmatch(a, b=1, *c, d, &e) end
-                                                 def self.nomatch(a, b,   *c, d, &e) end
-                                                 def self.not_on_surrogate(a) end }
+                                                 def self.nomatch(a, b,   *c, d, &e) end }
         described_class.new(surrogate: surrogate, actual: actual)
                        .class_type_mismatches
                        .map(&:name)
                        .should == [:nomatch]
       end
 
-      specify 'instance_name_mismatches returns methods that are on both, but have different names' do
+      specify 'instance_name_mismatches returns methods that are reflectable, but have different names' do
         surrogate = Surrogate.endow(Class.new { def yesmatch(a, b=1, *c, d, &e) end
                                                 def nomatch(a, b=1, *c, d, &e) end
-                                                def not_on_actual(a) end })
+                                                def =~(a) end })
         actual    =                 Class.new { def yesmatch(a, b=1, *c, d, &e) end
-                                                def nomatch(x, b=1, *c, d, &e) end
-                                                def not_on_surrogate(a) end }
+                                                def nomatch(x, b=1, *c, d, &e) end }
         described_class.new(surrogate: surrogate, actual: actual)
                        .instance_name_mismatches
                        .map(&:name)
                        .should == [:nomatch]
       end
 
-      specify 'class_name_mismatches returns methods that are on both, but have different names' do
+      specify 'class_name_mismatches returns methods that are reflectable, but have different names' do
         surrogate = Surrogate.endow(Class.new) { def yesmatch(a, b=1, *c, d, &e) end
                                                  def nomatch(a, b=1, *c, d, &e) end
-                                                 def not_on_actual(a) end }
+                                                 def =~(a) end }
         actual    =                 Class.new  { def self.yesmatch(a, b=1, *c, d, &e) end
-                                                 def self.nomatch(x, b=1, *c, d, &e) end
-                                                 def self.not_on_surrogate(a) end }
+                                                 def self.nomatch(x, b=1, *c, d, &e) end }
         described_class.new(surrogate: surrogate, actual: actual)
                        .class_name_mismatches
                        .map(&:name)
