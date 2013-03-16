@@ -182,9 +182,11 @@ class Surrogate
       end
 
       specify 'instance_type_mismatches returns methods that are on both, but have different type signatures' do
-        surrogate = Surrogate.endow(Class.new { def nomatch(a, b=1, *c, d, &e) end
+        surrogate = Surrogate.endow(Class.new { def yesmatch(a, b=1, *c, d, &e) end
+                                                def nomatch(a, b=1, *c, d, &e) end
                                                 def not_on_actual(a) end })
-        actual    =                 Class.new { def nomatch(a, b,   *c, d, &e) end
+        actual    =                 Class.new { def yesmatch(a, b=1, *c, d, &e) end
+                                                def nomatch(a, b,   *c, d, &e) end
                                                 def not_on_surrogate(a) end }
         described_class.new(surrogate: surrogate, actual: actual)
                        .instance_type_mismatches
@@ -193,9 +195,11 @@ class Surrogate
       end
 
       specify 'class_type_mismatches returns methods that are on both, but have different type signatures' do
-        surrogate = Surrogate.endow(Class.new) { def nomatch(a, b=1, *c, d, &e) end
+        surrogate = Surrogate.endow(Class.new) { def yesmatch(a, b=1, *c, d, &e) end
+                                                 def nomatch(a, b=1, *c, d, &e) end
                                                  def not_on_actual(a) end }
-        actual    =                 Class.new  { def self.nomatch(a, b,   *c, d, &e) end
+        actual    =                 Class.new  { def self.yesmatch(a, b=1, *c, d, &e) end
+                                                 def self.nomatch(a, b,   *c, d, &e) end
                                                  def self.not_on_surrogate(a) end }
         described_class.new(surrogate: surrogate, actual: actual)
                        .class_type_mismatches
@@ -203,8 +207,20 @@ class Surrogate
                        .should == [:nomatch]
       end
 
-      specify 'class_name_mismatches'
-      specify 'class_name_mismatches'
+      specify 'instance_name_mismatches returns methods that are on both, but have different names' do
+        surrogate = Surrogate.endow(Class.new { def yesmatch(a, b=1, *c, d, &e) end
+                                                def nomatch(a, b=1, *c, d, &e) end
+                                                def not_on_actual(a) end })
+        actual    =                 Class.new { def yesmatch(a, b=1, *c, d, &e) end
+                                                def nomatch(x, b=1, *c, d, &e) end
+                                                def not_on_surrogate(a) end }
+        described_class.new(surrogate: surrogate, actual: actual)
+                       .instance_name_mismatches
+                       .map(&:name)
+                       .should == [:nomatch]
+      end
+
+      specify 'class_name_mismatches returns methods that are on both, but have different names'
     end
   end
 end

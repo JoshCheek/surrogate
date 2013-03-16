@@ -153,6 +153,10 @@ class Surrogate
       all_methods.select(&:class_method?).select(&:on_surrogate?).select(&:on_actual?).reject(&:types_match?)
     end
 
+    def instance_name_mismatches
+      all_methods.select(&:instance_method?).select(&:on_surrogate?).select(&:on_actual?).reject(&:names_match?)
+    end
+
     private
 
     def generate_class_methods
