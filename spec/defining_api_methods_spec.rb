@@ -270,6 +270,31 @@ describe 'define' do
   end
 
 
+  describe 'helper methods' do
+    specify 'surrogate_helper allows you to tell surrogate to not consider a method as part of its interface' do
+      pending 'need to switch implementations over to the new api comparer' do
+        surrogate = Surrogate.endow(Class.new { def cmeth() end }) { def imeth() end }
+        Class.new.should_not substitute_for surrogate
+        surrogate.singleton_class.surrogate_helper :cmeth
+        surrogate.surrogate_helper :imeth
+        Class.new.should substitute_for surrogate
+      end
+    end
+
+    specify 'surrogate_helpers allows you to tell surrogate to not consider a method as part of its interface' do
+      pending 'need to switch implementations over to the new api comparer' do
+        surrogate = Surrogate.endow(Class.new { def cmeth1() end
+                                                def cmeth2() end }) { def imeth1() end
+                                                                      def imeth2() end }
+        Class.new.should_not substitute_for surrogate
+        surrogate.singleton_class.surrogate_helper :cmeth1, :cmeth2
+        surrogate.surrogate_helpers :imeth1, :imeth2
+        Class.new.should substitute_for surrogate
+      end
+    end
+  end
+
+
   describe 'clone' do
     example 'acceptance spec' do
       pristine_klass = Class.new do

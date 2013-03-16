@@ -134,17 +134,23 @@ class Surrogate
 
     describe 'the interesting interfaces' do
       specify "all_methods returns all the public methods found, minus the surrogate's helper methods" do
+        def surrogate.helpah() end
+        surrogate.singleton_class.surrogate_helper :helpah
         comparison.all_methods.map(&:name).should     include :public_method_on_every_object
         comparison.all_methods.map(&:name).should_not include :private_method_on_every_object
         comparison.all_methods.map(&:name).should_not include :protected_method_on_every_object
-        # here is where I could assert that you can make helper methods, and they simply won't show up in the output
+        comparison.all_methods.map(&:name).should_not include :helpah
       end
 
       example 'extra_instance_methods returns the instance methods on surrogate but not actual' do
-        comparison.extra_instance_methods.should =~ [ im_inherited_on_surrogate, imapi, im_on_surrogate, not_on_actual]
+        comparison.extra_instance_methods.should =~ [im_inherited_on_surrogate, imapi, im_on_surrogate, not_on_actual]
       end
 
-      specify 'extra_class_methods '
+      specify "extra_class_methods returns the class methods on surrogate but not actual" do
+        pending
+        comparison.extra_class_methods.should =~ [cm_inherited_on_surrogate, cm_on_surrogate, cmapi]
+      end
+
       specify 'missing_instance_methods'
       specify 'missing_class_methods'
       specify 'instance_type_mismatch'

@@ -7,8 +7,8 @@ class Surrogate
   class Endower
     # stores all methods we define which won't exist on actual, or where signatures are known to clash
     DEFAULT_HELPER_METHODS = {
-      instance: [:define, :define_reader, :define_writer, :define_accessor, :will_override],
-      class:    [:define, :define_reader, :define_writer, :define_accessor, :clone, :new, :last_instance, :last_instance=],
+      instance: [:surrogate_helper, :define, :define_reader, :define_writer, :define_accessor, :will_override],
+      class:    [:surrogate_helper, :define, :define_reader, :define_writer, :define_accessor, :clone, :new, :last_instance, :last_instance=],
     }
 
     def self.uninitialized_instance_for(surrogate_class)
@@ -85,6 +85,10 @@ class Surrogate
     end
 
     def enable_defining_methods(klass)
+      def klass.surrogate_helper(method_name)
+        @hatchery.helper_methods << method_name.intern
+      end
+
       def klass.define(method_name, options={}, &block)
         block ||= lambda {}
         @hatchery.define method_name.to_sym, options, &block
