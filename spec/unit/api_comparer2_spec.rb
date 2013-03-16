@@ -150,8 +150,15 @@ class Surrogate
         comparison.extra_class_methods.should =~ [cm_inherited_on_surrogate, cm_on_surrogate, cmapi]
       end
 
-      specify 'missing_instance_methods'
-      specify 'missing_class_methods'
+      specify 'missing_instance_methods returns the instance methods on actual but not on surrogate' do
+        comparison.missing_instance_methods.should =~ [im_inherited_on_actual, im_on_actual, not_on_surrogate]
+      end
+
+      specify 'missing_class_methods returns the class methods on actual but not on surrogate' do
+        pending
+        comparison.missing_class_methods.should =~ [cm_inherited_on_actual, cm_on_actual]
+      end
+
       specify 'instance_type_mismatch'
       specify 'class_type_mismatch'
       specify 'class_name_mismatch'
