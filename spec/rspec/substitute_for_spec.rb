@@ -129,7 +129,7 @@ describe 'substutability matchers' do
 
         specify "when negated (idk why you'd ever want this, though)" do
           expect { Class.new.should_not substitute_for surrogate }.to \
-            raise_error(RSpec::Expectations::ExpectationNotMetError, "Should not have been substitute, but was")
+            raise_error(RSpec::Expectations::ExpectationNotMetError, "Should not have been substitutable, but was")
         end
       end
     end

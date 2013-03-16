@@ -63,7 +63,7 @@ class Surrogate
       end
 
       def failure_message_for_should_not
-        "Should not have been substitute, but was"
+        "Should not have been substitutable, but was"
       end
     end
   end
