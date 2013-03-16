@@ -29,6 +29,8 @@ class Surrogate
       @api_methods ||= {}
     end
 
+    # We might not need this anymore, and I'm pretty sure the initialize thing is taken from
+    # old implementation where we used to *always* hijack it, but now we don't.
     def api_method_names
       api_methods.keys - [:initialize]
     end
