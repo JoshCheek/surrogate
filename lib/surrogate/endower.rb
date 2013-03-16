@@ -48,7 +48,7 @@ class Surrogate
       klass.extend ClassMethods
       add_hatchery_to klass, DEFAULT_HELPER_METHODS[:instance], options # do we want to pick out which options to pass?
       enable_defining_methods klass
-      enable_factory          klass, options.fetch(:factory, :factory)
+      enable_factory          klass, factory_name
       klass.__send__ :include, InstanceMethods
       enable_generic_override klass
       invoke_hooks klass
@@ -57,6 +57,7 @@ class Surrogate
     def endow_singleton_class
       hatchery = add_hatchery_to singleton, DEFAULT_HELPER_METHODS[:class]
       enable_defining_methods singleton
+      singleton.surrogate_helper factory_name if factory_name
       singleton.module_eval &block if block
       klass.instance_variable_set :@hatchling, Hatchling.new(klass, hatchery)
       invoke_hooks singleton
@@ -113,6 +114,10 @@ class Surrogate
         define_writer(*method_names)
         self
       end
+    end
+
+    def factory_name
+      options.fetch(:factory, :factory)
     end
 
     def enable_factory(klass, factory_name)

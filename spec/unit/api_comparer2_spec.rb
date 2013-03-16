@@ -147,7 +147,6 @@ class Surrogate
       end
 
       specify "extra_class_methods returns the class methods on surrogate but not actual" do
-        pending
         comparison.extra_class_methods.should =~ [cm_inherited_on_surrogate, cm_on_surrogate, cmapi]
       end
 

@@ -125,6 +125,10 @@ class Surrogate
       all_methods.select(&:instance_method?).select(&:on_surrogate?).reject(&:on_actual?)
     end
 
+    def extra_class_methods
+      all_methods.select(&:class_method?).select(&:on_surrogate?).reject(&:on_actual?)
+    end
+
     private
 
     def generate_class_methods
