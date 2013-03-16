@@ -80,11 +80,11 @@ class Surrogate
       end
 
       def types_match?
-        on_surrogate? && on_actual? && surrogate_parameters.param_types == actual_parameters.param_types
+        reflectable? && surrogate_parameters.param_types == actual_parameters.param_types
       end
 
       def names_match?
-        on_surrogate? && on_actual? && surrogate_parameters.param_names == actual_parameters.param_names
+        reflectable? && surrogate_parameters.param_names == actual_parameters.param_names
       end
 
       def surrogate_parameters
