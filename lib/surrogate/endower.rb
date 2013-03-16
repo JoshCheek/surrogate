@@ -5,6 +5,12 @@ class Surrogate
   # please refactor me! ...may not be possible :(
   # Can we move all method definitions into this class?
   class Endower
+    # stores all methods we define which won't exist on actual, or where signatures are known to clash
+    DEFAULT_HELPER_METHODS = {
+      instance: [:define, :define_reader, :define_writer, :define_accessor, :will_override],
+      class:    [:define, :define_reader, :define_writer, :define_accessor, :clone, :new, :last_instance, :last_instance=],
+    }
+
     def self.uninitialized_instance_for(surrogate_class)
       instance = surrogate_class.allocate
       hatchery = surrogate_class.instance_variable_get :@hatchery
@@ -40,16 +46,16 @@ class Surrogate
 
     def endow_klass
       klass.extend ClassMethods
-      add_hatchery_to klass, options # do we want to pick out which options to pass?
+      add_hatchery_to klass, DEFAULT_HELPER_METHODS[:instance], options # do we want to pick out which options to pass?
       enable_defining_methods klass
       enable_factory          klass, options.fetch(:factory, :factory)
-      klass.send :include, InstanceMethods
+      klass.__send__ :include, InstanceMethods
       enable_generic_override klass
       invoke_hooks klass
     end
 
     def endow_singleton_class
-      hatchery = add_hatchery_to singleton
+      hatchery = add_hatchery_to singleton, DEFAULT_HELPER_METHODS[:class]
       enable_defining_methods singleton
       singleton.module_eval &block if block
       klass.instance_variable_set :@hatchling, Hatchling.new(klass, hatchery)
@@ -72,7 +78,9 @@ class Surrogate
       klass.singleton_class
     end
 
-    def add_hatchery_to(klass, options={})
+    def add_hatchery_to(klass, helper_methods, options={})
+      options[:helper_methods] ||= []
+      options[:helper_methods] += helper_methods
       klass.instance_variable_set :@hatchery, Surrogate::Hatchery.new(klass, options)
     end
 

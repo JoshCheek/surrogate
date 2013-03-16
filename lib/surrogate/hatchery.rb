@@ -11,7 +11,9 @@ class Surrogate
     attr_accessor :klass, :options
 
     def initialize(klass, options)
-      self.klass, self.options = klass, options
+      self.klass      = klass
+      self.options    = options
+      @helper_methods = options.fetch :helper_methods, []
       klass_can_define_api_methods
     end
 
@@ -36,6 +38,10 @@ class Surrogate
       options && options.default_proc
     end
 
+    def helper_methods
+      @helper_methods ||= []
+    end
+
     private
 
     def klass_can_define_api_methods
@@ -57,6 +63,7 @@ class Surrogate
     end
 
     def add_helpers_for(method_name, helper_name)
+      helper_methods << helper_name.intern
       klass.__send__ :define_method, helper_name do |*args, &block|
         @hatchling.prepare_method method_name, args, &block
         self

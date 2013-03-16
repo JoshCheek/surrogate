@@ -28,7 +28,7 @@ class Surrogate
       end
 
       def inspect
-        "#<Surrogate::ApiComparer::Method #{class_or_instance.inspect} #{name.inspect}>"
+        "#<S:AC:Method #{class_or_instance.inspect} #{name.inspect}>"
       end
 
       def on_surrogate?
@@ -118,17 +118,26 @@ class Surrogate
     end
 
     def all_methods
-      @all_methods ||= class_methods + instance_methods
+      @all_methods ||= generate_class_methods + generate_instance_methods
     end
 
-    def class_methods
-      @class_methods ||= (surrogate.public_methods | actual.public_methods)
-                          .map { |name| to_method :class, name }
+    def extra_instance_methods
+      all_methods.select(&:instance_method?).select(&:on_surrogate?).reject(&:on_actual?)
     end
 
-    def instance_methods
-      @instance_methods ||= (surrogate.public_instance_methods | actual.public_instance_methods)
-                              .map { |name| to_method :instance, name }
+    private
+
+    def generate_class_methods
+      # can we get some helper obj to encapsulate this kind of prying into the object?
+      helper_methods = surrogate.singleton_class.instance_variable_get(:@hatchery).helper_methods
+      methods = (surrogate.public_methods | actual.public_methods) - helper_methods
+      methods.map { |name| to_method :class, name }
+    end
+
+    def generate_instance_methods
+      helper_methods = surrogate.instance_variable_get(:@hatchery).helper_methods
+      methods = (surrogate.public_instance_methods | actual.public_instance_methods) - helper_methods
+      methods.map { |name| to_method :instance, name }
     end
 
     def to_method(class_or_instance, name)

@@ -67,6 +67,7 @@ class Surrogate
 
   Endower.add_hook do |klass|
     klass.class_eval do
+      @hatchery.helper_methods << :was << :was_not
       alias was should
       alias was_not should_not
     end
