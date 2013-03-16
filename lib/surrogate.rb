@@ -4,9 +4,10 @@ require 'surrogate/hatchery'
 require 'surrogate/method_definition'
 require 'surrogate/values'
 require 'surrogate/endower'
-require 'surrogate/api_comparer'
 require 'surrogate/invocation'
 require 'surrogate/errors'
+require 'surrogate/surrogate_class_reflector'
+require 'surrogate/surrogate_instance_reflector'
 
 class Surrogate
   def self.endow(klass, options={},  &block)
