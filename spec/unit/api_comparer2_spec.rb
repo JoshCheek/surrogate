@@ -155,7 +155,6 @@ class Surrogate
       end
 
       specify 'missing_class_methods returns the class methods on actual but not on surrogate' do
-        pending
         comparison.missing_class_methods.should =~ [cm_inherited_on_actual, cm_on_actual]
       end
 

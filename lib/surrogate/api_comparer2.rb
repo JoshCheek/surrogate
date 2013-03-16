@@ -133,6 +133,10 @@ class Surrogate
       all_methods.select(&:instance_method?).reject(&:on_surrogate?).select(&:on_actual?)
     end
 
+    def missing_class_methods
+      all_methods.select(&:class_method?).reject(&:on_surrogate?).select(&:on_actual?)
+    end
+
     private
 
     def generate_class_methods
