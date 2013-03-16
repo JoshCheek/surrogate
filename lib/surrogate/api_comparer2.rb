@@ -71,6 +71,14 @@ class Surrogate
         class_or_instance == :instance
       end
 
+      def types_match?
+        on_surrogate? && on_actual? && surrogate_parameters.param_types == actual_parameters.param_types
+      end
+
+      def names_match?
+        on_surrogate? && on_actual? && surrogate_parameters.param_names == actual_parameters.param_names
+      end
+
       def surrogate_parameters
         raise NoMethodToCheckSignatureOf, name unless surrogate_method
         Signature.new name, surrogate_method.parameters

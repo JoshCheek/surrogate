@@ -25,6 +25,9 @@ class Surrogate
         imapi
         not_on_surrogate
         not_on_actual
+        m_with_type_mismatch
+        m_with_matching_names
+        m_with_mismatching_names
     ].map(&:intern).each do |name|
       define_method name do
         comparison.all_methods.find { |method| method.name == name }
@@ -45,6 +48,9 @@ class Surrogate
         def self.cm_on_surrogate() end
         def im_on_surrogate() end
         def not_on_actual() end
+        def m_with_type_mismatch(arg) end
+        def m_with_matching_names(a, b=1, *c, &d) end
+        def m_with_mismatching_names(sa, sb=1, *sc, &sd) end
       end
     end
 
@@ -58,6 +64,9 @@ class Surrogate
         def self.cm_on_actual() end
         def im_on_actual() end
         def not_on_surrogate() end
+        def m_with_type_mismatch(arg=1) end
+        def m_with_matching_names(a, b=1, *c, &d) end
+        def m_with_mismatching_names(aa, ab=1, *ac, &ad) end
       end
     end
 
@@ -126,6 +135,20 @@ class Surrogate
         m_with_params.actual_parameters.param_types.should    == [:req, :opt, :rest, :block]
         expect { not_on_surrogate.surrogate_parameters }.to raise_error NoMethodToCheckSignatureOf
         expect { not_on_actual.actual_parameters       }.to raise_error NoMethodToCheckSignatureOf
+      end
+
+      it 'knows if the types match' do
+        m_with_params.types_match?.should be_true
+        m_with_type_mismatch.types_match?.should be_false
+        not_on_surrogate.types_match?.should be_false
+        not_on_actual.types_match?.should be_false
+      end
+
+      it 'knows if the names match' do
+        m_with_matching_names.names_match?.should be_true
+        m_with_mismatching_names.names_match?.should be_false
+        not_on_surrogate.names_match?.should be_false
+        not_on_actual.names_match?.should be_false
       end
 
       # do this if Ruby 2.0
