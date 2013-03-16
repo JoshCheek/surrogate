@@ -181,7 +181,17 @@ class Surrogate
         comparison.missing_class_methods.should =~ [cm_inherited_on_actual, cm_on_actual]
       end
 
-      specify 'instance_type_mismatch'
+      specify 'instance_type_mismatches returns methods that are on both, but have different type signatures' do
+        surrogate = Surrogate.endow(Class.new { def nomatch(a, b=1, *c, d, &e) end
+                                                def not_on_actual(a) end })
+        actual    =                 Class.new { def nomatch(a, b,   *c, d, &e) end
+                                                def not_on_surrogate(a) end }
+        described_class.new(surrogate: surrogate, actual: actual)
+                       .instance_type_mismatches
+                       .map(&:name)
+                       .should == [:nomatch]
+      end
+
       specify 'class_type_mismatch'
       specify 'class_name_mismatch'
       specify 'class_name_mismatch'
