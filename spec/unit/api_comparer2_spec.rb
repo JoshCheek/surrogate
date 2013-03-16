@@ -130,11 +130,23 @@ class Surrogate
         expect { not_on_actual.actual_parameters       }.to raise_error NoMethodToCheckSignatureOf
       end
 
+      it 'knows the parameter names for api methods' do
+        comparison = described_class.new actual: Class.new, surrogate: Surrogate.endow(Class.new) { define(:m) { |a, b=1| } }
+        method = comparison.all_methods.find { |m| m.name == :m }
+        method.surrogate_parameters.param_names.should == [:a, :b]
+      end
+
       it 'knows the parameter types' do
         m_with_params.surrogate_parameters.param_types.should == [:req, :opt, :rest, :block]
         m_with_params.actual_parameters.param_types.should    == [:req, :opt, :rest, :block]
         expect { not_on_surrogate.surrogate_parameters }.to raise_error NoMethodToCheckSignatureOf
         expect { not_on_actual.actual_parameters       }.to raise_error NoMethodToCheckSignatureOf
+      end
+
+      it 'knows the parameter types for api methods' do
+        comparison = described_class.new actual: Class.new, surrogate: Surrogate.endow(Class.new) { define(:m) { |a, b=1| } }
+        method = comparison.all_methods.find { |m| m.name == :m }
+        method.surrogate_parameters.param_types.should == [:req, :opt]
       end
 
       it 'knows if the types match' do

@@ -1,7 +1,11 @@
 require 'surrogate/errors'
+require 'surrogate/helpers'
 
 class Surrogate
   class ApiComparer2
+    # can we introduce one more object to hide from the Method the fact that it is dealing with a surrogate or an actual?
+    # for example, it is shitty that this class can't just be used on two arbitrary objects,
+    # and it is shitty that it has to have logic to look into the surrogate and get its actual method definition
     class Method
       class Signature
         attr_accessor :name, :params
@@ -40,11 +44,7 @@ class Surrogate
       end
 
       def api_method?
-        if class_method?
-          singleton_class_hatchery.api_method_names.include? name
-        else
-          class_hatchery.api_method_names.include? name
-        end
+        hatchery.api_method_names.include? name
       end
 
       def inherited_on_surrogate?
@@ -81,7 +81,12 @@ class Surrogate
 
       def surrogate_parameters
         raise NoMethodToCheckSignatureOf, name unless surrogate_method
-        Signature.new name, surrogate_method.parameters
+        if api_method?
+          block = hatchery.api_method_for name
+          Signature.new name, Helpers.block_to_lambda(block).parameters
+        else
+          Signature.new name, surrogate_method.parameters
+        end
       end
 
       def actual_parameters
@@ -107,12 +112,12 @@ class Surrogate
         end
       end
 
-      def class_hatchery
-        @class_hatchery ||= surrogate.instance_variable_get :@hatchery
-      end
-
-      def singleton_class_hatchery
-        @singleton_class_hatchery ||= surrogate.singleton_class.instance_variable_get :@hatchery
+      def hatchery
+        @hatchery ||= if class_method?
+          surrogate.singleton_class.instance_variable_get :@hatchery
+        else
+          surrogate.instance_variable_get :@hatchery
+        end
       end
     end
   end
