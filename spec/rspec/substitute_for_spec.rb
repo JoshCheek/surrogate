@@ -259,6 +259,11 @@ describe 'substutability matchers' do
         surrogate = Surrogate.endow(Class.new).define(:instance_meth) { |a, b=1, *c, &e| }
         klass.should_not substitute_for surrogate, types: true
       end
+
+      specify 'has a reasonable error message' do
+        pending "refactor error messages first"
+        # /Was not substitutable because surrogate AnonymousSurrogate\(.*?\)#instance_meth\(\) has different types than #<Class:.*?>#instance_meth\(a\)/)
+      end
     end
   end
 

@@ -14,6 +14,7 @@ class Surrogate
         unless surrogate.instance_variable_get(:@hatchery).kind_of?(Hatchery) && surrogate.instance_variable_get(:@hatchling).kind_of?(Hatchling)
           @original_class, surrogate = surrogate, @original_class
         end
+        @surrogate = surrogate
         comparison = ApiComparer.new(surrogate: surrogate, actual: @original_class)
         @failure_message = failure_messages_for comparison
         !@failure_message
@@ -46,14 +47,25 @@ class Surrogate
           differences << "is missing class methods: #{names.inspect}"
         end
 
-        if @types # this conditional is not tested, nor are these error messages
-          comparison.instance_type_mismatches.each { |name, types| differences << "##{name} had types #{types.inspect}" }
-          comparison.class_type_mismatches.each    { |name, types| differences << ".#{name} had types #{types.inspect}" }
+        # if both types and names differ, we should just print one error message
+
+        if @types # these error messages are not tested
+          comparison.instance_type_mismatches.each { |method|
+            differences << "#{@surrogate.inspect}##{method.surrogate_parameters.inspect} has different types than #{@original_class.inspect}##{method.actual_parameters.inspect}"
+          }
+          # this case is not tested at all
+          comparison.class_type_mismatches.each { |method|
+            differences << "#{@surrogate.inspect}.#{method.surrogate_parameters.inspect} has different types than #{@original_class.inspect}##{method.actual_parameters.inspect}"
+          }
         end
 
-        if @names # this conditional is not tested, nor are these error messages
-          comparison.instance_name_mismatches.each { |method_name, param_names| differences << "##{method_name} had parameter names #{param_names.inspect}" }
-          comparison.class_name_mismatches.each    { |method_name, param_names| differences << ".#{method_name} had parameter names #{param_names.inspect}" }
+        if @names # these error messages are not tested
+          comparison.instance_name_mismatches.each { |method|
+            differences << "#{@surrogate.inspect}##{method.surrogate_parameters.inspect} has different names than #{@original_class.inspect}##{method.actual_parameters.inspect}"
+          }
+          comparison.class_name_mismatches.each { |method|
+            differences << "#{@surrogate.inspect}##{method.surrogate_parameters.inspect} has different names than #{@original_class.inspect}##{method.actual_parameters.inspect}"
+          }
         end
 
         return if differences.empty?
