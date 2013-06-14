@@ -5,4 +5,4 @@ script: "bundle exec rake"
 gemfile:
   - gemfiles/rspec_mocks_2.2
   - gemfiles/rspec_mocks_2.10
-  - gemfiles/rspec_mocks_2.11
+  - gemfiles/rspec_mocks_2.13
