@@ -43,10 +43,10 @@ describe Surrogate::ArgumentErrorizer do
     assert_message ->(){},                           [1],   "wrong number of arguments (1 for 0) in #{meth_name}()"
     assert_message ->(a){},                          [],    "wrong number of arguments (0 for 1) in #{meth_name}(a)"
     assert_message ->(a){},                          [],    "wrong number of arguments (0 for 1) in #{meth_name}(a)"
-    assert_message ->(a=1){},                        [1,2], "wrong number of arguments (2 for 1) in #{meth_name}(a='?')"
-    assert_message ->(a, *b){},                      [],    "wrong number of arguments (0 for 1) in #{meth_name}(a, *b)"
-    assert_message ->(a, *b, &c){},                  [],    "wrong number of arguments (0 for 1) in #{meth_name}(a, *b, &c)"
-    assert_message ->(a, b, c=1, d=1, *e, f, &g){},  [],    "wrong number of arguments (0 for 3) in #{meth_name}(a, b, c='?', d='?', *e, f, &g)"
+    assert_message ->(a=1){},                        [1,2], "wrong number of arguments (2 for 0..1) in #{meth_name}(a='?')"
+    assert_message ->(a, *b){},                      [],    "wrong number of arguments (0 for 1+) in #{meth_name}(a, *b)"
+    assert_message ->(a, *b, &c){},                  [],    "wrong number of arguments (0 for 1+) in #{meth_name}(a, *b, &c)"
+    assert_message ->(a, b, c=1, d=1, *e, f, &g){},  [],    "wrong number of arguments (0 for 3+) in #{meth_name}(a, b, c='?', d='?', *e, f, &g)"
   end
 
   it 'raises an ArgumentError if initialized with a non lambda/method' do
