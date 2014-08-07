@@ -48,6 +48,9 @@ class Surrogate
         "Should not have been substitute, but was"
       end
 
+      alias failure_message               failure_message_for_should
+      alias failure_message_when_negated  failure_message_for_should
+
     private
 
       def comparing_fields(comparison, subset_only, types, names)
