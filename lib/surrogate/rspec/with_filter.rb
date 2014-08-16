@@ -17,12 +17,16 @@ class Surrogate
         end
 
         def matcher_class
-          return ::RSpec::Mocks::ArgumentListMatcher if approximate_2_11?
+          return ::RSpec::Mocks::ArgumentListMatcher if approximate_2_11? || approximate_3_0_0_rc?
           ::RSpec::Mocks::ArgumentExpectation
         end
 
         def approximate_2_11?
           Gem::Requirement.create('~> 2.11').satisfied_by? Gem::Version.new(::RSpec::Mocks::Version::STRING)
+        end
+
+        def approximate_3_0_0_rc?
+          Gem::Requirement.create('~> 3.0.0.rc').satisfied_by? Gem::Version.new(::RSpec::Mocks::Version::STRING)
         end
       end
 
