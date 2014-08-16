@@ -1,8 +1,0 @@
-# set this with
-# export BUNDLE_GEMFILE=gemfiles/rspec_mocks_3.0.0.rc
-
-source "https://rubygems.org"
-
-gemspec path: File.expand_path('../..', __FILE__)
-
-gem "rspec", "~> 3.0.0.rc", group: :development # squiggly is on purpose

@@ -1,8 +1,14 @@
 language: ruby
+script: "bundle exec rake"
 rvm:
   - 1.9.3
-script: "bundle exec rake"
-gemfile:
-  - gemfiles/rspec_mocks_2.2
-  - gemfiles/rspec_mocks_2.10
-  - gemfiles/rspec_mocks_2.13
+  - 2.0.0
+  - 2.1.2
+  - ruby-head
+  - rbx-2
+  - jruby-head
+matrix:
+  allow_failures:
+    - rvm: ruby-head
+    - rvm: jruby-head
+    - rvm: rbx-2
