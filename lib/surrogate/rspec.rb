@@ -67,8 +67,10 @@ class Surrogate
 
   Endower.add_hook do |klass|
     klass.class_eval do
-      alias was should
-      alias was_not should_not
+      if respond_to?(:should)
+        alias was should
+        alias was_not should_not
+      end
     end
   end
 end
