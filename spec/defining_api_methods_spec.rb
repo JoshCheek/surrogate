@@ -172,8 +172,8 @@ describe 'define' do
     it 'has the same arity as the method' do
       mocked_class.define(:meth) { |a| a }
       mocked_class.new.meth(1).should == 1
-      expect { mocked_class.new.meth }.to raise_error ArgumentError, /0 for 1/
-      expect { mocked_class.new.meth 1, 2 }.to raise_error ArgumentError, /2 for 1/
+      expect { mocked_class.new.meth }.to raise_error ArgumentError, /0(, expected| for) 1/
+      expect { mocked_class.new.meth 1, 2 }.to raise_error ArgumentError, /2(, expected| for) 1/
     end
 
     it "can be defined with symbols or strings" do
@@ -219,7 +219,7 @@ describe 'define' do
     it 'raises arity errors, even if the value is overridden' do
       mocked_class.define(:meth) { }
       instance.instance_variable_set :@meth, "abc"
-      expect { instance.meth "extra", "args" }.to raise_error ArgumentError, /wrong number of arguments \(2 for 0\)/
+      expect { instance.meth "extra", "args" }.to raise_error ArgumentError, /2(, expected| for) 0/
     end
 
     it 'treats bastard methods as having no arity' do

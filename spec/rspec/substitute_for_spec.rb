@@ -199,7 +199,7 @@ describe 'substutability matchers' do
     end
 
     it 'disregards when real object has natively implemented methods that cannot be reflected on' do
-      Array.method(:[]).parameters.should == [[:rest]] # make sure Array signatures aren't changing across versions or something
+      next unless Array.method(:[]).parameters == [[:rest]] # e.g. rbx names all their params, so we can reflect to some extent
       Array.instance_method(:insert).parameters.should == [[:rest]]
       surrogate = Surrogate.endow(Class.new) { define(:[]) { |a,b,c| } }.define(:insert) { |a,b,c| }
       Array.should substitute_for surrogate, subset: true, types: true
@@ -311,7 +311,7 @@ describe 'substutability matchers' do
     end
 
     it 'disregards when real object has natively implemented methods that cannot be reflected on' do
-      Array.method(:[]).parameters.should == [[:rest]] # make sure Array signatures aren't changing across versions or something
+      next unless Array.method(:[]).parameters == [[:rest]] # not all implementations do this
       Array.instance_method(:insert).parameters.should == [[:rest]]
       surrogate = Surrogate.endow(Class.new) { define(:[]) { |a,b,c| } }.define(:insert) { |a,b,c| }
       Array.should substitute_for surrogate, subset: true, names: true

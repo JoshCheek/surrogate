@@ -40,13 +40,30 @@ describe Surrogate::ArgumentErrorizer do
   end
 
   it 'has useful error messages' do
-    assert_message ->(){},                           [1],   "wrong number of arguments (1 for 0) in #{meth_name}()"
-    assert_message ->(a){},                          [],    "wrong number of arguments (0 for 1) in #{meth_name}(a)"
-    assert_message ->(a){},                          [],    "wrong number of arguments (0 for 1) in #{meth_name}(a)"
-    assert_message ->(a=1){},                        [1,2], "wrong number of arguments (2 for 0..1) in #{meth_name}(a='?')"
-    assert_message ->(a, *b){},                      [],    "wrong number of arguments (0 for 1+) in #{meth_name}(a, *b)"
-    assert_message ->(a, *b, &c){},                  [],    "wrong number of arguments (0 for 1+) in #{meth_name}(a, *b, &c)"
-    assert_message ->(a, b, c=1, d=1, *e, f, &g){},  [],    "wrong number of arguments (0 for 3+) in #{meth_name}(a, b, c='?', d='?', *e, f, &g)"
+    if defined?(RUBY_PLATFORM) && RUBY_ENGINE == 'rbx'
+      assert_message ->(){},                           [1],   /given 1, expected 0 in #{meth_name}\(\)/
+      assert_message ->(a){},                          [],    /given 0, expected 1 in #{meth_name}\(a\)/
+      assert_message ->(a){},                          [],    /given 0, expected 1 in #{meth_name}\(a\)/
+      assert_message ->(a=1){},                        [1,2], /given 2, expected 0 in #{meth_name}\(a='\?'\)/
+      assert_message ->(a, *b){},                      [],    /given 0, expected 1+ in #{meth_name}\(a, \*b\)/
+      assert_message ->(a, *b, &c){},                  [],    /given 0, expected 1+ in #{meth_name}\(a, \*b, &c\)/
+      assert_message ->(a, b, c=1, d=1, *e, f, &g){},  [],    /given 0, expected 3+ in #{meth_name}\(a, b, c='\?', d='\?', \*e, f, &g\)/
+    else
+      assert_message ->(){},                           [1],   "wrong number of arguments (1 for 0) in #{meth_name}()"
+      assert_message ->(a){},                          [],    "wrong number of arguments (0 for 1) in #{meth_name}(a)"
+      assert_message ->(a){},                          [],    "wrong number of arguments (0 for 1) in #{meth_name}(a)"
+      if RUBY_VERSION == '1.9.3'
+        assert_message ->(a=1){},                        [1,2], "wrong number of arguments (2 for 1) in #{meth_name}(a='?')"
+        assert_message ->(a, *b){},                      [],    "wrong number of arguments (0 for 1) in #{meth_name}(a, *b)"
+        assert_message ->(a, *b, &c){},                  [],    "wrong number of arguments (0 for 1) in #{meth_name}(a, *b, &c)"
+        assert_message ->(a, b, c=1, d=1, *e, f, &g){},  [],    "wrong number of arguments (0 for 3) in #{meth_name}(a, b, c='?', d='?', *e, f, &g)"
+      else
+        assert_message ->(a=1){},                        [1,2], "wrong number of arguments (2 for 0..1) in #{meth_name}(a='?')"
+        assert_message ->(a, *b){},                      [],    "wrong number of arguments (0 for 1+) in #{meth_name}(a, *b)"
+        assert_message ->(a, *b, &c){},                  [],    "wrong number of arguments (0 for 1+) in #{meth_name}(a, *b, &c)"
+        assert_message ->(a, b, c=1, d=1, *e, f, &g){},  [],    "wrong number of arguments (0 for 3+) in #{meth_name}(a, b, c='?', d='?', *e, f, &g)"
+      end
+    end
   end
 
   it 'raises an ArgumentError if initialized with a non lambda/method' do
