@@ -1,16 +1,15 @@
-require "bundler/gem_tasks"
+require 'bundler/setup'
 
-require 'rspec/core/rake_task'
 
-RSpec::Core::RakeTask.new :rspec do |t|
-  t.rspec_opts = [
-    '--fail-fast',
-    '--colour',
-    '--format', 'documentation',
-  ]
+desc 'Run specs'
+task :spec do
+  sh 'rspec --fail-fast --colour --format documentation'
 end
 
-# require 'mountain_berry_fields/rake_task'
-# MountainBerryFields::RakeTask.new :readme, 'Readme.md.mountain_berry_fields'
-# task default: [:rspec, :readme]
-task default: :rspec
+desc 'Test/generate readme'
+task :readme do
+  sh 'bundle exec mountain_berry_fields Readme.md.mountain_berry_fields'
+end
+
+
+task default: [:spec, :readme]

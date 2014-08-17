@@ -190,7 +190,7 @@ user_class.was told_to :find
 MockUser.was_not told_to :find
 
 # initializing the clone
-MockUser.clone(find: nil).find.should be_nil
+expect(MockUser.clone(find: nil).find).to be_nil
 ```
 
 **Mass initialize** with `.factory(key: value)`, this can be turned off by passing
@@ -337,7 +337,7 @@ class MockUser
   define :id
 end
 user = MockUser.new 12
-user.id.should == 12
+expect(user.id).to eq 12
 user.was initialized_with 12
 ```
 
@@ -354,9 +354,9 @@ class MockUser
 end
 
 user = MockUser.new
-user.should_not be_admin
+expect(user).to_not be_admin
 user.will_have_admin? true
-user.should be_admin
+expect(user).to be_admin
 user.was asked_if(:admin?).times(2)
 ```
 
@@ -390,25 +390,25 @@ class MockUser
 end
 
 # they are the same
-User.should substitute_for MockUser
+expect(User).to substitute_for MockUser
 
 # they differ
 MockUser.define :name
-User.should_not substitute_for MockUser
+expect(User).to_not substitute_for MockUser
 
 # signatures don't match (you can turn this off by passing `types: false` to substitute_for)
 class UserWithWrongSignature
   def initialize()end # no id
   def id()end
 end
-UserWithWrongSignature.should_not substitute_for MockUser
+expect(UserWithWrongSignature).to_not substitute_for MockUser
 
 # parameter names don't match
 class UserWithWrongParamNames
   def initialize(name)end # real one takes an id
   def id()end
 end
-UserWithWrongParamNames.should_not substitute_for MockUser, names: true
+expect(UserWithWrongParamNames).to_not substitute_for MockUser, names: true
 ```
 
 Sometimes you don't want to have to implement the entire interface.
@@ -429,11 +429,11 @@ class MockUser
 end
 
 # doesn't matter that real user has a name as long as it has initialize and id
-User.should substitute_for MockUser, subset: true
+expect(User).to substitute_for MockUser, subset: true
 
 # but now it fails b/c it has no address
 MockUser.define :address
-User.should_not substitute_for MockUser, subset: true
+expect(User).to_not substitute_for MockUser, subset: true
 ```
 
 
@@ -467,10 +467,10 @@ describe 'something that creates a user through the service' do
     end
 
     service.was told_to(:create).with { |block|
-      block.call_with({id: new_id})              # this will be given to the block
-      block.returns old_id                       # provide a return value, or a block that receives the return value (where you can make assertions)
-      block.before { user_id.should == old_id }  # assertions about state of the world before the block is called
-      block.after  { user_id.should == new_id }  # assertions about the state of the world after the block is called
+      block.call_with({id: new_id})                  # this will be given to the block
+      block.returns old_id                           # provide a return value, or a block that receives the return value (where you can make assertions)
+      block.before { expect(user_id).to eq old_id }  # assertions about state of the world before the block is called
+      block.after  { expect(user_id).to eq new_id }  # assertions about the state of the world after the block is called
     }
   end
 end
