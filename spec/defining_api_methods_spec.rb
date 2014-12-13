@@ -73,6 +73,21 @@ describe 'define' do
         it 'returns the object' do
           instance.will_wink(:quickly).should equal instance
         end
+
+        it 'overrides the default behaviour for the api method' do
+          mock1 = mocked_class.new
+          mock2 = mocked_class.new
+          winked = false
+          mock1.will_wink do
+            winked = true
+          end
+          mock2.will_wink :quickly
+
+          winked.should == false
+          mock1.wink
+          winked.should == true
+          mock2.wink.should == :quickly
+        end
       end
 
       describe 'will_<api_method> with multiple arguments' do

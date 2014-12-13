@@ -6,7 +6,9 @@ class Surrogate
     # convert raw arguments into a value
     def self.factory(*args, &block)
       arg = args.first
-      if args.size > 1
+      if block
+        BlockValue.new &block
+      elsif args.size > 1
         ValueQueue.new args
       elsif arg.kind_of? Exception
         Raisable.new arg
@@ -33,6 +35,16 @@ class Surrogate
       end
     end
 
+
+    class BlockValue < BaseValue
+      def initialize(&block)
+        @block = block
+      end
+
+      def value(method_name)
+        @block.call
+      end
+    end
 
     class Raisable < BaseValue
       def value(*)
