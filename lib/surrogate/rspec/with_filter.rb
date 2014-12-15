@@ -17,8 +17,7 @@ class Surrogate
         end
 
         def matcher_class
-          return ::RSpec::Mocks::ArgumentListMatcher if approximate_2_11? || approximate_3_0_0_rc?
-          ::RSpec::Mocks::ArgumentExpectation
+          ::RSpec::Mocks::ArgumentListMatcher
         end
 
         def approximate_2_11?
