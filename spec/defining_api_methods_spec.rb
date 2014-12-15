@@ -60,6 +60,9 @@ describe 'define' do
       before { mocked_class.define :wink }
 
       describe 'will_<api_method>' do
+        it 'returns the object' do
+          instance.will_wink(:quickly).should equal instance
+        end
         it 'overrides the default value for the api method' do
           mock1 = mocked_class.new
           mock2 = mocked_class.new
@@ -69,24 +72,23 @@ describe 'define' do
           mock2.wink.should == :slowly
           mock1.wink.should == :quickly
         end
+      end
 
+      describe 'will_<api_method> { ... }' do
         it 'returns the object' do
-          instance.will_wink(:quickly).should equal instance
+          instance.will_wink(:quickly) { }.should equal instance
         end
-
         it 'overrides the default behaviour for the api method' do
           mock1 = mocked_class.new
           mock2 = mocked_class.new
-          winked = false
-          mock1.will_wink do
-            winked = true
-          end
-          mock2.will_wink :quickly
+          winks = []
+          mock1.will_wink { winks << 1 }
+          mock2.will_wink { winks << 2 }
 
-          winked.should == false
-          mock1.wink
-          winked.should == true
-          mock2.wink.should == :quickly
+          winks.should == []
+          expect(mock1.wink).to eq [1]
+          expect(mock2.wink).to eq [1, 2]
+          expect(mock1.wink).to eq [1, 2, 1]
         end
       end
 
