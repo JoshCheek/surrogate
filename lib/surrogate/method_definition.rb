@@ -26,13 +26,13 @@ class Surrogate
       default_proc && errorizer.match!(*args)
     end
 
-    def default(instance, invocation, &no_default)
+    def default(instance, invocation)
       if options.has_key? :default
         options[:default]
       elsif default_proc
         default_proc_as_method_on(instance).call(*invocation.args, &invocation.block)
       else
-        no_default.call
+        raise "You should never get here. Please open a issue at http://github.com/JoshCheek/surrogate"
       end
     end
 

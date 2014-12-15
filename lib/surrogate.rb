@@ -8,8 +8,6 @@ require 'surrogate/api_comparer'
 require 'surrogate/invocation'
 
 class Surrogate
-  UnpreparedMethodError = Class.new StandardError
-
   def self.endow(klass, options={},  &block)
     Endower.endow klass, options, &block
     klass

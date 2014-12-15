@@ -15,7 +15,7 @@ class Surrogate
       end
 
 
-      def failure_message_for_should
+      def failure_message
         extra_instance_methods   = @comparison[:instance][:not_on_actual   ].to_a # these come in as sets
         extra_class_methods      = @comparison[:class   ][:not_on_actual   ].to_a
         missing_instance_methods = @comparison[:instance][:not_on_surrogate].to_a
@@ -44,7 +44,7 @@ class Surrogate
         "Was not substitutable because surrogate " << differences.join("\n")
       end
 
-      def failure_message_for_should_not
+      def failure_message_when_negated
         "Should not have been substitute, but was"
       end
 

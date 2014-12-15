@@ -187,8 +187,8 @@ describe 'define' do
     it 'has the same arity as the method' do
       mocked_class.define(:meth) { |a| a }
       mocked_class.new.meth(1).should == 1
-      expect { mocked_class.new.meth }.to raise_error ArgumentError, /0 for 1/
-      expect { mocked_class.new.meth 1, 2 }.to raise_error ArgumentError, /2 for 1/
+      expect { mocked_class.new.meth }.to raise_error ArgumentError, /0(, expected| for) 1/
+      expect { mocked_class.new.meth 1, 2 }.to raise_error ArgumentError, /2(, expected| for) 1/
     end
 
     it "can be defined with symbols or strings" do
@@ -198,9 +198,9 @@ describe 'define' do
       mocked_class.new.other_meth(1).should == 2
     end
 
-    it 'raises an UnpreparedMethodError when it has no default block' do
+    it 'returns nil when there is no default block' do
       mocked_class.define :meth
-      expect { instance.meth }.to raise_error Surrogate::UnpreparedMethodError, /meth/
+      instance.meth.should equal nil
     end
 
     it 'considers ivars of the same name to be its default when it has no suffix' do
@@ -234,14 +234,15 @@ describe 'define' do
     it 'raises arity errors, even if the value is overridden' do
       mocked_class.define(:meth) { }
       instance.instance_variable_set :@meth, "abc"
-      expect { instance.meth "extra", "args" }.to raise_error ArgumentError, /wrong number of arguments \(2 for 0\)/
+      expect { instance.meth "extra", "args" }.to raise_error ArgumentError, /2(, expected| for) 0/
     end
 
-    it 'does not raise arity errors, when there is no default block and the value is overridden' do
+    it 'treats bastard methods as having no arity' do
       mocked_class.define :meth
       mocked = mocked_class.new
       mocked.instance_variable_set :@meth, "abc"
-      mocked.meth 1, 2, 3
+      expect { mocked.meth 1, 2, 3 }.to raise_error ArgumentError
+      expect { mocked.meth }.to_not raise_error
     end
 
     it 'can make #initialize an api method' do

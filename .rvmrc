@@ -1,7 +1,0 @@
-rvm use ruby-1.9.3-p125
-
-root_dir="$(pwd)"
-
-alias ac="rspec '$root_dir/spec/acceptance_spec.rb'"
-alias sp="rspec $(find "$root_dir/spec" -name *_spec.rb | ruby -ne 'print unless /acceptance_spec/' | tr '\n' ' ')"
-

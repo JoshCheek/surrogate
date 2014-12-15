@@ -38,7 +38,7 @@ class Surrogate
         self
       end
 
-      def failure_message_for_should
+      def failure_message
         message_for(
           if times_predicate.default? && with_filter.default?
             :FailureMessageShouldDefault
@@ -52,7 +52,7 @@ class Surrogate
         )
       end
 
-      def failure_message_for_should_not
+      def failure_message_when_negated
         message_for(
           if times_predicate.default? && with_filter.default?
             :FailureMessageShouldNotDefault

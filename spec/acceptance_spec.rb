@@ -91,10 +91,6 @@ describe Surrogate do
     # defaults are used if provided
     Mock::User.new(1).name.should == 'Josh'
 
-    # error is raised if you try to access an attribute that hasn't been set and has no default
-    expect { Mock::User.new(1).address }.to raise_error Surrogate::UnpreparedMethodError
-    Mock::User.new(1).will_have_address('123 Fake St.').address.should == '123 Fake St.'
-
     # methods with multiple args
     user.phone_numbers.should be_empty
     user.add_phone_number '123', '456-7890'

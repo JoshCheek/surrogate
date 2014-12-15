@@ -53,9 +53,7 @@ class Surrogate
     end
 
     def get_default(method_name, invocation)
-      api_methods[method_name].default instance, invocation do
-        raise UnpreparedMethodError, "#{method_name} has been invoked without being told how to behave"
-      end
+      api_methods[method_name].default instance, invocation
     end
 
     def must_know(method_name)
